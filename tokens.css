@@ -1,0 +1,145 @@
+/**
+ * RAVOK DESIGN SYSTEM TOKENS — TEMPORADA 3 (OUTONO & PÔR DO SOL)
+ * Identidade Visual Oficial: Âmbar Dourado, Laranja Queimado, Terracota & Madeira Nobre
+ * Single Source of Truth: RAVOK S3 DESIGN SYSTEM
+ */
+
+:root {
+  /* PALETA PRIMÁRIA E SECUNDÁRIA OFICIAL */
+  --amber-gold: #FFC107;
+  --burnt-orange: #D84315;
+  --maple-red: #8B0000;
+  --terracotta: #C85A32;
+  --dark-brown: #2E1C15;
+  --deep-sunset: #1A0E0A;
+  --card-bg: #241510;
+  --slot-bg: #1B0D08;
+  --text-light: #F4E8C1;
+  --text-gold: #FFE082;
+  --text-muted-autumn: #C8A282;
+
+  /* RAVOK TOKENS HIERARQUIA */
+  --ravok-bg-primary: #1A0E0A;
+  --ravok-bg-surface: #241510;
+  --ravok-bg-surface-hover: #2E1C15;
+  --ravok-bg-subtle: #3D2218;
+
+  --ravok-accent-gold: #FFC107;
+  --ravok-accent-orange: #D84315;
+  --ravok-accent-red: #8B0000;
+  --ravok-accent-terracotta: #C85A32;
+
+  --ravok-border-subtle: rgba(200, 90, 50, 0.28);
+  --ravok-border-accent: rgba(255, 193, 7, 0.45);
+  --ravok-border-flame: rgba(216, 67, 21, 0.55);
+
+  --ravok-text-primary: #F4E8C1;
+  --ravok-text-secondary: #FFE082;
+  --ravok-text-muted: #C8A282;
+  --ravok-text-inverse: #1A0E0A;
+
+  /* Aliases de compatibilidade para componentes pré-existentes (Zero Ciano) */
+  --ravok-accent-cyan: var(--ravok-accent-gold);
+  --ravok-accent-cyan-dark: var(--ravok-accent-orange);
+  --ravok-accent-blue: var(--ravok-accent-terracotta);
+  --ravok-accent-blue-deep: var(--ravok-accent-red);
+  --ravok-cyan: var(--ravok-accent-gold);
+  --ravok-neon-aqua: var(--ravok-accent-gold);
+  --ravok-white: #FFFFFF;
+  --ravok-navy-deep: #241510;
+
+  /* Border Radii */
+  --ravok-radius-pill: 9999px;
+  --ravok-radius-card: 18px;
+  --ravok-radius-squircle: 14px;
+  --ravok-radius-badge: 10px;
+
+  /* Sombras & Brilhos Solares / Chamas */
+  --ravok-shadow-card: 0 12px 36px rgba(0, 0, 0, 0.75), 0 0 20px rgba(216, 67, 21, 0.15);
+  --ravok-glow-gold: 0 0 25px rgba(255, 193, 7, 0.4);
+  --ravok-glow-orange: 0 0 25px rgba(216, 67, 21, 0.45);
+  --ravok-glow-flame: 0 0 35px rgba(216, 67, 21, 0.65);
+  --ravok-glow-cyan: var(--ravok-glow-gold);
+  --ravok-glow-blue: var(--ravok-glow-orange);
+
+  /* Tipografia */
+  --ravok-font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Base Body Styles */
+body.ravok-theme {
+  background-color: var(--ravok-bg-primary);
+  background: radial-gradient(circle at 50% 0%, #3D2218 0%, #241510 45%, #1A0E0A 100%);
+  color: var(--ravok-text-primary);
+  font-family: var(--ravok-font-family);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Common Utility Components */
+.ravok-btn-primary {
+  background: linear-gradient(135deg, #FFC107 0%, #D84315 100%);
+  color: #1A0E0A;
+  font-weight: 700;
+  border-radius: var(--ravok-radius-pill);
+  padding: 0.65rem 1.7rem;
+  border: 1px solid rgba(255, 193, 7, 0.6);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 193, 7, 0.35);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.ravok-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(255, 193, 7, 0.55), 0 0 30px rgba(216, 67, 21, 0.4);
+  filter: brightness(1.08);
+}
+
+.ravok-btn-secondary {
+  background: rgba(46, 28, 21, 0.7);
+  color: var(--ravok-text-primary);
+  font-weight: 600;
+  border-radius: var(--ravok-radius-pill);
+  padding: 0.65rem 1.7rem;
+  border: 1px solid var(--ravok-border-accent);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  backdrop-filter: blur(8px);
+}
+
+.ravok-btn-secondary:hover {
+  background: rgba(200, 90, 50, 0.25);
+  border-color: var(--amber-gold);
+  color: #FFF;
+  box-shadow: 0 0 20px rgba(255, 193, 7, 0.25);
+}
+
+.ravok-card {
+  background: var(--card-bg);
+  border: 1px solid var(--ravok-border-subtle);
+  border-radius: var(--ravok-radius-card);
+  box-shadow: var(--ravok-shadow-card);
+  padding: 1.5rem;
+  transition: all 0.25s ease;
+}
+
+.ravok-card:hover {
+  border-color: var(--ravok-border-accent);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8), 0 0 25px rgba(255, 193, 7, 0.25);
+}
+
+.ravok-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(139, 0, 0, 0.5);
+  border: 1px solid var(--burnt-orange);
+  border-radius: var(--ravok-radius-pill);
+  color: var(--text-gold);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}

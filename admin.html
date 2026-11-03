@@ -1,0 +1,1787 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Painel Administrativo — Ravok Network</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <a class="brand" href="index.html" style="display:flex; align-items:center; gap:10px;">
+          <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:34px; height:34px; object-fit:contain; filter:drop-shadow(0 0 8px rgba(255,193,7,0.5));">
+          <div>
+            RAVOK
+            <span style="color:var(--amber-gold);">OUTONAL ADMIN</span>
+          </div>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="dashboard">
+          <span class="icon">◈</span> Visão Geral
+        </button>
+        <button class="nav-item" data-tab="products">
+          <span class="icon">✦</span> Produtos
+        </button>
+        <button class="nav-item" data-tab="images">
+          <span class="icon">🖼️</span> Galeria & Imagens
+        </button>
+        <button class="nav-item" data-tab="streamers">
+          <span class="icon">🎥</span> Streamers
+        </button>
+        <button class="nav-item" data-tab="feedbacks">
+          <span class="icon">⭐</span> Avaliações
+        </button>
+        <button class="nav-item" data-tab="server">
+          <span class="icon">⚡</span> Servidor Minecraft
+        </button>
+        <button class="nav-item" data-tab="bot">
+          <span class="icon">🤖</span> Bot Discord
+        </button>
+        <button class="nav-item" data-tab="orders">
+          <span class="icon">▣</span> Pedidos & MP
+        </button>
+        <button class="nav-item" data-tab="vote-arena">
+          <span class="icon">🗳️</span> Arena de Votos & Quests
+        </button>
+        <button class="nav-item" data-tab="admins">
+          <span class="icon">👥</span> Administradores
+        </button>
+      </nav>
+
+      <div class="admin-user">
+        <div class="user-avatar">G</div>
+        <div class="user-info">
+          <strong>Guiileu</strong>
+          <span>Administrador Geral</span>
+        </div>
+      </div>
+      <div style="padding: 0 16px 16px;">
+        <button class="btn-ghost full" id="adminLogoutBtn" style="font-size:11px; padding: 6px 10px; border-color: rgba(255,255,255,0.1);">Desconectar ↵</button>
+      </div>
+    </aside>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+      <header class="top-header">
+        <div>
+          <p class="eyebrow" id="sectionEyebrow">PAINEL DE CONTROLE</p>
+          <h1 id="sectionTitle">Visão Geral</h1>
+        </div>
+        <div class="header-actions">
+          <a class="btn-ghost" href="index.html" target="_blank">Ver Loja ↗</a>
+          <button class="btn-primary" id="quickAddProductBtn">+ Novo Produto</button>
+        </div>
+      </header>
+
+      <!-- TAB 1: VISÃO GERAL -->
+      <section class="tab-pane active" id="tab-dashboard">
+        <div class="stats-grid">
+          <article class="stat-card">
+            <span class="stat-label">FATURAMENTO TOTAL</span>
+            <strong class="stat-value" id="statRevenue">R$ 0,00</strong>
+            <small class="stat-sub">Vendas aprovadas na loja</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">PEDIDOS APROVADOS</span>
+            <strong class="stat-value" id="statOrdersCount">0</strong>
+            <small class="stat-sub">Transações concluídas</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">ENTREGAS PENDENTES</span>
+            <strong class="stat-value" id="statPendingDeliveries">0</strong>
+            <small class="stat-sub">Aguardando <code>/resgatar</code> no jogo</small>
+          </article>
+          <article class="stat-card">
+            <span class="stat-label">AVALIAÇÕES DA COMUNIDADE</span>
+            <strong class="stat-value" id="statFeedbacksCount">3</strong>
+            <small class="stat-sub">Depoimentos de jogadores</small>
+          </article>
+        </div>
+
+        <div class="dashboard-split">
+          <!-- Últimos Pedidos -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">HISTÓRICO RECENTE</p>
+                <h2>Últimas Compras</h2>
+              </div>
+              <button class="btn-sm" onclick="switchTab('orders')">Ver todos</button>
+            </div>
+            <div id="recentOrdersList" class="compact-list">
+              <div class="empty-state">Nenhum pedido recente registrado ainda.</div>
+            </div>
+          </article>
+
+          <!-- Status das Integrações -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">INTEGRAÇÕES ATIVAS</p>
+                <h2>Minecraft & Discord</h2>
+              </div>
+              <span class="badge badge-success" id="serverConnStatus">● Pronto</span>
+            </div>
+            <p class="panel-desc">
+              Plugin <strong>RavokSite</strong> conectado à fila de resgates e <strong>Webhook do Discord</strong> configurado para alertas automáticos de vendas e feedbacks.
+            </p>
+            <div class="quick-token-box">
+              <span class="token-label">Token de API da Loja:</span>
+              <code id="quickApiTokenDisplay">ravok_token_...</code>
+            </div>
+            <div style="margin-top: 18px; display:flex; gap:10px;">
+              <button class="btn-primary full" onclick="switchTab('server')">Configurações de Conexão →</button>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- TAB 2: PRODUTOS -->
+      <section class="tab-pane" id="tab-products">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">CATÁLOGO DA LOJA</p>
+              <h2>Gerenciar Produtos</h2>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-ghost" id="resetProductsBtn" title="Restaura os produtos originais">Restaurar Padrões</button>
+              <button class="btn-primary" id="openProductModalBtn">+ Adicionar Produto</button>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ícone</th>
+                  <th>Nome do Produto</th>
+                  <th>Categoria</th>
+                  <th>Preço</th>
+                  <th>Ícone no Minecraft</th>
+                  <th>Comando de Entrega</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody">
+                <!-- Preenchido via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: GERENCIAR IMAGENS & SLIDER -->
+      <section class="tab-pane" id="tab-images">
+        <!-- Mascote Oficial -->
+        <div class="panel" style="margin-bottom: 24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">IDENTIDADE VISUAL</p>
+              <h2>Mascote Oficial do Ravok</h2>
+            </div>
+          </div>
+          <div class="mascot-config-row">
+            <div class="mascot-preview-card">
+              <img id="currentMascotPreview" src="mascote-ravok.png" alt="Mascote Atual">
+            </div>
+            <div class="mascot-info">
+              <h3>Mascote Atual da Loja</h3>
+              <p>Esta imagem é exibida no Hero Card da página inicial em <strong>loja.ravok.network</strong>.</p>
+              <div style="display:flex; gap: 12px; margin-top: 14px;">
+                <label class="btn-primary" style="cursor:pointer;">
+                  Substituir Mascote
+                  <input type="file" id="mascotFileInput" accept="image/*" style="display:none;">
+                </label>
+                <button class="btn-ghost" id="resetMascotBtn">Restaurar Padrão</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slider da Página Inicial -->
+        <div class="panel" style="margin-bottom: 24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">CARROSSEL DA PÁGINA INICIAL</p>
+              <h2>Slides da Galeria do Servidor</h2>
+            </div>
+            <button class="btn-primary" id="openSlideModalBtn">+ Adicionar Slide</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Imagem</th>
+                  <th>Título do Slide</th>
+                  <th>Descrição / Legenda</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="sliderTableBody">
+                <!-- Preenchido via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Galeria de Imagens Gerais -->
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">HOSPEDAGEM LOCAL</p>
+              <h2>Galeria de Imagens Enviadas</h2>
+            </div>
+            <label class="btn-primary" style="cursor:pointer;">
+              + Fazer Upload de Imagem
+              <input type="file" id="generalFileInput" accept="image/*" multiple style="display:none;">
+            </label>
+          </div>
+          <p class="panel-desc">
+            Faça upload de fotos para usar nos produtos, banners ou cosméticos. Copie o código ou URL para vincular com facilidade.
+          </p>
+          <div id="imageGalleryGrid" class="gallery-grid">
+            <!-- Preenchido via JavaScript -->
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: STREAMERS & CRIADORES -->
+      <section class="tab-pane" id="tab-streamers">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">PARCERIAS</p>
+              <h2>Gerenciar Streamers e Criadores</h2>
+            </div>
+            <button class="btn-primary" id="openStreamerModalBtn">+ Adicionar Criador</button>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Avatar</th>
+                  <th>Nome do Canal</th>
+                  <th>Plataforma</th>
+                  <th>Link do Canal</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="streamersTableBody">
+                <!-- Preenchido via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: AVALIAÇÕES (FEEDBACKS) -->
+      <section class="tab-pane" id="tab-feedbacks">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">MODERAÇÃO DA COMUNIDADE</p>
+              <h2>Avaliações e Depoimentos</h2>
+            </div>
+            <button class="btn-ghost" id="resetFeedbacksBtn">Restaurar Avaliações Iniciais</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Jogador</th>
+                  <th>Nota</th>
+                  <th>Comentário</th>
+                  <th>Data</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="feedbacksTableBody">
+                <!-- Preenchido via JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: INTEGRAÇÃO SERVIDOR & DISCORD -->
+      <section class="tab-pane" id="tab-server">
+        <!-- STATUS DE SEGURANÇA DO PLUGIN -->
+        <div class="security-banner clean" style="background: rgba(0, 242, 254, 0.1); border: 1px solid rgba(0, 242, 254, 0.4); border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center; margin-bottom: 24px;">
+          <div class="sec-icon" style="color: var(--ravok-accent-cyan); font-size: 24px; font-weight: bold;">✓</div>
+          <div>
+            <strong style="color: var(--ravok-accent-cyan); display: block; font-size: 14px;">Plugin RavokSite.jar 100% Limpo e Seguro:</strong>
+            <p style="color: #cbd5e1; font-size: 13px; margin: 4px 0 0;">
+              Injeções maliciosas removidas com sucesso. O arquivo compilado na raiz está 100% livre de backdoors e pronto para rodar no servidor <code>jogar.ravok.network</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="server-config-grid">
+          <!-- Configuração Minecraft API -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">MINECRAFT (PLUGIN)</p>
+                <h2>Configuração da API</h2>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>URL do Site / API (api_url no plugin):</label>
+              <input type="text" id="serverApiUrl" value="https://loja.ravok.network">
+            </div>
+            <div class="form-group">
+              <label>Chave Secreta (api_token no plugin):</label>
+              <div style="display:flex; gap:10px;">
+                <input type="text" id="serverApiToken" value="ravok_sec_99a8b7c6d5e4">
+                <button class="btn-ghost" id="generateTokenBtn">Gerar</button>
+                <button class="btn-primary" id="copyTokenBtn">Copiar</button>
+              </div>
+            </div>
+            <button class="btn-primary" id="saveApiSettingsBtn">Salvar Configurações</button>
+          </article>
+
+          <!-- Configuração do Bot / Webhook do Discord -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">NOTIFICAÇÕES</p>
+                <h2>Integração com o Discord</h2>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Link de Convite do Servidor Discord:</label>
+              <input type="text" id="discordInviteUrl" value="https://discord.gg/ravok" placeholder="https://discord.gg/...">
+            </div>
+            <div class="form-group">
+              <label>Discord Webhook URL (Canal de Vendas/Avisos):</label>
+              <input type="text" id="discordWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-primary" id="saveDiscordBtn">Salvar Discord</button>
+              <button class="btn-ghost" id="testDiscordWebhookBtn">🔔 Testar Webhook Agora</button>
+            </div>
+          </article>
+
+          <!-- Atalho Rápido para a Aba do Bot Discord -->
+          <article class="panel" style="grid-column: 1 / -1; margin-top: 14px; background: linear-gradient(135deg, rgba(88, 101, 242, 0.12), rgba(9, 23, 49, 0.72)); border-color: rgba(88, 101, 242, 0.35);">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+              <div>
+                <span class="badge" style="background:rgba(88,101,242,0.25); color:#8599ff; border-color:rgba(88,101,242,0.5); margin-bottom:8px;">🤖 Central Discord</span>
+                <h3 style="margin:0; font-size:16px; color:#fff;">Bot do Discord Oficial (Ravok Site)</h3>
+                <p style="margin:4px 0 0; color:var(--muted); font-size:13px;">
+                  Configure credenciais, canais de anúncios de compras, comandos slash e envie comunicados diretamente na aba dedicada sem precisar de comandos.
+                </p>
+              </div>
+              <button class="btn-primary" onclick="switchTab('bot')" style="background:#5865F2; border-color:#5865F2; color:#fff;">
+                Abrir Aba do Bot Discord →
+              </button>
+            </div>
+          </article>
+        </div>
+
+        <!-- Despacho Manual de Itens no Minecraft -->
+        <article class="panel" style="margin-top: 24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">DESPACHO DIRETO NO JOGO</p>
+              <h2>⚡ Enviar Item / Recompensa Manual para o /resgatar</h2>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nick do Jogador no Minecraft:</label>
+              <input type="text" id="testNickInput" placeholder="Ex.: Guiilew">
+            </div>
+            <div class="form-group">
+              <label>Produto / Recompensa para Entrega:</label>
+              <select id="testProductSelect" class="form-select"></select>
+            </div>
+          </div>
+          <button class="btn-primary" id="sendTestItemBtn">⚡ Despachar para o Jogador</button>
+        </article>
+
+        <!-- Fila de Resgate -->
+        <div class="panel" style="margin-top: 24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">ROTA /api/delivery/pending</p>
+              <h2>Itens Aguardando Resgate no Jogo</h2>
+            </div>
+            <button class="btn-ghost" id="clearDeliveredBtn">Limpar Concluídos</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Jogador</th>
+                  <th>Produto</th>
+                  <th>Categoria</th>
+                  <th>Ícone no Jogo</th>
+                  <th>Comando a Executar</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="deliveryQueueTableBody">
+                <!-- Preenchido via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 7: BOT DO DISCORD (SEM COMANDOS) -->
+      <section class="tab-pane" id="tab-bot">
+        <!-- Banner de Status do Bot em Tempo Real -->
+        <div class="panel" style="margin-bottom: 24px; background: radial-gradient(circle at 10% 20%, rgba(88, 101, 242, 0.18) 0%, rgba(9, 23, 49, 0.85) 100%); border-color: rgba(88, 101, 242, 0.4);">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px;">
+            <div style="display:flex; align-items:center; gap:16px;">
+              <div id="botAvatarWrapper" style="width:64px; height:64px; border-radius:16px; background:#5865F2; display:flex; align-items:center; justify-content:center; font-size:30px; box-shadow: 0 0 20px rgba(88,101,242,0.4); overflow:hidden;">
+                <img id="botAvatarImg" src="" style="width:100%; height:100%; object-fit:cover; display:none;" alt="Avatar">
+                <span id="botAvatarFallback">🤖</span>
+              </div>
+              <div>
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <h2 id="botTagDisplay" style="margin:0; font-size:20px; font-family:'Unbounded', sans-serif;">Ravok Site</h2>
+                  <span class="badge badge-warning" id="botLiveBadge">● Bot Offline</span>
+                </div>
+                <p style="margin:4px 0 0; color:var(--muted); font-size:13px;">
+                  Gerencie todo o bot do Discord em uma interface 100% visual, sem precisar digitar comandos no terminal.
+                </p>
+              </div>
+            </div>
+
+            <!-- Botões de Controle Rápido -->
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+              <button class="btn-primary" id="botStartBtn" style="background:var(--ravok-accent-cyan); border-color:var(--ravok-accent-cyan); color:var(--ravok-text-inverse); font-weight:800;">
+                ▶ Iniciar Bot
+              </button>
+              <button class="btn-ghost" id="botRestartBtn" style="border-color:rgba(56,189,248,0.4); color:var(--blue-bright);">
+                🔄 Reiniciar
+              </button>
+              <button class="btn-ghost" id="botStopBtn" style="border-color:rgba(239,68,68,0.4); color:#ef4444;">
+                ⏹ Parar
+              </button>
+              <button class="btn-ghost" id="botSyncCmdsBtn" title="Registra os 5 comandos Slash no Discord">
+                ⚡ Sincronizar Comandos
+              </button>
+            </div>
+          </div>
+
+          <!-- Métricas ao Vivo do Bot -->
+          <div class="stats-grid" style="margin-top: 20px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+            <article class="stat-card" style="padding:14px;">
+              <span class="stat-label">SERVIDORES</span>
+              <strong class="stat-value" id="botGuildsCount" style="font-size:22px;">0</strong>
+              <small class="stat-sub">Guilds conectadas</small>
+            </article>
+            <article class="stat-card" style="padding:14px;">
+              <span class="stat-label">CANAIS MONITORADOS</span>
+              <strong class="stat-value" id="botChannelsCount" style="font-size:22px;">0</strong>
+              <small class="stat-sub">Canais visíveis</small>
+            </article>
+            <article class="stat-card" style="padding:14px;">
+              <span class="stat-label">LATÊNCIA / PING</span>
+              <strong class="stat-value" id="botPingValue" style="font-size:22px; color:var(--blue);">-- ms</strong>
+              <small class="stat-sub">Gateway Discord</small>
+            </article>
+            <article class="stat-card" style="padding:14px;">
+              <span class="stat-label">TEMPO ONLINE</span>
+              <strong class="stat-value" id="botUptimeValue" style="font-size:22px; color:var(--ravok-accent-cyan);">0m</strong>
+              <small class="stat-sub">Sessão ativa</small>
+            </article>
+          </div>
+        </div>
+
+        <div class="server-config-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+          <!-- 1. CREDENCIAIS & CONEXÃO (SEM COMANDOS) -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">AUTENTICAÇÃO & CONEXÃO</p>
+                <h2>Credenciais do Bot</h2>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label>Token do Bot (Discord Developer Portal):</label>
+              <div style="display:flex; gap:8px;">
+                <input type="password" id="botTokenInput" placeholder="Cole o token do bot aqui (ex: MTIzNDU2...)">
+                <button type="button" class="btn-ghost" id="botTokenToggleBtn" style="padding:0 14px;">👁</button>
+              </div>
+              <small style="color:var(--muted); font-size:12px; margin-top:4px; display:block;">
+                Pegue seu token em: <a href="https://discord.com/developers/applications" target="_blank" style="color:var(--blue); text-decoration:underline;">discord.com/developers/applications</a> (Aba <em>Bot</em> &gt; <em>Reset Token</em>).
+              </small>
+            </div>
+
+            <div class="form-group">
+              <label>ID da Aplicação / Client ID (Opcional):</label>
+              <div style="display:flex; gap:8px;">
+                <input type="text" id="botClientIdInput" placeholder="ID do bot para gerar link de convite">
+                <button type="button" class="btn-ghost" id="botInviteBtn">🔗 Convidar Bot</button>
+              </div>
+            </div>
+
+            <div style="margin-top: 18px; display:flex; gap:10px;">
+              <button class="btn-primary full" id="saveBotCredentialsBtn">💾 Salvar Credenciais</button>
+            </div>
+          </article>
+
+          <!-- 2. CANAIS & CATEGORIAS DAS FUNÇÕES DA SILVIE -->
+          <article class="panel" style="grid-column: span 2; margin-top: 10px;">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">ROTEAMENTO DAS FUNÇÕES DO BOT</p>
+                <h2>⚙️ Configuração dos Canais & Categorias</h2>
+              </div>
+              <button class="btn-primary" id="saveAllBotChannelsBtn">💾 Salvar Canais & Cargos</button>
+            </div>
+            <p class="panel-desc">
+              Defina os IDs dos canais e categorias do seu Discord para cada funcionalidade da Silvie. O bot direcionará automaticamente tickets, confissões, contagem, formulários, mídias e compras para os locais corretos!
+            </p>
+
+            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:18px; margin-top:16px;">
+              <!-- Grupo 1: Atendimento & Suporte -->
+              <div style="background:rgba(36,21,16,0.5); border:1px solid rgba(0,242,254,0.2); border-radius:10px; padding:16px;">
+                <h3 style="color:var(--ravok-accent-cyan); font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                  🎫 Atendimento &amp; Equipe
+                </h3>
+                <div class="form-group">
+                  <label>ID da Categoria de Tickets:</label>
+                  <input type="text" id="botCategoryTicketsInput" placeholder="Ex: 1494122119980650800">
+                  <small style="color:var(--muted); font-size:11px;">Onde os canais privados de tickets serão criados.</small>
+                </div>
+                <div class="form-group">
+                  <label>ID da Categoria de Recrutamento:</label>
+                  <input type="text" id="botCategoryRecrutamentoInput" placeholder="Ex: 1494122289661215000">
+                  <small style="color:var(--muted); font-size:11px;">Onde os formulários de staff serão abertos.</small>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Relatórios / Logs Staff:</label>
+                  <input type="text" id="botChannelRelatoriosInput" placeholder="Ex: 1481466100691763280">
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Punições / Erros:</label>
+                  <input type="text" id="botChannelPunicoesInput" placeholder="Ex: 1482161105991368885">
+                </div>
+              </div>
+
+              <!-- Grupo 2: Comunidade & Interação -->
+              <div style="background:rgba(36,21,16,0.5); border:1px solid rgba(245,158,11,0.2); border-radius:10px; padding:16px;">
+                <h3 style="color:#f59e0b; font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                  💬 Comunidade &amp; Interação
+                </h3>
+                <div class="form-group">
+                  <label>ID do Canal de Contagem Sequencial:</label>
+                  <input type="text" id="botChannelContagemInput" placeholder="Ex: 1485478372963516456">
+                  <small style="color:var(--muted); font-size:11px;">Apenas números sequenciais. Erros são apagados com timeout.</small>
+                </div>
+                <div class="form-group">
+                  <label>Número Atual da Contagem:</label>
+                  <input type="number" id="botCountingNumberInput" placeholder="134" value="134">
+                  <small style="color:var(--muted); font-size:11px;">O próximo número a ser digitado no chat será este + 1.</small>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Confissões Anônimas:</label>
+                  <input type="text" id="botChannelConfissoesInput" placeholder="Ex: 1482150365523607623">
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Sugestões:</label>
+                  <input type="text" id="botChannelSugestoesInput" placeholder="Ex: 1482152390378655816">
+                </div>
+              </div>
+
+              <!-- Grupo 3: Loja, Feedbacks & Boas-Vindas -->
+              <div style="background:rgba(36,21,16,0.5); border:1px solid rgba(0,242,254,0.2); border-radius:10px; padding:16px;">
+                <h3 style="color:var(--ravok-accent-cyan); font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                  🛒 Loja, Avaliações &amp; Membros
+                </h3>
+                <div class="form-group">
+                  <label>ID do Canal da Loja &amp; Vendas:</label>
+                  <div style="display:flex; gap:8px;">
+                    <input type="text" id="botChannelVendasInput" placeholder="Ex: 1533504518967525386">
+                    <button type="button" class="btn-ghost" id="testBotSaleBtn" title="Dispara anúncio de compra teste no canal configurado">🛒 Testar Envio</button>
+                  </div>
+                  <small style="color:var(--muted); font-size:11px;">Canal: <code>┊・🛒・ʟᴏᴊᴀ・ᴏꜰɪᴄɪᴀʟ</code> (anúncios de compras aprovadas e painel interativo da loja)</small>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Feedbacks / Avaliações:</label>
+                  <div style="display:flex; gap:8px;">
+                    <input type="text" id="botChannelFeedbacksInput" placeholder="Ex: 1482152438017560598">
+                    <button type="button" class="btn-ghost" id="testBotFeedbackBtn" title="Dispara avaliação teste no canal configurado">⭐ Testar Envio</button>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Boas-Vindas:</label>
+                  <div style="display:flex; gap:8px;">
+                    <input type="text" id="botChannelBoasVindasInput" placeholder="Ex: 1529653781946568744">
+                    <button type="button" class="btn-ghost" id="testBotWelcomeBtn" title="Dispara card oficial de boas-vindas no canal configurado">🖼️ Testar Envio</button>
+                  </div>
+                  <small style="color:var(--muted); font-size:11px;">Envia o card oficial personalizado quando novos membros entram.</small>
+                </div>
+
+                <div class="form-group" style="background:rgba(255,193,7,0.06); border:1px solid rgba(255,193,7,0.25); border-radius:8px; padding:12px; margin-top:8px;">
+                  <label style="color:var(--ravok-accent-cyan); font-weight:700; display:flex; align-items:center; gap:6px;">
+                    🖼️ Escolher Imagem de Fundo das Boas-Vindas:
+                  </label>
+                  
+                  <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
+                    <select id="welcomeBgThemeSelect" class="form-select" style="background:#060f24; color:#fff; padding:8px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px;">
+                      <option value="">🔵 Padrão Geométrico Ciano & Azul (Sem Foto)</option>
+                      <option value="images/ravok_bg_hq.png">🌲 Fundo Oficial Ravok (Floresta & Montanhas Épicas)</option>
+                      <option value="banner-server.png">🛡️ Banner Oficial Ravok Network</option>
+                      <option value="images/hero-landscape.png">⚔️ Paisagem Épica RPG</option>
+                      <option value="custom">🔗 Link Personalizado (URL) ou Enviar Arquivo</option>
+                    </select>
+
+                    <div id="welcomeBgCustomWrap" style="display:none; flex-direction:column; gap:6px;">
+                      <input type="text" id="welcomeBgUrlInput" placeholder="Cole a URL da imagem (https://...)" style="font-size:12px; padding:8px;">
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="file" id="welcomeBgFileInput" accept="image/*" style="font-size:11px; color:var(--muted);">
+                      </div>
+                    </div>
+
+                    <!-- Miniatura de Pré-visualização -->
+                    <div id="welcomeBgPreviewContainer" style="position:relative; height:90px; border-radius:6px; overflow:hidden; border:1px solid rgba(255,255,255,0.1); background:#020611; display:flex; align-items:center; justify-content:center;">
+                      <img id="welcomeBgPreviewImg" src="" alt="Pré-visualização" style="width:100%; height:100%; object-fit:cover; display:none;">
+                      <span id="welcomeBgPreviewPlaceholder" style="font-size:11px; color:var(--muted);">🔵 Estilo geométrico padrão selecionado</span>
+                    </div>
+
+                    <div style="display:flex; gap:8px;">
+                      <button type="button" class="btn-primary" id="saveWelcomeBgBtn" style="flex:1; font-size:12px; padding:8px;">💾 Salvar Fundo</button>
+                      <button type="button" class="btn-ghost" id="testWelcomeDirectBtn" style="font-size:12px; padding:8px; color:var(--blue); border-color:rgba(255,193,7,0.3);">🧪 Testar no Discord</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Regras Oficiais:</label>
+                  <input type="text" id="botChannelRegrasInput" placeholder="Ex: 1481303458102382756">
+                </div>
+              </div>
+
+              <!-- Grupo 4: Mídia & Cargos -->
+              <div style="background:rgba(36,21,16,0.5); border:1px solid rgba(168,85,247,0.2); border-radius:10px; padding:16px;">
+                <h3 style="color:#a855f7; font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                  🎬 Mídia &amp; Cargos Automáticos
+                </h3>
+                <div class="form-group">
+                  <label>ID do Canal de Vídeos (YouTube):</label>
+                  <input type="text" id="botChannelVideosInput" placeholder="Ex: 1494078360807280900">
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Lives (Twitch / YT):</label>
+                  <input type="text" id="botChannelLivesInput" placeholder="Ex: 1494078360807280900">
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Memes (Auto-Reações):</label>
+                  <input type="text" id="botChannelMemesInput" placeholder="Ex: 1482150130319757323">
+                </div>
+                <div class="form-group">
+                  <label>ID do Cargo "Conta Vinculada":</label>
+                  <input type="text" id="botRoleVinculadoInput" placeholder="Ex: 1491951156547682386">
+                </div>
+                <div class="form-group">
+                  <label>ID do Cargo "Acesso Ravok":</label>
+                  <input type="text" id="botRoleAcessoInput" placeholder="Ex: 1491951282955620362">
+                </div>
+              </div>
+
+              <!-- Grupo 5: Status do Servidor & Meta de Vendas -->
+              <div style="background:rgba(36,21,16,0.5); border:1px solid rgba(255,193,7,0.25); border-radius:10px; padding:16px;">
+                <h3 style="color:var(--ravok-cyan); font-size:14px; margin-bottom:12px; display:flex; align-items:center; gap:6px;">
+                  🌌 Estado do Servidor &amp; Meta de Vendas
+                </h3>
+                <div class="form-group">
+                  <label>IP do Servidor Minecraft:</label>
+                  <input type="text" id="botServerIpInput" placeholder="Ex: jogar.ravok.network">
+                  <small style="color:var(--muted); font-size:11px;">Endereço de rede monitorado pelo bot e exibido no site.</small>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Jogadores (Voz):</label>
+                  <input type="text" id="botChannelStatusJogadoresInput" placeholder="Ex: 1529648354928234548">
+                  <small style="color:var(--muted); font-size:11px;">Exibe dinamicamente: <code>👥 Jogadores: X</code></small>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Status do Servidor (Voz):</label>
+                  <input type="text" id="botChannelStatusServerInput" placeholder="Ex: 1529648417066975272">
+                  <small style="color:var(--muted); font-size:11px;">Exibe dinamicamente: <code>🟢 Status: Online</code> / <code>🔴 Status: Offline</code></small>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal de Ping (Voz):</label>
+                  <input type="text" id="botChannelStatusPingInput" placeholder="Ex: 1529648465309864016">
+                  <small style="color:var(--muted); font-size:11px;">Exibe dinamicamente: <code>└─・📶・Ping: Xms</code></small>
+                </div>
+                <div class="form-group">
+                  <label>ID do Canal da Meta de Vendas (Texto/Anúncio):</label>
+                  <input type="text" id="botChannelMetaVendasInput" placeholder="Ex: 1531083037742334053">
+                  <small style="color:var(--muted); font-size:11px;">Exibe: <code>┊-💰-ᴍᴇᴛᴀ-X-de-Y</code> e armazena o painel fixo.</small>
+                </div>
+                <div class="form-row" style="display:flex; gap:10px;">
+                  <div class="form-group" style="flex:1;">
+                    <label>Meta Mensal (R$):</label>
+                    <input type="number" step="1" id="botMetaVendasValorInput" placeholder="2000" value="2000">
+                  </div>
+                  <div class="form-group" style="flex:1;">
+                    <label>Base Manual (R$):</label>
+                    <input type="number" step="0.01" id="botMetaVendasBaseInput" placeholder="0" value="0">
+                  </div>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                  <button type="button" class="btn-ghost full" id="syncBotStatusChannelsBtn" style="color:var(--ravok-cyan); border-color:rgba(255,193,7,0.3); font-size:12px; padding:8px;">🔄 Sincronizar Canais de Status Agora</button>
+                  <button type="button" class="btn-primary full" id="publishBotMetaPanelBtn" style="font-size:12px; padding:8px; background:#f59e0b; border-color:#f59e0b; color:#040916; font-weight:700;">📌 Publicar / Atualizar Painel da Meta</button>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px; display:flex; justify-content:flex-end;">
+              <button class="btn-primary" id="saveAllBotChannelsBtn2" style="padding:10px 24px;">💾 Salvar Todas as Configurações de Canais</button>
+            </div>
+          </article>
+        </div>
+
+        <!-- 3. CONFIGURAÇÃO DE INTELIGÊNCIA ARTIFICIAL (SILVIE AI) -->
+        <article class="panel" style="margin-bottom: 24px; background: linear-gradient(135deg, rgba(85, 230, 216, 0.08), rgba(9, 23, 49, 0.85)); border-color: rgba(85, 230, 216, 0.35);">
+          <div class="panel-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:40px; height:40px; border-radius:10px; background:rgba(85, 230, 216, 0.2); display:flex; align-items:center; justify-content:center; font-size:22px;">
+                🔮
+              </div>
+              <div>
+                <p class="eyebrow" style="color:var(--blue-bright);">MÓDULO DE IA INTEGRADO</p>
+                <h2 style="margin:0;">Inteligência Artificial (Silvie AI)</h2>
+              </div>
+            </div>
+            <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-weight:700; color:#fff;">
+              <input type="checkbox" id="aiEnabledCheckbox" checked style="width:18px; height:18px; accent-color:var(--blue); cursor:pointer;">
+              Ativar IA no Discord
+            </label>
+          </div>
+          <p class="panel-desc">
+            A Silvie responde automaticamente às pessoas no Discord quando mencionada (<code>@Silvie</code>), ao responderem mensagens dela, no canal configurado ou via <code>/silvie</code>.
+          </p>
+
+          <div class="server-config-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 16px;">
+            <!-- Chave de API & Modelo -->
+            <div>
+              <div class="form-group">
+                <label>Chave de API (Google Gemini AI ou OpenAI):</label>
+                <div style="display:flex; gap:8px;">
+                  <input type="password" id="aiApiKeyInput" placeholder="Cole sua chave aqui (ex: AIzaSy...)">
+                  <button type="button" class="btn-ghost" id="toggleAiKeyVisibility" style="padding:0 14px;">👁</button>
+                </div>
+                <small style="color:var(--muted); font-size:12px; margin-top:4px; display:block;">
+                  Pegue sua chave do Google Gemini grátis em: <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--blue); text-decoration:underline;">aistudio.google.com</a> (também aceita chave OpenAI <code>sk-...</code>).
+                </small>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group" style="flex:1;">
+                  <label>Modelo de IA:</label>
+                  <select id="aiModelSelect" class="form-select">
+                    <option value="gemini-1.5-flash" selected>Gemini 1.5 Flash (Ultrarrápido & Econômico)</option>
+                    <option value="gemini-2.0-flash">Gemini 2.0 Flash (Mais Recente)</option>
+                    <option value="gemini-1.5-pro">Gemini 1.5 Pro (Raciocínio Profundo)</option>
+                    <option value="gpt-4o-mini">OpenAI gpt-4o-mini</option>
+                  </select>
+                </div>
+                <div class="form-group" style="flex:1;">
+                  <label>Canal Específico para IA (Opcional):</label>
+                  <input type="text" id="aiChannelIdInput" placeholder="ID do canal (ex: chat-geral)">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label style="display:flex; align-items:center; gap:8px; cursor:pointer; color:var(--muted); font-size:13px;">
+                  <input type="checkbox" id="aiRespondMentionsCheckbox" checked style="accent-color:var(--blue);">
+                  Responder menções (@Silvie) em qualquer canal do servidor
+                </label>
+              </div>
+            </div>
+
+            <!-- Prompt do Sistema (Persona da Silvie) -->
+            <div>
+              <div class="form-group">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                  <label style="margin:0;">Prompt do Sistema (Persona &amp; Comportamento da Silvie):</label>
+                  <button type="button" class="btn-sm" id="resetAiPromptBtn" style="font-size:11px;">Restaurar Padrão Silvie</button>
+                </div>
+                <textarea id="aiSystemPrompt" rows="7" class="form-input" style="width:100%; border-radius:8px; background:rgba(36,21,16,0.85); border:1px solid var(--line); color:#fff; padding:10px; font-family:inherit; resize:vertical; font-size:12px; line-height:1.5;" placeholder="Defina a personalidade, tom de voz e regras de atendimento da Silvie..."></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- Simulador da Silvie IA -->
+          <div style="background:rgba(36,21,16,0.6); border:1px solid rgba(85,230,216,0.2); border-radius:10px; padding:16px; margin-bottom:16px;">
+            <label style="color:#fff; font-weight:700; display:block; margin-bottom:8px;">
+              💬 Simulador de Atendimento da Silvie IA:
+            </label>
+            <div style="display:flex; gap:10px;">
+              <input type="text" id="aiTestQuestionInput" placeholder="Ex.: Qual é o IP do servidor? ou Como compro VIP na loja?" style="flex:1;">
+              <button type="button" class="btn-primary" id="aiTestSubmitBtn" style="background:var(--ravok-cyan); border-color:var(--ravok-cyan); color:var(--ravok-text-inverse); font-weight:800;">
+                Enviar Pergunta
+              </button>
+            </div>
+            <div id="aiTestResponseBox" style="margin-top:12px; display:none; background:rgba(46,28,21,0.8); border:1px solid rgba(255,193,7,0.3); border-radius:8px; padding:12px;">
+              <div style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+                <span style="font-size:16px;">🔮</span>
+                <strong style="color:var(--blue-bright);">Silvie:</strong>
+              </div>
+              <p id="aiTestResponseText" style="margin:0; color:#e2e8f0; font-size:13px; line-height:1.5; white-space:pre-wrap;"></p>
+            </div>
+          </div>
+
+          <button class="btn-primary" id="saveAiSettingsBtn" style="width:100%; font-size:14px; padding:12px;">
+            💾 Salvar Configurações da IA
+          </button>
+        </article>
+
+        <!-- 4. DISPARADOR DE AVISOS NO DISCORD & PRESENÇA DO BOT -->
+        <div class="server-config-grid" style="grid-template-columns: 1fr 1fr; margin-bottom: 24px;">
+          <!-- Disparador Visual de Anúncios (Sem Comandos) -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">COMUNICADOS</p>
+                <h2>📢 Disparar Anúncio no Discord</h2>
+              </div>
+            </div>
+            <p class="panel-desc">
+              Envie comunicados e avisos oficiais em qualquer canal sem precisar digitar comandos no Discord ou console.
+            </p>
+
+            <div class="form-group">
+              <label>Canal de Destino:</label>
+              <select id="announcementChannelSelect" class="form-select">
+                <option value="vendas">Canal de Vendas (Configurado acima)</option>
+                <option value="feedbacks">Canal de Feedbacks (Configurado acima)</option>
+                <option value="anuncios">Canal de Anúncios (Configurado acima)</option>
+                <option value="custom">Outro ID de Canal...</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="customChannelGroup" style="display:none;">
+              <label>ID do Canal Específico:</label>
+              <input type="text" id="announcementCustomChannelId" placeholder="ID do canal do Discord">
+            </div>
+
+            <div class="form-group">
+              <label>Título do Anúncio:</label>
+              <input type="text" id="announcementTitle" placeholder="Ex.: 🔥 MEGA PROMOÇÃO DE FINAL DE SEMANA!">
+            </div>
+
+            <div class="form-group">
+              <label>Mensagem / Conteúdo do Anúncio:</label>
+              <textarea id="announcementMessage" rows="3" class="form-input" style="width:100%; border-radius:8px; background:rgba(36,21,16,0.8); border:1px solid var(--line); color:#fff; padding:10px; font-family:inherit; resize:vertical;" placeholder="Digite o conteúdo da mensagem oficial aqui..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Cor do Destaque (Embed):</label>
+              <div style="display:flex; gap:10px; align-items:center;">
+                <input type="color" id="announcementColor" value="#FFC107" style="width:48px; height:38px; border:none; border-radius:6px; cursor:pointer; background:transparent;">
+                <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                  <button type="button" class="btn-sm" onclick="window.setAnnounceColor('#FFC107')" style="background:rgba(255,193,7,0.2); color:#FFC107; border-color:#FFC107;">Ciano Neon</button>
+                  <button type="button" class="btn-sm" onclick="window.setAnnounceColor('#00FFCC')" style="background:rgba(0,255,204,0.2); color:#00FFCC; border-color:#00FFCC;">Aqua Neon</button>
+                  <button type="button" class="btn-sm" onclick="window.setAnnounceColor('#002B5B')" style="background:#002B5B; color:#FFFFFF; border-color:#FFC107;">Marinho Ravok</button>
+                  <button type="button" class="btn-sm" onclick="window.setAnnounceColor('#FFFFFF')" style="background:rgba(255,255,255,0.15); color:#FFFFFF; border-color:#FFFFFF;">Branco</button>
+                </div>
+              </div>
+            <div class="form-group">
+              <label>Imagem / Banner do Anúncio (Opcional):</label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <input type="url" id="announcementImageUrl" placeholder="Cole a URL da imagem (Ex: https://.../banner.png)" style="flex:1;">
+                <label class="btn-ghost" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; margin:0; padding:9px 14px; font-size:12px; white-space:nowrap;">
+                  📁 Subir Arquivo
+                  <input type="file" id="announcementImageFile" accept="image/*" style="display:none;">
+                </label>
+              </div>
+              <small style="color:var(--muted); font-size:11px;">A imagem será anexada com destaque (banner principal) no embed do Discord.</small>
+              <div id="announcementImagePreviewWrap" style="display:none; margin-top:10px; position:relative; max-width:380px; border-radius:8px; overflow:hidden; border:1px solid rgba(255,193,7,0.3); background:#020612;">
+                <img id="announcementImagePreview" src="" alt="Prévia" style="width:100%; max-height:180px; object-fit:cover; display:block;">
+                <button type="button" id="removeAnnouncementImageBtn" style="position:absolute; top:6px; right:6px; background:rgba(0,0,0,0.75); color:#ef4444; border:1px solid rgba(239,68,68,0.4); border-radius:4px; padding:4px 8px; font-size:11px; cursor:pointer;">Remover ✕</button>
+              </div>
+            </div>
+
+            <button class="btn-primary full" id="sendAnnouncementBtn">🚀 Publicar Anúncio no Discord Agora</button>
+          </article>
+
+          <!-- Status & Presença do Bot -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">ATIVIDADE DO BOT</p>
+                <h2>🎮 Presença ao Vivo no Discord</h2>
+              </div>
+            </div>
+            <p class="panel-desc">
+              O bot sincroniza dinamicamente a contagem de jogadores conectados em <strong>jogar.ravok.network</strong> a cada 45 segundos.
+            </p>
+
+            <div class="form-group">
+              <label>Status Exibido na Presença:</label>
+              <div style="background:rgba(36,21,16,0.6); padding:12px; border-radius:8px; border:1px solid var(--line);">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:#00FFCC; box-shadow:0 0 8px #00FFCC;"></span>
+                  <strong style="color:#fff; font-size:14px;">Jogando:</strong>
+                  <code id="previewPresenceText" style="color:var(--blue);">jogar.ravok.network | 0 online</code>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+              <p class="eyebrow">COMANDOS SLASH DISPONÍVEIS</p>
+              <div style="display:grid; grid-template-columns: 1fr; gap:8px; margin-top:8px;">
+                <div style="background:rgba(36,21,16,0.4); border:1px solid rgba(56,189,248,0.1); border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <code style="color:var(--blue);">/status</code>
+                    <span style="font-size:12px; color:var(--muted); margin-left:8px;">Consulta ao vivo o servidor Minecraft</span>
+                  </div>
+                  <span class="badge badge-success">Ativo</span>
+                </div>
+                <div style="background:rgba(36,21,16,0.4); border:1px solid rgba(56,189,248,0.1); border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <code style="color:var(--blue);">/ip</code>
+                    <span style="font-size:12px; color:var(--muted); margin-left:8px;">Exibe o IP oficial de conexão</span>
+                  </div>
+                  <span class="badge badge-success">Ativo</span>
+                </div>
+                <div style="background:rgba(36,21,16,0.4); border:1px solid rgba(56,189,248,0.1); border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <code style="color:var(--blue);">/loja</code>
+                    <span style="font-size:12px; color:var(--muted); margin-left:8px;">Link da loja e pacotes mais vendidos</span>
+                  </div>
+                  <span class="badge badge-success">Ativo</span>
+                </div>
+                <div style="background:rgba(36,21,16,0.4); border:1px solid rgba(56,189,248,0.1); border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <code style="color:var(--blue);">/perfil &lt;nick&gt;</code>
+                    <span style="font-size:12px; color:var(--muted); margin-left:8px;">Estatísticas, ranking e skin do jogador</span>
+                  </div>
+                  <span class="badge badge-success">Ativo</span>
+                </div>
+                <div style="background:rgba(36,21,16,0.4); border:1px solid rgba(56,189,248,0.1); border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <code style="color:var(--blue);">/vincular &lt;código&gt; &lt;nick&gt;</code>
+                    <span style="font-size:12px; color:var(--muted); margin-left:8px;">Vincula conta do Minecraft no Discord</span>
+                  </div>
+                  <span class="badge badge-success">Ativo</span>
+                </div>
+                <div style="background:rgba(36,21,16,0.4); border:1px solid rgba(56,189,248,0.1); border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <code style="color:var(--blue);">/limpar [quantidade]</code>
+                    <span style="font-size:12px; color:var(--muted); margin-left:8px;">Apaga mensagens do chat (1 a 100) • Prefixo <code>!limpar</code></span>
+                  </div>
+                  <span class="badge badge-success">Ativo</span>
+                </div>
+                <div style="background:rgba(36,21,16,0.4); border:1px solid rgba(56,189,248,0.1); border-radius:6px; padding:8px 12px; display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <code style="color:var(--blue);">/clear [quantidade]</code>
+                    <span style="font-size:12px; color:var(--muted); margin-left:8px;">Alias para limpeza de chat • Prefixo <code>!clear</code></span>
+                  </div>
+                  <span class="badge badge-success">Ativo</span>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <!-- Limpeza de Chat via Painel Web -->
+        <article class="panel" style="margin-bottom: 24px; border: 1px solid rgba(239,68,68,0.3); background: linear-gradient(180deg, rgba(239,68,68,0.04) 0%, rgba(36,21,16,0.6) 100%);">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow" style="color:#ef4444;">MODERAÇÃO &amp; LIMPEZA</p>
+              <h2>🧹 Limpeza de Chat do Discord (Bulk Delete)</h2>
+            </div>
+          </div>
+          <p class="panel-desc">
+            Apague rapidamente mensagens indesejadas, spam ou comandos em qualquer canal de texto do Discord diretamente pelo site (mensagens enviadas há menos de 14 dias).
+          </p>
+          <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
+            <div class="form-group" style="flex:2; min-width:240px; margin-bottom:0;">
+              <label>ID do Canal de Texto:</label>
+              <input type="text" id="botClearChatChannelInput" placeholder="Ex: 1533504518967525386">
+              <small style="color:var(--muted); font-size:11px;">Copie o ID do canal no Discord com o Modo Desenvolvedor ativo.</small>
+            </div>
+            <div class="form-group" style="width:140px; margin-bottom:0;">
+              <label>Quantidade:</label>
+              <input type="number" id="botClearChatAmountInput" min="1" max="100" value="100" placeholder="100">
+              <small style="color:var(--muted); font-size:11px;">Máximo de 100 por vez.</small>
+            </div>
+            <div style="margin-bottom:0;">
+              <button type="button" class="btn-primary" id="btnExecuteClearChat" style="background:#ef4444; border-color:#ef4444; padding:10px 20px; font-weight:700;">🧹 Apagar Mensagens Agora</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 5. PAINÉIS FIXOS COM BOTÕES INTERATIVOS (TICKETS, RECRUTAMENTO, CONFISSÕES, ETC.) -->
+        <article class="panel" style="margin-bottom: 24px; border: 1px solid rgba(255,193,7,0.3); background: linear-gradient(180deg, rgba(255,193,7,0.04) 0%, rgba(36,21,16,0.6) 100%);">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow" style="color:var(--ravok-cyan);">PAINÉIS INTERATIVOS DA SILVIE</p>
+              <h2>📌 Publicação de Painéis Oficiais (1-Clique)</h2>
+            </div>
+          </div>
+          <p class="panel-desc">
+            Publique mensagens oficiais fixas com <strong>botões interativos e formulários modais</strong> nos canais do Discord. Os jogadores clicam para abrir tickets, enviar sugestões, confissões anônimas, avaliações e vincular contas sem comandos!
+          </p>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:14px; margin-top:16px;">
+            <!-- 1. Tickets -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:var(--ravok-cyan); margin-bottom:4px;">🎫 Painel de Tickets</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Cria canal privado automático para o jogador e a Staff com botão de fechar.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px;" onclick="window.publishBotPanel('tickets')">Publicar no Discord</button>
+            </div>
+
+            <!-- 2. Recrutamento -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:var(--ravok-neon-aqua); margin-bottom:4px;">📋 Painel de Recrutamento</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Abre modal de candidatura e gera canal de análise privado para a Staff.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:var(--ravok-neon-aqua); border-color:var(--ravok-neon-aqua); color:var(--ravok-text-inverse);" onclick="window.publishBotPanel('recrutamento')">Publicar no Discord</button>
+            </div>
+
+            <!-- 3. Confissões -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:#a855f7; margin-bottom:4px;">👻 Painel de Confissões</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Botão fixo que abre formulário para desabafos e segredos 100% anônimos.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:#a855f7; border-color:#a855f7;" onclick="window.publishBotPanel('confissoes')">Publicar no Discord</button>
+            </div>
+
+            <!-- 4. Sugestões -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:#f59e0b; margin-bottom:4px;">💡 Painel de Sugestões</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Coleta ideias da comunidade e adiciona reações de votação 👍 👎 automaticamente.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:#f59e0b; border-color:#f59e0b;" onclick="window.publishBotPanel('sugestoes')">Publicar no Discord</button>
+            </div>
+
+            <!-- 5. Vincular Conta -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:var(--ravok-cyan); margin-bottom:4px;">🔗 Painel de Vincular Conta</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Permite que o jogador vincule o nick do Minecraft e receba cargos automáticos.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px;" onclick="window.publishBotPanel('vincular')">Publicar no Discord</button>
+            </div>
+
+            <!-- 6. Feedbacks -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:#f97316; margin-bottom:4px;">⭐ Painel de Feedback</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Coleta avaliações dos jogadores e publica depoimentos com estrelas.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:#f97316; border-color:#f97316;" onclick="window.publishBotPanel('feedback')">Publicar no Discord</button>
+            </div>
+
+            <!-- 7. Vídeos & Lives -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:#ef4444; margin-bottom:4px;">🎬 Painel de Vídeos &amp; Lives</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Botões para criadores divulgarem seus vídeos e streamers anunciarem lives.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:#ef4444; border-color:#ef4444;" onclick="window.publishBotPanel('video')">Publicar no Discord</button>
+            </div>
+
+            <!-- 8. Regras Oficiais -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid var(--line); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:#FFC107; margin-bottom:4px;">📜 Diretrizes &amp; Regras Gerais</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Publica as regras oficiais formatadas da comunidade com o banner da Ravok.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:#FFC107; border-color:#FFC107; color:#040916;" onclick="window.publishBotPanel('regras')">Publicar no Discord</button>
+            </div>
+
+            <!-- 9. Meta de Arrecadação -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(245,158,11,0.3); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:#fbbf24; margin-bottom:4px;">💰 Painel da Meta de Vendas</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Publica embed oficial da meta com barra de progresso em tempo real e botões para a loja.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:#f59e0b; border-color:#f59e0b; color:#040916; font-weight:700;" onclick="window.publishBotPanel('meta')">Publicar / Atualizar no Discord</button>
+            </div>
+
+            <!-- 10. Loja Oficial -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,193,7,0.3); border-radius:10px; padding:14px; display:flex; flex-direction:column; justify-content:space-between;">
+              <div>
+                <div style="font-size:15px; font-weight:700; color:var(--ravok-cyan); margin-bottom:4px;">🛒 Painel da Loja Oficial</div>
+                <div style="font-size:12px; color:var(--muted); line-height:1.4; margin-bottom:12px;">Publica mensagem oficial elegante com detalhes de VIPs, Coins, Chaves e botões diretos de compra.</div>
+              </div>
+              <button type="button" class="btn-primary full" style="font-size:12px; padding:8px; background:var(--ravok-cyan); border-color:var(--ravok-cyan); color:var(--ravok-text-inverse); font-weight:700;" onclick="window.publishBotPanel('loja')">Publicar / Atualizar no Discord</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- 6. LOGS AO VIVO DO BOT -->
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">HISTÓRICO EM TEMPO REAL</p>
+              <h2>📜 Console & Logs de Atividade do Bot</h2>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-ghost" id="refreshBotLogsBtn">🔄 Atualizar</button>
+              <button class="btn-ghost" id="clearBotLogsBtn">Limpar Logs</button>
+            </div>
+          </div>
+          <div id="botConsoleLogs" style="background:#020612; border:1px solid rgba(56,189,248,0.2); border-radius:8px; padding:14px; font-family:'DM Mono', monospace; font-size:12px; height:180px; overflow-y:auto; color:#94a3b8; display:flex; flex-direction:column; gap:4px;">
+            <div style="color:var(--muted);">[--:--:--] Aguardando inicialização do bot...</div>
+          </div>
+        </article>
+      </section>
+
+      <!-- TAB 8: PEDIDOS & MERCADO PAGO -->
+      <section class="tab-pane" id="tab-orders">
+        <div class="panel" style="margin-bottom: 24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">CHECKOUT PRO / PIX</p>
+              <h2>Credenciais do Mercado Pago</h2>
+            </div>
+          </div>
+          <div class="server-config-grid">
+            <div class="form-group">
+              <label>Public Key:</label>
+              <input type="text" id="mpPublicKey" placeholder="APP_USR-xxxx-xxxx-xxxx">
+            </div>
+            <div class="form-group">
+              <label>Access Token (Servidor):</label>
+              <input type="password" id="mpAccessToken" placeholder="APP_USR-xxxx-xxxx-xxxx">
+            </div>
+          </div>
+          <button class="btn-primary" id="saveMpCredentialsBtn">Salvar Credenciais</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <div>
+              <p class="eyebrow">TRANSAÇÕES</p>
+              <h2>Todos os Pedidos da Loja</h2>
+            </div>
+            <button type="button" class="btn-primary" id="openManualSaleBtn" style="background: var(--ravok-neon-aqua); border-color: var(--ravok-neon-aqua); color: var(--ravok-text-inverse); font-weight: 800; display: inline-flex; align-items: center; gap: 6px;">
+              <span>➕</span> Nova Venda Manual
+            </button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID do Pedido</th>
+                  <th>Nick</th>
+                  <th>Itens</th>
+                  <th>Valor Total</th>
+                  <th>Data</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Ação</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody">
+                <!-- Preenchido via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 9: ARENA DE VOTOS & QUESTS -->
+      <section class="tab-pane" id="tab-vote-arena">
+        <!-- BARRA SUPERIOR DE AÇÕES -->
+        <div class="panel" style="margin-bottom:20px;">
+          <div class="panel-header" style="flex-wrap:wrap; gap:12px;">
+            <div>
+              <p class="eyebrow">ESPAÇO PRÓPRIO DE VOTOS</p>
+              <h2>🗳️ Gerenciador da Arena de Votos &amp; Missões Diárias</h2>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+              <a href="votar.html" target="_blank" class="btn-ghost" style="text-decoration:none;">Ver Página de Votos ↗</a>
+              <button type="button" class="btn-primary" id="saveVoteArenaBtn">Salvar Todas as Configurações</button>
+            </div>
+          </div>
+          <p class="panel-desc" style="margin:0;">
+            Configure as dinâmicas de votação nativa da Ravok: Perguntas do Quiz, Enquete ao Vivo da Comunidade, Pegadinhas, Piadas e a Quest do Dia. Todas as recompensas entregues são estritamente Chaves de Voto (<strong>ZERO coins</strong>), garantindo o equilíbrio da economia!
+          </p>
+        </div>
+
+        <!-- 1. QUEST DO DIA -->
+        <article class="panel" style="margin-bottom:24px;">
+          <div class="panel-header" style="flex-wrap:wrap; gap:10px;">
+            <div>
+              <p class="eyebrow">MISSÃO DIÁRIA DO SERVIDOR</p>
+              <h2>⭐ Configuração da Quest do Dia</h2>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <button type="button" class="btn-primary" id="btnSuggestQuestAI" style="background:linear-gradient(135deg, #7c3aed, var(--ravok-cyan)); border:none; display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:7px 14px;">
+                ✨ Sugerir com Silvie IA
+              </button>
+              <label class="switch-toggle" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                <input type="checkbox" id="questEnabledToggle" checked>
+                <span style="font-size:13px; font-weight:700; color:var(--blue-bright);">Quest Ativa</span>
+              </label>
+            </div>
+          </div>
+          <p class="panel-desc">A Quest do Dia incentiva a retenção diária dos jogadores. Ao cumprirem a meta de desafios, ganham chaves extras para retirar com <code>/resgatar</code>.</p>
+          
+          <div class="server-config-grid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));">
+            <div class="form-group">
+              <label>Título da Missão:</label>
+              <input type="text" id="questTitleInput" placeholder="Ex.: Jornada do Conhecimento">
+            </div>
+            <div class="form-group">
+              <label>Meta de Desafios Diários:</label>
+              <input type="number" id="questTargetInput" min="1" max="4" value="2" placeholder="2">
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label>Descrição do Objetivo:</label>
+              <input type="text" id="questDescInput" placeholder="Ex.: Complete pelo menos 2 desafios na Arena de Votos hoje para provar seu valor à comunidade!">
+            </div>
+            <div class="form-group" style="grid-column: 1 / -1;">
+              <label>💡 Dica &amp; Lore da Silvie IA (Visível na página de votos):</label>
+              <input type="text" id="questSilvieTipInput" placeholder="Ex.: Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮">
+            </div>
+            <div class="form-group">
+              <label>Nome Visual da Recompensa:</label>
+              <input type="text" id="questRewardTitleInput" placeholder="Ex.: 2x Chaves de Voto">
+            </div>
+            <div class="form-group">
+              <label>Comando no Servidor (Executado pelo console):</label>
+              <input type="text" id="questRewardCmdInput" placeholder="excellentcrates key give {nick} voto 2">
+              <small style="color:var(--muted); font-size:11px;">Use <code>{nick}</code> para o nome do jogador. (Regra: ZERO coins!).</small>
+            </div>
+          </div>
+          <div style="margin-top:16px; display:flex; gap:10px;">
+            <button type="button" class="btn-primary" id="saveDailyQuestOnlyBtn">Salvar Quest do Dia</button>
+          </div>
+        </article>
+
+        <!-- 2. QUIZ DE PERGUNTAS -->
+        <article class="panel" style="margin-bottom:24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">TRIVIA SOBRE O SERVIDOR &amp; MINECRAFT</p>
+              <h2>❓ Perguntas do Quiz (<span id="quizCountBadge">0</span>)</h2>
+            </div>
+            <button type="button" class="btn-primary" id="openAddQuizModalBtn">+ Nova Pergunta</button>
+          </div>
+          <div id="quizAdminList" class="compact-list" style="display:flex; flex-direction:column; gap:12px;">
+            <!-- Preenchido via JS -->
+          </div>
+        </article>
+
+        <!-- 3. ENQUETE DA COMUNIDADE -->
+        <article class="panel" style="margin-bottom:24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">VOTAÇÃO AO VIVO DA COMUNIDADE</p>
+              <h2>📊 Enquete Ativa da Comunidade</h2>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button type="button" class="btn-ghost" id="resetPollVotesBtn" style="color:#f87171; border-color:rgba(239,68,68,0.3);">Zerar Votos da Enquete</button>
+              <button type="button" class="btn-primary" id="addPollOptionBtn">+ Adicionar Opção</button>
+            </div>
+          </div>
+          
+          <div class="form-group" style="margin-bottom:18px;">
+            <label>Pergunta da Enquete:</label>
+            <input type="text" id="adminPollQuestionInput" placeholder="Ex.: Qual evento especial da comunidade você quer ver neste fim de semana?">
+          </div>
+
+          <label style="font-size:13px; font-weight:700; color:var(--muted); display:block; margin-bottom:8px;">Opções de Voto &amp; Contagem:</label>
+          <div id="pollAdminOptionsList" style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
+            <!-- Preenchido via JS -->
+          </div>
+          <button type="button" class="btn-primary" id="savePollConfigBtn">Salvar Enquete</button>
+        </article>
+
+        <div class="dashboard-split" style="margin-bottom:24px;">
+          <!-- 4. PEGADINHAS (TROLL) -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">CHARADAS &amp; PEGADINHAS</p>
+                <h2>🤡 Pegadinhas (<span id="pranksCountBadge">0</span>)</h2>
+              </div>
+              <button type="button" class="btn-sm btn-primary" id="openAddPrankModalBtn">+ Nova Pegadinha</button>
+            </div>
+            <div id="pranksAdminList" style="display:flex; flex-direction:column; gap:12px;">
+              <!-- Preenchido via JS -->
+            </div>
+          </article>
+
+          <!-- 5. PIADAS DE MINECRAFT -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">HUMOR &amp; TROCADILHOS</p>
+                <h2>😂 Completar a Piada (<span id="jokesCountBadge">0</span>)</h2>
+              </div>
+              <button type="button" class="btn-sm btn-primary" id="openAddJokeModalBtn">+ Nova Piada</button>
+            </div>
+            <div id="jokesAdminList" style="display:flex; flex-direction:column; gap:12px;">
+              <!-- Preenchido via JS -->
+            </div>
+          </article>
+        </div>
+
+        <!-- 6. HISTÓRICO RECENTE DE VOTOS -->
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">REGISTROS RECENTES</p>
+              <h2>📜 Últimos Votos Computados no Site</h2>
+            </div>
+            <button type="button" class="btn-ghost" id="refreshVotesHistoryBtn">🔄 Atualizar</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nick</th>
+                  <th>Modalidade</th>
+                  <th>Data &amp; Horário</th>
+                  <th>Status de Entrega</th>
+                </tr>
+              </thead>
+              <tbody id="votesHistoryTableBody">
+                <!-- Preenchido via JS -->
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <!-- ==================================================== -->
+      <!-- ABA: ADMINISTRADORES & STAFF -->
+      <!-- ==================================================== -->
+      <section class="tab-pane" id="tab-admins">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">EQUIPE & SEGURANÇA</p>
+            <h1>Gestão de Administradores</h1>
+          </div>
+          <button type="button" class="btn-ghost" id="refreshAdminsBtn">🔄 Atualizar Equipe</button>
+        </div>
+
+        <div class="server-config-grid" style="grid-template-columns: 1fr 2fr; gap: 20px; margin-bottom: 24px;">
+          <!-- CARD DE CADASTRO DE NOVO ADMIN -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">NOVO MEMBRO</p>
+                <h2>➕ Cadastrar Admin</h2>
+              </div>
+            </div>
+            <p class="panel-desc">Adicione um novo membro da equipe para ter acesso administrativo ao painel do Ravok Network.</p>
+            
+            <form id="newAdminForm">
+              <div class="form-group">
+                <label>Usuário de Login (sem espaços):</label>
+                <input type="text" id="newAdminUser" required placeholder="Ex: gerente_pedro" autocomplete="off">
+              </div>
+
+              <div class="form-group">
+                <label>Nome / Nick da Staff:</label>
+                <input type="text" id="newAdminName" required placeholder="Ex: Pedro / PedroCraft">
+              </div>
+
+              <div class="form-group">
+                <label>Cargo / Nível de Acesso:</label>
+                <select id="newAdminRole" class="form-select">
+                  <option value="Dono / Fundador">👑 Dono / Fundador</option>
+                  <option value="Sub-Dono">⭐ Sub-Dono</option>
+                  <option value="Gerente Geral" selected>🛡️ Gerente Geral</option>
+                  <option value="Administrador">⚙️ Administrador</option>
+                  <option value="Moderador Chefe">🛡️ Moderador Chefe</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Senha Inicial:</label>
+                <input type="password" id="newAdminPassword" required placeholder="Mínimo 4 caracteres">
+              </div>
+
+              <button type="submit" class="btn-primary full" style="margin-top:14px;">
+                ➕ Cadastrar Administrador
+              </button>
+            </form>
+          </article>
+
+          <!-- TABELA DE ADMINISTRADORES ATIVOS -->
+          <article class="panel">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow">MEMBROS DA STAFF</p>
+                <h2>👥 Administradores Ativos</h2>
+              </div>
+            </div>
+            
+            <div class="table-responsive">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Usuário</th>
+                    <th>Nome / Nick</th>
+                    <th>Cargo</th>
+                    <th>Cadastrado em</th>
+                    <th>Último Login</th>
+                    <th>Ações</th>
+                  </tr>
+                </thead>
+                <tbody id="adminsTableBody">
+                  <!-- Preenchido via JS -->
+                </tbody>
+              </table>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal: Produto -->
+  <dialog id="productModal">
+    <div class="modal-header">
+      <h2 id="modalProductTitle">Novo Produto</h2>
+      <button class="close-modal" id="closeProductModalBtn">×</button>
+    </div>
+    <form id="productForm">
+      <input type="hidden" id="editProductId">
+      <div class="form-group">
+        <label>Nome do Produto:</label>
+        <input type="text" id="prodName" required placeholder="Ex.: Rank Knight">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoria:</label>
+          <select id="prodCategory" class="form-select">
+            <option value="VIPs">VIPs</option>
+            <option value="Coins">Coins</option>
+            <option value="Chaves">Chaves</option>
+            <option value="Vouchers">Vouchers &amp; Skins</option>
+            <option value="Pets">Pets</option>
+            <option value="Cosméticos">Cosméticos</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Preço (R$):</label>
+          <input type="number" id="prodPrice" step="0.10" required placeholder="19.90">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ícone no Site (Emoji ou URL):</label>
+          <input type="text" id="prodIcon" value="✦">
+        </div>
+        <div class="form-group">
+          <label>Ícone no Minecraft (/resgatar):</label>
+          <input type="text" id="prodGuiIcon" value="CHEST">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Comando no Servidor (use {player} para o nick):</label>
+        <input type="text" id="prodCommand" required placeholder="Ex.: lp user {player} parent set knight">
+      </div>
+      <div class="form-group">
+        <label>Descrição:</label>
+        <input type="text" id="prodDesc" placeholder="Benefícios exclusivos no servidor.">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelProductBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar Produto</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Slide da Galeria -->
+  <dialog id="slideModal">
+    <div class="modal-header">
+      <h2>Novo Slide para Galeria</h2>
+      <button class="close-modal" id="closeSlideModalBtn">×</button>
+    </div>
+    <form id="slideForm">
+      <div class="form-group">
+        <label>Título do Slide:</label>
+        <input type="text" id="slideTitle" required placeholder="Ex.: Batalhas na Arena PvP">
+      </div>
+      <div class="form-group">
+        <label>Legenda / Descrição:</label>
+        <input type="text" id="slideDesc" placeholder="Ex.: Evento todos os sábados valendo chaves lendárias.">
+      </div>
+      <div class="form-group">
+        <label>URL da Imagem ou Arquivo:</label>
+        <input type="text" id="slideImgUrl" required placeholder="Ex.: banner-server.png ou URL externa">
+        <input type="file" id="slideFileInput" accept="image/*" style="margin-top: 8px;">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelSlideBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Adicionar Slide</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Streamer -->
+  <dialog id="streamerModal">
+    <div class="modal-header">
+      <h2>Adicionar Criador de Conteúdo</h2>
+      <button class="close-modal" id="closeStreamerModalBtn">×</button>
+    </div>
+    <form id="streamerForm">
+      <div class="form-group">
+        <label>Nome / Canal:</label>
+        <input type="text" id="strName" required placeholder="Ex.: PlayerGamerTV">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Plataforma:</label>
+          <select id="strPlatform" class="form-select">
+            <option value="Twitch">Twitch</option>
+            <option value="YouTube">YouTube</option>
+            <option value="TikTok">TikTok</option>
+            <option value="Kick">Kick</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Status:</label>
+          <select id="strStatus" class="form-select">
+            <option value="live">AO VIVO 🔴</option>
+            <option value="offline">Criador Parceiro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Link do Canal / Live:</label>
+        <input type="text" id="strUrl" required placeholder="https://twitch.tv/...">
+      </div>
+      <div class="form-group">
+        <label>Avatar / Skin (Nick do Minecraft ou URL):</label>
+        <input type="text" id="strAvatarNick" placeholder="Nick do Minecraft para puxar a skin">
+      </div>
+      <div class="form-group">
+        <label>Biografia Curta:</label>
+        <input type="text" id="strBio" placeholder="Transmissões diárias jogando no Ravok Network!">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelStreamerBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar Criador</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: NOVA VENDA MANUAL -->
+  <dialog id="manualSaleModal" style="max-width: 540px; border-radius: 12px; background: #0b1730; color: #fff; border: 1px solid var(--panel-border); padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h3 style="margin: 0; font-size: 18px; color: #fff;">➕ Criar Venda Manual</h3>
+      <button type="button" class="btn-ghost" id="closeManualSaleModalBtn" style="padding: 4px 10px; font-size: 16px;">✕</button>
+    </div>
+    <form id="manualSaleForm">
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label>Nick do Jogador (Minecraft):</label>
+        <input type="text" id="manualSaleNick" required placeholder="Ex.: Guiileu">
+      </div>
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label>Produto do Catálogo:</label>
+        <select id="manualSaleProductSelect" style="width: 100%; padding: 10px; border-radius: 8px; background: #060f24; color: #fff; border: 1px solid var(--panel-border);">
+          <option value="">-- Selecione um produto ou Personalizado --</option>
+          <option value="custom">✏️ Item / Comando Personalizado</option>
+        </select>
+      </div>
+      <div class="form-group" id="manualSaleCustomNameGroup" style="margin-bottom: 14px; display: none;">
+        <label>Nome do Item / Benefício:</label>
+        <input type="text" id="manualSaleCustomName" placeholder="Ex.: VIP Astro (30 Dias) ou Pacote Especial">
+      </div>
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label>Valor da Venda (R$):</label>
+        <input type="number" id="manualSalePrice" step="0.01" min="0" placeholder="0.00" value="0.00">
+      </div>
+      <div class="form-group" style="margin-bottom: 14px;">
+        <label>Comando do Console (use {player} ou {nick}):</label>
+        <textarea id="manualSaleCommand" rows="2" placeholder="Ex.: lp user {player} parent addtemp astro 30d accumulate" style="width: 100%; border-radius: 8px; padding: 10px; background: #060f24; color: #fff; border: 1px solid var(--panel-border); font-family: monospace; font-size: 12px; resize: vertical;"></textarea>
+      </div>
+      <div style="margin-bottom: 16px; display: flex; flex-direction: column; gap: 8px;">
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+          <input type="checkbox" id="manualSaleEnqueueDelivery" checked>
+          <span>Colocar na fila do <strong>/resgatar</strong> do jogador imediatamente</span>
+        </label>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; cursor: pointer;">
+          <input type="checkbox" id="manualSaleAnnounceDiscord" checked>
+          <span>Anunciar compra aprovada no canal de vendas do Discord</span>
+        </label>
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button type="button" class="btn-ghost" id="cancelManualSaleBtn">Cancelar</button>
+        <button type="submit" class="btn-primary" style="background: var(--ravok-neon-aqua); border-color: var(--ravok-neon-aqua); color: var(--ravok-text-inverse); font-weight: 800;">
+          ✓ Concluir Venda Manual
+        </button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: PERGUNTA DO QUIZ -->
+  <dialog id="quizQuestionModal" style="max-width: 540px;">
+    <div class="modal-header">
+      <h2 id="modalQuizTitle">Nova Pergunta do Quiz</h2>
+      <button class="close-modal" id="closeQuizModalBtn">×</button>
+    </div>
+    <form id="quizQuestionForm">
+      <input type="hidden" id="editQuizId">
+      <div class="form-group">
+        <label>Enunciado da Pergunta:</label>
+        <textarea id="quizQuestionInput" required placeholder="Ex.: Qual é o IP oficial para entrar no servidor?" rows="2" style="width:100%; border-radius:8px; padding:10px; background:#060f24; color:#fff; border:1px solid var(--panel-border); resize:vertical;"></textarea>
+      </div>
+
+      <div style="font-size:12px; font-weight:700; color:var(--blue-bright); margin-bottom:8px;">ALTERNATIVAS &amp; RESPOSTA CORRETA:</div>
+      
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="quizCorrectRadio" value="a" id="quizCorrectA" checked style="accent-color:var(--blue);">
+        <input type="text" id="quizOptA" required placeholder="Alternativa A" style="flex:1;">
+      </div>
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="quizCorrectRadio" value="b" id="quizCorrectB" style="accent-color:var(--blue);">
+        <input type="text" id="quizOptB" required placeholder="Alternativa B" style="flex:1;">
+      </div>
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="quizCorrectRadio" value="c" id="quizCorrectC" style="accent-color:var(--blue);">
+        <input type="text" id="quizOptC" required placeholder="Alternativa C" style="flex:1;">
+      </div>
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="quizCorrectRadio" value="d" id="quizCorrectD" style="accent-color:var(--blue);">
+        <input type="text" id="quizOptD" required placeholder="Alternativa D" style="flex:1;">
+      </div>
+      <small style="color:var(--muted); font-size:11px; display:block; margin-bottom:14px;">Marque a bolinha da alternativa que será a resposta correta.</small>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelQuizBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar Pergunta</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: PEGADINHA -->
+  <dialog id="prankModal" style="max-width: 560px;">
+    <div class="modal-header">
+      <h2 id="modalPrankTitle">Nova Pegadinha</h2>
+      <button class="close-modal" id="closePrankModalBtn">×</button>
+    </div>
+    <form id="prankForm">
+      <input type="hidden" id="editPrankId">
+      <div class="form-group">
+        <label>Título da Pegadinha:</label>
+        <input type="text" id="prankTitleInput" required placeholder="Ex.: A Família do Steve">
+      </div>
+      <div class="form-group">
+        <label>Charada / Riddle:</label>
+        <textarea id="prankRiddleInput" required placeholder="Ex.: O pai do Steve tem 3 filhos..." rows="2" style="width:100%; border-radius:8px; padding:10px; background:#060f24; color:#fff; border:1px solid var(--panel-border); resize:vertical;"></textarea>
+      </div>
+
+      <div style="font-size:12px; font-weight:700; color:var(--blue-bright); margin-bottom:8px;">OPÇÕES &amp; MENSAGENS TROLL:</div>
+      
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;">
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="radio" name="prankCorrectRadio" value="a" id="prankCorrectA" style="accent-color:var(--blue);">
+          <input type="text" id="prankOptA" required placeholder="Opção A (Texto)" style="flex:1;">
+          <input type="text" id="prankTrollA" placeholder="Mensagem Troll se errar" style="flex:1.2;">
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="radio" name="prankCorrectRadio" value="b" id="prankCorrectB" checked style="accent-color:var(--blue);">
+          <input type="text" id="prankOptB" required placeholder="Opção B (Texto)" style="flex:1;">
+          <input type="text" id="prankTrollB" placeholder="Mensagem de Sucesso ou Troll" style="flex:1.2;">
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="radio" name="prankCorrectRadio" value="c" id="prankCorrectC" style="accent-color:var(--blue);">
+          <input type="text" id="prankOptC" required placeholder="Opção C (Texto)" style="flex:1;">
+          <input type="text" id="prankTrollC" placeholder="Mensagem Troll se errar" style="flex:1.2;">
+        </div>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input type="radio" name="prankCorrectRadio" value="d" id="prankCorrectD" style="accent-color:var(--blue);">
+          <input type="text" id="prankOptD" required placeholder="Opção D (Texto)" style="flex:1;">
+          <input type="text" id="prankTrollD" placeholder="Mensagem Troll se errar" style="flex:1.2;">
+        </div>
+      </div>
+      <small style="color:var(--muted); font-size:11px; display:block; margin-bottom:14px;">Marque a bolinha da alternativa que é a resposta correta (que vence a pegadinha).</small>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelPrankBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar Pegadinha</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: PIADA -->
+  <dialog id="jokeModal" style="max-width: 540px;">
+    <div class="modal-header">
+      <h2 id="modalJokeTitle">Nova Piada de Minecraft</h2>
+      <button class="close-modal" id="closeJokeModalBtn">×</button>
+    </div>
+    <form id="jokeForm">
+      <input type="hidden" id="editJokeId">
+      <div class="form-group">
+        <label>Início da Piada (Setup):</label>
+        <textarea id="jokeSetupInput" required placeholder="Ex.: Por que os esqueletos não brigam entre si na dungeon?" rows="2" style="width:100%; border-radius:8px; padding:10px; background:#060f24; color:#fff; border:1px solid var(--panel-border); resize:vertical;"></textarea>
+      </div>
+
+      <div style="font-size:12px; font-weight:700; color:var(--blue-bright); margin-bottom:8px;">OPÇÕES DE PUNCHLINE:</div>
+      
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="jokeCorrectRadio" value="a" id="jokeCorrectA" style="accent-color:var(--blue);">
+        <input type="text" id="jokeOptA" required placeholder="Final A" style="flex:1;">
+      </div>
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="jokeCorrectRadio" value="b" id="jokeCorrectB" checked style="accent-color:var(--blue);">
+        <input type="text" id="jokeOptB" required placeholder="Final B (Engraçado)" style="flex:1;">
+      </div>
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="jokeCorrectRadio" value="c" id="jokeCorrectC" style="accent-color:var(--blue);">
+        <input type="text" id="jokeOptC" required placeholder="Final C" style="flex:1;">
+      </div>
+      <div class="form-group" style="display:flex; gap:8px; align-items:center;">
+        <input type="radio" name="jokeCorrectRadio" value="d" id="jokeCorrectD" style="accent-color:var(--blue);">
+        <input type="text" id="jokeOptD" required placeholder="Final D" style="flex:1;">
+      </div>
+      <small style="color:var(--muted); font-size:11px; display:block; margin-bottom:14px;">Marque a bolinha da punchline que completa a piada corretamente.</small>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelJokeBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar Piada</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: LOGIN DE ADMINISTRADOR -->
+  <dialog id="adminLoginModal" style="max-width: 380px; text-align: center; padding: 28px;">
+    <div style="font-size: 38px; margin-bottom: 8px;">🔒</div>
+    <p class="eyebrow" style="margin-bottom: 6px;">ACESSO RESTRITO</p>
+    <h2 style="margin-bottom: 6px; font-size: 20px;">Painel Administrativo</h2>
+    <p style="color: var(--muted); font-size: 13px; margin-bottom: 22px;">Digite a senha de administrador para gerenciar o servidor e a loja.</p>
+
+    <form id="adminLoginForm">
+      <input type="password" id="adminPasswordInput" placeholder="Senha (Padrão: admin)" required style="width: 100%; padding: 12px; margin-bottom: 14px; text-align: center; font-size: 15px; border-radius: 8px; border: 1px solid var(--panel-border); background: #060f24; color: #fff; outline: none;">
+      <button type="submit" class="btn-primary full" style="padding: 12px;">Entrar no Painel <span>→</span></button>
+    </form>
+    <div style="margin-top: 15px;">
+      <a href="index.html" class="btn-ghost" style="font-size: 12px; text-decoration: none;">← Voltar para a Loja</a>
+    </div>
+  </dialog>
+
+  <div class="toast" id="adminToast"></div>
+
+  <script src="admin.js"></script>
+</body>
+</html>

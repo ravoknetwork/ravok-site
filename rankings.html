@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Rankings &amp; Hall da Fama — Ravok Temporada 3 (Outono)</title>
+  <meta name="description" content="Líderes de Coins, Kills, Tempo de Jogo e Votos do servidor Minecraft Ravok Network.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .rankings-hero {
+      padding: 130px 24px 40px;
+      text-align: center;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .rankings-search-bar {
+      display: flex;
+      gap: 10px;
+      max-width: 520px;
+      margin: 28px auto 0;
+    }
+    .rankings-search-bar input {
+      flex: 1;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--panel-border);
+      background: var(--bg-card);
+      color: #fff;
+      font-size: 15px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .rankings-search-bar input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 15px var(--glow);
+    }
+    .ranking-tabs {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 40px 0 25px;
+    }
+    .ranking-tab-btn {
+      background: rgba(46, 28, 21, 0.75);
+      border: 1px solid var(--panel-border);
+      color: var(--muted);
+      padding: 10px 20px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 14px;
+      transition: all .25s;
+    }
+    .ranking-tab-btn:hover {
+      color: #fff;
+      border-color: var(--blue);
+    }
+    .ranking-tab-btn.active {
+      background: linear-gradient(135deg, rgba(255,193,7,0.25), rgba(216,67,21,0.35));
+      border-color: var(--blue);
+      color: #fff;
+      box-shadow: 0 0 20px var(--glow);
+    }
+    .podium-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      max-width: 900px;
+      margin: 20px auto 40px;
+      align-items: flex-end;
+    }
+    @media (max-width: 768px) {
+      .podium-container {
+        grid-template-columns: 1fr;
+      }
+    }
+    .podium-card {
+      background: linear-gradient(180deg, rgba(14, 28, 54, 0.8) 0%, rgba(6, 13, 29, 0.95) 100%);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+      position: relative;
+      transition: transform .3s, border-color .3s;
+    }
+    .podium-card:hover {
+      transform: translateY(-5px);
+    }
+    .podium-card.gold {
+      border-color: #ffd700;
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+      order: 2;
+      padding-top: 35px;
+    }
+    .podium-card.silver {
+      border-color: #c0c0c0;
+      box-shadow: 0 0 25px rgba(192, 192, 192, 0.15);
+      order: 1;
+    }
+    .podium-card.bronze {
+      border-color: #cd7f32;
+      box-shadow: 0 0 25px rgba(205, 127, 50, 0.15);
+      order: 3;
+    }
+    .podium-badge {
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    .gold .podium-badge { background: #ffd700; color: #000; }
+    .silver .podium-badge { background: #c0c0c0; color: #000; }
+    .bronze .podium-badge { background: #cd7f32; color: #fff; }
+
+    .podium-avatar {
+      width: 80px;
+      height: 80px;
+      margin: 10px auto 14px;
+      border-radius: 14px;
+      border: 2px solid rgba(255,255,255,0.1);
+      display: block;
+      image-rendering: pixelated;
+    }
+    .gold .podium-avatar {
+      width: 100px;
+      height: 100px;
+      border-color: #ffd700;
+    }
+    .podium-nick {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 17px;
+      color: #fff;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .podium-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 20px;
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .leaderboard-table {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 60px;
+      background: rgba(14, 28, 54, 0.5);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      overflow: hidden;
+      border-collapse: collapse;
+    }
+    .leaderboard-table th {
+      background: rgba(4, 13, 31, 0.8);
+      padding: 14px 20px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--panel-border);
+    }
+    .leaderboard-table td {
+      padding: 14px 20px;
+      border-bottom: 1px solid rgba(216, 67, 21, 0.08);
+      color: var(--ink);
+      font-size: 14px;
+    }
+    .leaderboard-table tr:hover td {
+      background: rgba(255, 193, 7, 0.04);
+    }
+    .rank-pos {
+      font-family: 'DM Mono', monospace;
+      font-weight: 800;
+      color: var(--muted);
+      width: 40px;
+    }
+    .player-cell {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .player-cell img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      image-rendering: pixelated;
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora aurora-one"></div>
+  <div class="aurora aurora-two"></div>
+
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      RAVOK
+      <span>NETWORK</span>
+    </a>
+    <nav>
+      <a href="index.html#produtos">Loja</a>
+      <a href="index.html#galeria">Galeria</a>
+      <a href="index.html#streamers">Streamers</a>
+      <a href="index.html#feedbacks">Avaliações</a>
+      <a href="rankings.html" style="color: var(--blue); font-weight: 700;">Rankings</a>
+      <a href="votar.html">Votar</a>
+      <a href="index.html#comunidade">Discord</a>
+    </nav>
+    <div class="top-actions">
+      <button class="primary" id="openLinkModalBtn" style="padding: 9px 16px; font-size: 13px;">🔗 Vincular Conta</button>
+      <a class="admin-link" href="admin.html">⚙ Painel Admin</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="rankings-hero">
+      <p class="eyebrow">✦ HALL DA FAMA · RAVOK NETWORK ✦</p>
+      <h1>Os Maiores Lendários<br>do <em>Servidor</em>.</h1>
+      <p class="hero-copy">Estatísticas sincronizadas diretamente do servidor de Minecraft em tempo real através do comando oficial <code>/ravoksync</code>.</p>
+
+      <form class="rankings-search-bar" id="searchPlayerForm">
+        <input type="text" id="searchNickInput" placeholder="Buscar jogador por Nick (Ex.: Guiileu)..." required maxlength="16">
+        <button type="submit" class="primary">Buscar 🔍</button>
+      </form>
+    </section>
+
+    <!-- ABAS DOS RANKINGS -->
+    <div class="ranking-tabs">
+      <button class="ranking-tab-btn active" data-type="coins">🪙 Top Coins</button>
+      <button class="ranking-tab-btn" data-type="kills">⚔️ Top Kills</button>
+      <button class="ranking-tab-btn" data-type="time">⏳ Tempo de Jogo</button>
+      <button class="ranking-tab-btn" data-type="votes">🗳️ Mais Votos</button>
+      <button class="ranking-tab-btn" data-type="money">💎 Maior Saldo</button>
+    </div>
+
+    <!-- PÓDIO (TOP 3) -->
+    <div class="podium-container" id="podiumArea">
+      <!-- Inserido dinamicamente via JS -->
+    </div>
+
+    <!-- TABELA (TOP 4 AO 10) -->
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Jogador</th>
+          <th>Estatística</th>
+          <th style="text-align:right;">Ação</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardRows">
+        <!-- Inserido dinamicamente via JS -->
+      </tbody>
+    </table>
+  </main>
+
+  <footer>
+    <a class="brand" href="index.html">RAVOK<span>NETWORK</span></a>
+    <span>© 2026 Ravok Network. Não afiliado à Mojang Studios ou Microsoft.</span>
+    <a href="admin.html">Painel de Controle</a>
+    <a href="index.html">Ir para a Loja →</a>
+  </footer>
+
+  <!-- MODAL: PERFIL DO JOGADOR -->
+  <dialog id="playerProfileModal">
+    <button class="close dialog-close" onclick="by('#playerProfileModal').close()">×</button>
+    <div style="text-align:center;">
+      <p class="eyebrow" id="profLinkedBadge">✦ PERFIL DE JOGADOR ✦</p>
+      <h2 id="profNick" style="margin-bottom: 6px;">Nickname</h2>
+      <div id="profVipTag" style="display:inline-block; margin-bottom:10px;" class="badge badge-success">Membro Ativo</div>
+      <div id="profDiscordContainer" style="display:none; margin-bottom:12px; font-size:13px;">
+        <span style="color:var(--muted);">Discord Vinculado:</span>
+        <strong id="profDiscordTag" style="color:#5865f2; margin-left:4px;"></strong>
+      </div>
+      
+      <div style="display:flex; justify-content:center; align-items:center; gap:25px; margin: 20px 0;">
+        <img id="profBodyImg" src="https://mc-heads.net/body/Steve/160" alt="Skin do Jogador" style="image-rendering:pixelated; height:180px;">
+        <div style="text-align:left; background:rgba(4,13,31,0.6); padding:16px 22px; border-radius:12px; border:1px solid var(--panel-border);">
+          <div style="margin-bottom:10px;"><small style="color:var(--muted); display:block;">COINS</small><strong id="profCoins" style="color:var(--blue); font-size:18px;">0</strong></div>
+          <div style="margin-bottom:10px;"><small style="color:var(--muted); display:block;">ABATES (KILLS)</small><strong id="profKills" style="color:#fff; font-size:18px;">0</strong></div>
+          <div style="margin-bottom:10px;"><small style="color:var(--muted); display:block;">TEMPO JOGADO</small><strong id="profTime" style="color:#fff; font-size:18px;">0h</strong></div>
+          <div><small style="color:var(--muted); display:block;">VOTOS REGISTRADOS</small><strong id="profVotes" style="color:#ffd700; font-size:18px;">0</strong></div>
+        </div>
+      </div>
+
+      <p style="font-size:12px; color:var(--muted);">Para atualizar estes dados no site, use <code>/ravoksync</code> no jogo!</p>
+    </div>
+  </dialog>
+
+  <!-- MODAL: VINCULAR CONTA -->
+  <dialog id="linkAccountModal">
+    <button class="close dialog-close" onclick="by('#linkAccountModal').close()">×</button>
+    <p class="eyebrow">VINCULAÇÃO MINECRAFT ⇄ SITE ⇄ DISCORD</p>
+    <h2>Vincular Conta</h2>
+    <p>Conecte sua conta do Minecraft com o site e Discord para liberar cargos e benefícios exclusivos!</p>
+
+    <div style="background: rgba(255, 193, 7, 0.05); border: 1px dashed var(--panel-border); padding: 14px; border-radius: 10px; margin: 15px 0; font-size: 13px;">
+      <b>Como vincular:</b><br>
+      1. Entre no servidor de Minecraft (<code>jogar.ravok.network</code>)<br>
+      2. Digite <code>/vincular</code> no chat para receber o código<br>
+      3. Digite o código de 6 dígitos abaixo (ou use <code>/vincular &lt;codigo&gt; &lt;nick&gt;</code> no Discord):
+    </div>
+
+    <form id="linkAccountForm">
+      <label>Seu Nick no Minecraft:</label>
+      <input type="text" id="linkNick" required placeholder="Ex.: Guiileu" maxlength="16">
+
+      <label style="margin-top:10px;">Código de 6 dígitos:</label>
+      <input type="text" id="linkCode" required placeholder="Ex.: 482910" maxlength="6" style="font-family:'DM Mono'; letter-spacing:4px; font-size:18px; text-align:center;">
+
+      <label style="margin-top:10px;">Seu Usuário ou ID do Discord (Opcional):</label>
+      <input type="text" id="linkDiscordTag" placeholder="Ex.: guiileu ou 123456789012345678">
+      <small style="color:var(--muted); font-size:11px; display:block; margin-top:-8px; margin-bottom:12px;">Informe para receber automaticamente os cargos de membro vinculado no Discord!</small>
+
+      <button type="submit" class="primary full" style="margin-top:8px;">Validar e Vincular Conta <span>→</span></button>
+    </form>
+  </dialog>
+
+  <div class="toast" id="rankToast"></div>
+
+  <script src="rankings.js"></script>
+</body>
+</html>

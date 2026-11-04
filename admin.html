@@ -146,6 +146,55 @@
           </article>
         </div>
 
+        <!-- CONTROLE MANUAL DA META MENSAL (%) -->
+        <article class="panel" style="margin-bottom: 24px; border-color: rgba(255, 193, 7, 0.35); background: linear-gradient(135deg, rgba(36, 21, 16, 0.85), rgba(18, 10, 8, 0.92));">
+          <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+            <div>
+              <p class="eyebrow" style="color: var(--amber-gold, #ffc107);">META DO SITE EM TEMPO REAL</p>
+              <h2>🎯 Meta de Arrecadação Mensal (%)</h2>
+            </div>
+            <span class="badge badge-success" id="adminGoalPreviewPill" style="font-size: 13px; padding: 6px 14px;">0% Atingida</span>
+          </div>
+
+          <!-- Barra de pré-visualização -->
+          <div style="background: rgba(255,255,255,0.07); height: 14px; border-radius: 999px; overflow: hidden; margin-bottom: 16px; border: 1px solid rgba(255,193,7,0.2);">
+            <div id="adminGoalProgressFill" style="width: 0%; height: 100%; background: linear-gradient(90deg, #ff7043, #ffc107); transition: width 0.25s ease;"></div>
+          </div>
+
+          <div class="form-row" style="align-items: flex-end; gap: 16px; flex-wrap: wrap;">
+            <div class="form-group" style="flex: 1; min-width: 210px; margin-bottom: 0;">
+              <label>Modo da Meta:</label>
+              <select id="adminGoalModeSelect" class="form-select">
+                <option value="manual">✋ Manual (Definir Porcentagem % Exata)</option>
+                <option value="auto">⚡ Automática (Calculada pelas Vendas)</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="adminGoalManualGroup" style="flex: 1.5; min-width: 240px; margin-bottom: 0;">
+              <label>Porcentagem Atual no Site (0% a 100%):</label>
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <input type="range" id="adminGoalRange" min="0" max="100" step="1" value="0" style="flex: 1; accent-color: #ffc107; cursor: pointer;">
+                <input type="number" id="adminGoalPercentInput" min="0" max="100" step="1" value="0" style="width: 78px; text-align: center; font-weight: 800;">
+                <span style="font-weight: 800; color: #ffc107;">%</span>
+              </div>
+            </div>
+
+            <div class="form-group" id="adminGoalTargetGroup" style="flex: 0.9; min-width: 160px; margin-bottom: 0; display: none;">
+              <label>Alvo Mensal para 100% (R$):</label>
+              <input type="number" id="adminGoalTargetInput" min="1" step="10" value="2000">
+            </div>
+
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+              <button type="button" class="btn-ghost" onclick="setQuickGoalPercent(0)" style="padding: 8px 10px; font-size: 12px;">0%</button>
+              <button type="button" class="btn-ghost" onclick="setQuickGoalPercent(25)" style="padding: 8px 10px; font-size: 12px;">25%</button>
+              <button type="button" class="btn-ghost" onclick="setQuickGoalPercent(50)" style="padding: 8px 10px; font-size: 12px;">50%</button>
+              <button type="button" class="btn-ghost" onclick="setQuickGoalPercent(75)" style="padding: 8px 10px; font-size: 12px;">75%</button>
+              <button type="button" class="btn-ghost" onclick="setQuickGoalPercent(100)" style="padding: 8px 10px; font-size: 12px;">100%</button>
+              <button type="button" class="btn-primary" id="saveAdminGoalBtn">💾 Salvar Meta (%)</button>
+            </div>
+          </div>
+        </article>
+
         <div class="dashboard-split">
           <!-- Últimos Pedidos -->
           <article class="panel">
@@ -154,7 +203,10 @@
                 <p class="eyebrow">HISTÓRICO RECENTE</p>
                 <h2>Últimas Compras</h2>
               </div>
-              <button class="btn-sm" onclick="switchTab('orders')">Ver todos</button>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-primary" type="button" onclick="openManualSaleShortcut()" style="padding:6px 12px; font-size:12px;">+ Venda Manual</button>
+                <button class="btn-sm" onclick="switchTab('orders')">Ver todos</button>
+              </div>
             </div>
             <div id="recentOrdersList" class="compact-list">
               <div class="empty-state">Nenhum pedido recente registrado ainda.</div>
@@ -254,7 +306,10 @@
               <p class="eyebrow">CARROSSEL DA PÁGINA INICIAL</p>
               <h2>Slides da Galeria do Servidor</h2>
             </div>
-            <button class="btn-primary" id="openSlideModalBtn">+ Adicionar Slide</button>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-ghost" id="resetSlidesBtn">Restaurar Slides Padrão</button>
+              <button class="btn-primary" id="openSlideModalBtn">+ Adicionar Slide</button>
+            </div>
           </div>
           <div class="table-responsive">
             <table class="data-table">
@@ -333,7 +388,10 @@
               <p class="eyebrow">MODERAÇÃO DA COMUNIDADE</p>
               <h2>Avaliações e Depoimentos</h2>
             </div>
-            <button class="btn-ghost" id="resetFeedbacksBtn">Restaurar Avaliações Iniciais</button>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-ghost" id="resetFeedbacksBtn">Restaurar Avaliações Iniciais</button>
+              <button class="btn-primary" id="openAdminFeedbackModalBtn">+ Adicionar Avaliação</button>
+            </div>
           </div>
           <div class="table-responsive">
             <table class="data-table">
@@ -372,23 +430,33 @@
           <article class="panel">
             <div class="panel-header">
               <div>
-                <p class="eyebrow">MINECRAFT (PLUGIN)</p>
-                <h2>Configuração da API</h2>
+                <p class="eyebrow">MINECRAFT (PLUGIN RAVOKSITE)</p>
+                <h2>Configuração da API &amp; Conexão</h2>
               </div>
+              <span class="badge badge-success" id="pluginApiBadge">● Online</span>
             </div>
             <div class="form-group">
-              <label>URL do Site / API (api_url no plugin):</label>
-              <input type="text" id="serverApiUrl" value="https://loja.ravok.network">
+              <label>URL Oficial do Site / API (<code>api_url</code> no plugin):</label>
+              <input type="text" id="serverApiUrl" value="https://ravok-site.vercel.app" placeholder="https://ravok-site.vercel.app">
+              <small style="color:var(--muted); font-size:11px;">Use a URL oficial da Vercel acima no <code>plugins/RavokSite/config.yml</code> para o comando <code>/resgatar</code> conectar sem falhas.</small>
             </div>
             <div class="form-group">
-              <label>Chave Secreta (api_token no plugin):</label>
+              <label>Chave Secreta (<code>api_token</code> no plugin):</label>
               <div style="display:flex; gap:10px;">
                 <input type="text" id="serverApiToken" value="ravok_sec_99a8b7c6d5e4">
-                <button class="btn-ghost" id="generateTokenBtn">Gerar</button>
-                <button class="btn-primary" id="copyTokenBtn">Copiar</button>
+                <button type="button" class="btn-ghost" id="generateTokenBtn">Gerar</button>
+                <button type="button" class="btn-primary" id="copyTokenBtn">Copiar</button>
               </div>
             </div>
-            <button class="btn-primary" id="saveApiSettingsBtn">Salvar Configurações</button>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+              <button type="button" class="btn-primary" id="saveApiSettingsBtn">💾 Salvar Configurações</button>
+              <button type="button" class="btn-ghost" id="testServerConnBtn">🔍 Testar Conexão com o Site</button>
+            </div>
+            <div style="display:flex; gap:10px; flex-wrap:wrap; padding-top:10px; border-top:1px solid rgba(255,255,255,0.08);">
+              <button type="button" class="btn-sm" id="downloadPluginConfigBtn" style="flex:1;">⬇ Baixar config.yml Pronto</button>
+              <a href="downloads/RavokSite.jar" download="RavokSite.jar" class="btn-sm" style="flex:1; text-align:center; text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">⬇ Baixar RavokSite.jar</a>
+            </div>
+            <div id="serverConnTestResult" style="display:none; margin-top:12px; padding:10px 12px; border-radius:8px; font-size:12px; line-height:1.5;"></div>
           </article>
 
           <!-- Configuração do Bot / Webhook do Discord -->
@@ -427,6 +495,53 @@
                 Abrir Aba do Bot Discord →
               </button>
             </div>
+          </article>
+
+          <!-- ENVIO DIRETO DO PLUGIN E CONFIG.YML VIA SFTP PARA A HOST -->
+          <article class="panel" style="grid-column: 1 / -1; margin-top: 8px; border-color: rgba(255, 193, 7, 0.3);">
+            <div class="panel-header">
+              <div>
+                <p class="eyebrow" style="color: var(--amber-gold, #ffc107);">AUTOMAÇÃO SFTP DIRETA</p>
+                <h2>🚀 Enviar Configuração e Plugin Direto para a Host (SFTP)</h2>
+              </div>
+            </div>
+            <p class="panel-desc" style="margin-bottom: 14px;">
+              Conecte-se à sua Host (Pterodactyl / Painel SFTP) para gravar automaticamente o <code>plugins/RavokSite/config.yml</code> com a URL oficial <code>https://ravok-site.vercel.app</code> e atualizar o <code>RavokSite.jar</code> em 1 clique! <em>(As credenciais SFTP são usadas apenas no envio e não ficam salvas no banco público).</em>
+            </p>
+            <form id="sftpSyncForm">
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Host / Endereço SFTP:</label>
+                  <input type="text" id="sftpHostInput" placeholder="Ex.: 200.18.123.250 ou node.suahost.com" value="200.18.123.250">
+                </div>
+                <div class="form-group" style="max-width: 140px;">
+                  <label>Porta SFTP:</label>
+                  <input type="number" id="sftpPortInput" value="2022" placeholder="2022">
+                </div>
+                <div class="form-group">
+                  <label>Pasta de Plugins:</label>
+                  <input type="text" id="sftpRemotePathInput" value="/plugins" placeholder="/plugins">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Usuário SFTP:</label>
+                  <input type="text" id="sftpUserInput" placeholder="Ex.: guiilew.a1b2c3d4" autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <label>Senha SFTP:</label>
+                  <input type="password" id="sftpPassInput" placeholder="Senha do painel da Host" autocomplete="new-password">
+                </div>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:6px;">
+                <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+                  <input type="checkbox" id="sftpUploadJarCheck" checked>
+                  <span>Atualizar também o arquivo <code>RavokSite.jar</code> na pasta <code>/plugins</code></span>
+                </label>
+                <button type="submit" class="btn-primary" id="runSftpSyncBtn">🚀 Sincronizar Plugin via SFTP</button>
+              </div>
+              <div id="sftpSyncStatus" style="display:none; margin-top:12px; padding:10px 12px; border-radius:8px; font-size:12px;"></div>
+            </form>
           </article>
         </div>
 
@@ -679,10 +794,10 @@
                   
                   <div style="display:flex; flex-direction:column; gap:8px; margin-top:6px;">
                     <select id="welcomeBgThemeSelect" class="form-select" style="background:#060f24; color:#fff; padding:8px; border-radius:6px; border:1px solid var(--panel-border); font-size:12px;">
-                      <option value="">🔵 Padrão Geométrico Ciano & Azul (Sem Foto)</option>
-                      <option value="images/ravok_bg_hq.png">🌲 Fundo Oficial Ravok (Floresta & Montanhas Épicas)</option>
+                      <option value="">🔵 Padrão Geométrico Outonal (Sem Foto)</option>
+                      <option value="images/gallery/spawn_ravok_outonal.png">🏛️ Spawn Oficial Outonal Ravok</option>
                       <option value="banner-server.png">🛡️ Banner Oficial Ravok Network</option>
-                      <option value="images/hero-landscape.png">⚔️ Paisagem Épica RPG</option>
+                      <option value="images/gallery/por_do_sol_canyon.png">🌅 Pôr do Sol no Cânion</option>
                       <option value="custom">🔗 Link Personalizado (URL) ou Enviar Arquivo</option>
                     </select>
 
@@ -1619,6 +1734,38 @@
       <div class="modal-actions">
         <button type="button" class="btn-ghost" id="cancelStreamerBtn">Cancelar</button>
         <button type="submit" class="btn-primary">Salvar Criador</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Modal: Adicionar Avaliação (Feedback) -->
+  <dialog id="adminFeedbackModal">
+    <div class="modal-header">
+      <h2>Nova Avaliação de Jogador</h2>
+      <button class="close-modal" id="closeAdminFeedbackModalBtn">×</button>
+    </div>
+    <form id="adminFeedbackForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nick do Jogador:</label>
+          <input type="text" id="adminFbNick" required placeholder="Ex.: DargonLord">
+        </div>
+        <div class="form-group">
+          <label>Nota (Estrelas):</label>
+          <select id="adminFbStars" class="form-select">
+            <option value="5" selected>★★★★★ (5 Estrelas)</option>
+            <option value="4">★★★★☆ (4 Estrelas)</option>
+            <option value="3">★★★☆☆ (3 Estrelas)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Depoimento / Comentário:</label>
+        <textarea id="adminFbComment" rows="3" required placeholder="Ex.: Servidor incrível, VIP entregue na mesma hora no /resgatar!" style="width:100%; border-radius:8px; padding:10px; background:#060f24; color:#fff; border:1px solid var(--panel-border); resize:vertical;"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-ghost" id="cancelAdminFeedbackBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar Avaliação</button>
       </div>
     </form>
   </dialog>

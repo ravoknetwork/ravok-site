@@ -492,12 +492,32 @@ const DEFAULT_FEEDBACKS = [
 ];
 
 // Utilitários de leitura do LocalStorage
+function sanitizeClientSlides(list) {
+  if (!Array.isArray(list)) return [];
+  const broken = ['ravok_bg_hq.png', 'hero-landscape.png', 'gallery-1.png'];
+  return list.filter(s => s && typeof s.img === 'string' && s.img.trim() && !broken.some(b => s.img.includes(b)));
+}
+
+function normalizeClientStreamer(s) {
+  if (!s || !s.name) return null;
+  const link = s.channelUrl || s.url || 'https://twitch.tv';
+  return {
+    ...s,
+    url: link,
+    channelUrl: link,
+    avatar: s.avatar || `https://mc-heads.net/avatar/${encodeURIComponent(s.name)}/64`,
+    bio: s.bio || 'Transmissões e vídeos oficiais jogando no servidor Ravok Network!'
+  };
+}
+
 function getProducts() {
   const saved = localStorage.getItem('ravok_products_v5');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && (parsed.length > 0 || localStorage.getItem('ravok_products_synced') === '1')) {
+        return parsed;
+      }
     } catch (e) {}
   }
   localStorage.setItem('ravok_products_v5', JSON.stringify(DEFAULT_PRODUCTS));
@@ -508,8 +528,8 @@ function getSlides() {
   const saved = localStorage.getItem('ravok_slider_slides_s3_v4');
   if (saved) {
     try {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length >= DEFAULT_SLIDES.length) return parsed;
+      const parsed = sanitizeClientSlides(JSON.parse(saved));
+      if (parsed.length > 0) return parsed;
     } catch (e) {}
   }
   localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(DEFAULT_SLIDES));
@@ -528,7 +548,12 @@ function getStreamers() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) {
+        const clean = parsed.map(normalizeClientStreamer).filter(Boolean);
+        if (clean.length > 0 || localStorage.getItem('ravok_streamers_synced') === '1') {
+          return clean;
+        }
+      }
     } catch (e) {}
   }
   localStorage.setItem('ravok_streamers', JSON.stringify(DEFAULT_STREAMERS));
@@ -540,7 +565,9 @@ function getFeedbacks() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && (parsed.length > 0 || localStorage.getItem('ravok_feedbacks_synced') === '1')) {
+        return parsed;
+      }
     } catch (e) {}
   }
   localStorage.setItem('ravok_feedbacks', JSON.stringify(DEFAULT_FEEDBACKS));
@@ -971,17 +998,21 @@ function renderSlider() {
   const slides = getSlides();
   const wrapper = by('#sliderWrapper');
   const dots = by('#sliderDots');
+  if (!wrapper || !dots) return;
 
   if (!slides.length) {
-    wrapper.innerHTML = '<div style="color:var(--muted); text-align:center; padding:100px;">Nenhuma foto na galeria.</div>';
+    const sliderBox = by('#serverSlider');
+    if (sliderBox) sliderBox.style.display = 'none';
     return;
   }
+  if (by('#serverSlider')) by('#serverSlider').style.display = '';
+  if (currentSlideIndex >= slides.length) currentSlideIndex = 0;
 
   wrapper.innerHTML = slides.map((s, idx) => `
     <div class="slide-item ${idx === currentSlideIndex ? 'active' : ''}">
-      <img src="${s.img}" alt="${s.title}">
+      <img src="${s.img}" alt="${s.title || 'Ravok Network'}" onerror="this.src='images/gallery/spawn_ravok_outonal.png'">
       <div class="slide-caption">
-        <h3>${s.title}</h3>
+        <h3>${s.title || 'Ravok Network'}</h3>
         <p>${s.desc || ''}</p>
       </div>
     </div>
@@ -1025,8 +1056,8 @@ function resetSliderTimer() {
   startSliderAutoPlay();
 }
 
-by('#sliderPrevBtn').onclick = () => goToSlide(currentSlideIndex - 1);
-by('#sliderNextBtn').onclick = () => goToSlide(currentSlideIndex + 1);
+if (by('#sliderPrevBtn')) by('#sliderPrevBtn').onclick = () => goToSlide(currentSlideIndex - 1);
+if (by('#sliderNextBtn')) by('#sliderNextBtn').onclick = () => goToSlide(currentSlideIndex + 1);
 
 // ====================================================
 // STREAMERS & CRIADORES DE CONTEÚDO
@@ -1093,44 +1124,74 @@ function renderFeedbacks() {
 }
 
 // Modal de Feedback
-by('#openFeedbackModalBtn').onclick = () => {
-  const player = localStorage.getItem('ravokPlayer');
-  if (player) by('#fbNick').value = player;
-  by('#feedbackModal').showModal();
-};
-
-by('#feedbackForm').onsubmit = (e) => {
-  e.preventDefault();
-  const nick = by('#fbNick').value.trim();
-  const stars = parseInt(by('#fbStars').value, 10) || 5;
-  const comment = by('#fbComment').value.trim();
-
-  if (!nick || !comment) return;
-
-  const feedbacks = getFeedbacks();
-  const newFb = {
-    id: `fb-${Date.now()}`,
-    nick: nick,
-    stars: stars,
-    comment: comment,
-    date: new Date().toLocaleDateString('pt-BR')
+if (by('#openFeedbackModalBtn')) {
+  by('#openFeedbackModalBtn').onclick = () => {
+    const player = localStorage.getItem('ravokPlayer');
+    if (player && by('#fbNick')) by('#fbNick').value = player;
+    if (by('#feedbackModal')) by('#feedbackModal').showModal();
   };
-  feedbacks.unshift(newFb);
-  localStorage.setItem('ravok_feedbacks', JSON.stringify(feedbacks));
+}
 
-  // Notificar no Discord via Webhook
-  sendDiscordNotification(
-    '⭐ Nova Avaliação no Site!',
-    `**Jogador:** \`${nick}\`\n**Nota:** ${'★'.repeat(stars)}\n**Comentário:** "${comment}"`,
-    [],
-    0xfbbf24
-  );
+if (by('#feedbackForm')) {
+  by('#feedbackForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const nick = by('#fbNick').value.trim();
+    const stars = parseInt(by('#fbStars').value, 10) || 5;
+    const comment = by('#fbComment').value.trim();
 
-  by('#feedbackModal').close();
-  by('#feedbackForm').reset();
-  renderFeedbacks();
-  toast('Obrigado pelo seu feedback!');
-};
+    if (!nick || !comment) return;
+
+    let savedOnBackend = false;
+    if (window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/feedbacks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nick, stars, comment })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.feedbacks)) {
+            localStorage.setItem('ravok_feedbacks', JSON.stringify(data.feedbacks));
+            localStorage.setItem('ravok_feedbacks_synced', '1');
+            savedOnBackend = true;
+          }
+        }
+      } catch (err) {}
+    }
+
+    if (!savedOnBackend) {
+      const feedbacks = getFeedbacks();
+      const newFb = {
+        id: `fb-${Date.now()}`,
+        nick: nick,
+        stars: stars,
+        comment: comment,
+        date: new Date().toLocaleDateString('pt-BR')
+      };
+      feedbacks.unshift(newFb);
+      localStorage.setItem('ravok_feedbacks', JSON.stringify(feedbacks));
+
+      sendDiscordNotification(
+        '⭐ Nova Avaliação no Site!',
+        `**Jogador:** \`${nick}\`\n**Nota:** ${'★'.repeat(stars)}\n**Comentário:** "${comment}"`,
+        [],
+        0xfbbf24
+      );
+    }
+
+    try {
+      const bc = new BroadcastChannel('ravok_sync');
+      bc.postMessage({ type: 'feedbacks' });
+      bc.close();
+    } catch (e) {}
+
+    if (by('#feedbackModal')) by('#feedbackModal').close();
+    by('#feedbackForm').reset();
+    renderFeedbacks();
+    toast('Obrigado pelo seu feedback!');
+  };
+}
 
 // ====================================================
 // DISCORD LINK
@@ -1472,25 +1533,29 @@ document.querySelectorAll('.vote-tab-btn').forEach(btn => {
   };
 });
 
-by('#cartButton').onclick = openDrawer;
-by('#overlay').onclick = closeAll;
+if (by('#cartButton')) by('#cartButton').onclick = openDrawer;
+if (by('#overlay')) by('#overlay').onclick = closeAll;
 document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeAll);
-by('#openPlayer').onclick = () => by('#playerDialog').showModal();
+if (by('#openPlayer')) by('#openPlayer').onclick = () => by('#playerDialog') && by('#playerDialog').showModal();
 if (by('#voteButton')) by('#voteButton').onclick = openVoteArena;
 
 // Salvar Nick do Jogador
-by('#savePlayer').onclick = () => {
-  const n = by('#playerName').value.trim();
-  if (!/^[A-Za-z0-9_]{3,16}$/.test(n)) {
-    return toast('Informe um nick válido de Minecraft (3 a 16 caracteres).');
-  }
-  localStorage.setItem('ravokPlayer', n);
-  updateVotePlayerDisplay(n);
-  closeAll();
-  toast(`Nick "${n}" salvo com sucesso!`);
-};
+if (by('#savePlayer')) {
+  by('#savePlayer').onclick = () => {
+    const n = by('#playerName').value.trim();
+    if (!/^[A-Za-z0-9_]{3,16}$/.test(n)) {
+      return toast('Informe um nick válido de Minecraft (3 a 16 caracteres).');
+    }
+    localStorage.setItem('ravokPlayer', n);
+    updateVotePlayerDisplay(n);
+    closeAll();
+    toast(`Nick "${n}" salvo com sucesso!`);
+  };
+}
 
-by('#playerName').value = localStorage.getItem('ravokPlayer') || '';
+if (by('#playerName')) {
+  by('#playerName').value = localStorage.getItem('ravokPlayer') || '';
+}
 
 let currentCheckoutOrder = null;
 let orderPollTimer = null;
@@ -1524,7 +1589,7 @@ function stopOrderPolling() {
 }
 
 // Checkout com Mercado Pago / Pix
-by('#checkout').onclick = async () => {
+if (by('#checkout')) by('#checkout').onclick = async () => {
   if (!cart.length) {
     return toast('Adicione pelo menos um produto à sacola.');
   }
@@ -1670,43 +1735,112 @@ if (simularPagamentoBtn) {
 async function syncWithBackend() {
   if (!window.location.protocol.startsWith('http')) return;
   try {
-    // Sincronizar produtos
-    const resProd = await fetch('/api/products');
+    let localSnap = null;
+    try {
+      const rawSnap = localStorage.getItem('ravok_admin_snapshot_v1');
+      if (rawSnap) localSnap = JSON.parse(rawSnap);
+    } catch (e) {}
+
+    const resState = await fetch('/api/sync-state');
+    if (resState.ok) {
+      let state = await resState.json();
+
+      // Se este navegador editou no Painel Admin e o servidor reiniciou (cold-start), re-hidrata automaticamente!
+      if (localSnap && Number(localSnap.updatedAt || 0) > Number(state.updatedAt || 0)) {
+        try {
+          const restoreRes = await fetch('/api/admin/restore-snapshot', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(localSnap)
+          });
+          if (restoreRes.ok) {
+            const refreshed = await fetch('/api/sync-state');
+            if (refreshed.ok) state = await refreshed.json();
+          }
+        } catch (reErr) {}
+      }
+
+      if (Array.isArray(state.products)) {
+        localStorage.setItem('ravok_products_v5', JSON.stringify(state.products));
+        localStorage.setItem('ravok_products_synced', '1');
+        products = state.products;
+        renderProducts();
+      }
+
+      if (Array.isArray(state.slides)) {
+        const cleanSlides = sanitizeClientSlides(state.slides);
+        localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(cleanSlides.length ? cleanSlides : DEFAULT_SLIDES));
+        renderSlider();
+      }
+
+      if (Array.isArray(state.streamers)) {
+        const cleanStr = state.streamers.map(normalizeClientStreamer).filter(Boolean);
+        localStorage.setItem('ravok_streamers', JSON.stringify(cleanStr));
+        localStorage.setItem('ravok_streamers_synced', '1');
+        renderStreamers();
+      }
+
+      if (Array.isArray(state.feedbacks)) {
+        localStorage.setItem('ravok_feedbacks', JSON.stringify(state.feedbacks));
+        localStorage.setItem('ravok_feedbacks_synced', '1');
+        renderFeedbacks();
+      }
+
+      if (state.goal) {
+        localStorage.setItem('ravok_goal_v1', JSON.stringify(state.goal));
+        applyGoalUI(state.goal);
+      }
+
+      if (state.discordInviteUrl && by('#discordLinkBtn')) {
+        by('#discordLinkBtn').href = state.discordInviteUrl;
+      }
+      return;
+    }
+
+    // Fallback para endpoints individuais
+    const [resProd, resSlides, resStr, resFb, resGoal] = await Promise.all([
+      fetch('/api/products'),
+      fetch('/api/slides'),
+      fetch('/api/streamers'),
+      fetch('/api/feedbacks'),
+      fetch('/api/goal')
+    ]);
+
     if (resProd.ok) {
       const prods = await resProd.json();
-      if (Array.isArray(prods) && prods.length) {
+      if (Array.isArray(prods)) {
         localStorage.setItem('ravok_products_v5', JSON.stringify(prods));
+        localStorage.setItem('ravok_products_synced', '1');
         products = prods;
         renderProducts();
       }
     }
-
-    // Sincronizar streamers
-    const resStr = await fetch('/api/streamers');
-    if (resStr.ok) {
-      const streamers = await resStr.json();
-      if (Array.isArray(streamers) && streamers.length) {
-        localStorage.setItem('ravok_streamers', JSON.stringify(streamers));
-        renderStreamers();
+    if (resSlides.ok) {
+      const slides = sanitizeClientSlides(await resSlides.json());
+      if (slides.length) {
+        localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(slides));
+        renderSlider();
       }
     }
-
-    // Sincronizar feedbacks
-    const resFb = await fetch('/api/feedbacks');
+    if (resStr.ok) {
+      const streamers = (await resStr.json()).map(normalizeClientStreamer).filter(Boolean);
+      localStorage.setItem('ravok_streamers', JSON.stringify(streamers));
+      localStorage.setItem('ravok_streamers_synced', '1');
+      renderStreamers();
+    }
     if (resFb.ok) {
       const feedbacks = await resFb.json();
-      if (Array.isArray(feedbacks) && feedbacks.length) {
+      if (Array.isArray(feedbacks)) {
         localStorage.setItem('ravok_feedbacks', JSON.stringify(feedbacks));
+        localStorage.setItem('ravok_feedbacks_synced', '1');
         renderFeedbacks();
       }
     }
-
-    // Sincronizar link do Discord
-    const resSet = await fetch('/api/settings');
-    if (resSet.ok) {
-      const settings = await resSet.json();
-      if (settings.discordInviteUrl && by('#discordLinkBtn')) {
-        by('#discordLinkBtn').href = settings.discordInviteUrl;
+    if (resGoal.ok) {
+      const goal = await resGoal.json();
+      if (goal && goal.success) {
+        localStorage.setItem('ravok_goal_v1', JSON.stringify(goal));
+        applyGoalUI(goal);
       }
     }
   } catch (e) {
@@ -1714,37 +1848,14 @@ async function syncWithBackend() {
   }
 }
 
-
 // ====================================================
 // META DE ARRECADAÇÃO MENSAL (MANUTENÇÃO DO SERVIDOR)
 // ====================================================
-async function loadSalesGoal() {
-  // Meta zerada por padrão para ser configurada posteriormente
-  let goalData = {
-    totalArrecadado: 0,
-    targetGoal: 2000,
-    percent: 0,
-    falta: 2000
-  };
-
-  // 1. Tentar ler do backend/bot se configurado ativamente
-  try {
-    const res = await fetch('/api/admin/bot/meta-status');
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.targetGoal > 0 && data.totalArrecadado > 0) {
-        goalData = data;
-      }
-    }
-  } catch (e) {
-    // Modo offline: manter meta zerada
-  }
-
-  // Atualizar elementos no DOM
+function applyGoalUI(goalData) {
   const percentEl = by('#goalPercentPill');
   const fillEl = by('#goalProgressFill');
   const percentDisplayEl = by('#goalPercentDisplay');
-  const percentVal = Math.min(100, Math.max(0, goalData.percent || 0));
+  const percentVal = Math.min(100, Math.max(0, Math.round(Number((goalData && goalData.percent) || 0))));
   const isZero = percentVal <= 0;
 
   if (percentEl) percentEl.textContent = `${percentVal}% Atingida`;
@@ -1755,7 +1866,6 @@ async function loadSalesGoal() {
   }
   if (percentDisplayEl) percentDisplayEl.textContent = `${percentVal}%`;
 
-  // Atualizar milestones dinâmicos
   const m50 = by('#goalMilestone50');
   const m75 = by('#goalMilestone75');
   const m100 = by('#goalMilestone100');
@@ -1763,8 +1873,59 @@ async function loadSalesGoal() {
   if (m75) m75.classList.toggle('reached', percentVal >= 75);
   if (m100) m100.classList.toggle('reached', percentVal >= 100);
 }
+
+async function loadSalesGoal() {
+  let goalData = { percent: 0 };
+
+  try {
+    const cached = localStorage.getItem('ravok_goal_v1');
+    if (cached) {
+      const parsed = JSON.parse(cached);
+      if (parsed && parsed.percent !== undefined) {
+        goalData = parsed;
+        applyGoalUI(goalData);
+      }
+    }
+  } catch (e) {}
+
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      const res = await fetch('/api/goal');
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.success) {
+          goalData = data;
+          localStorage.setItem('ravok_goal_v1', JSON.stringify(data));
+        }
+      }
+    } catch (e) {}
+  }
+
+  applyGoalUI(goalData);
+}
 window.loadSalesGoal = loadSalesGoal;
 
+// Escutar atualizações em tempo real vindas do Painel Admin (mesmo navegador / outra aba)
+try {
+  const ravokSyncChannel = new BroadcastChannel('ravok_sync');
+  ravokSyncChannel.onmessage = () => {
+    renderProducts();
+    renderSlider();
+    renderStreamers();
+    renderFeedbacks();
+    loadSalesGoal();
+    syncWithBackend();
+  };
+} catch (e) {}
+
+window.addEventListener('storage', (ev) => {
+  if (!ev.key) return;
+  if (ev.key === 'ravok_products_v5') renderProducts();
+  if (ev.key === 'ravok_slider_slides_s3_v4') renderSlider();
+  if (ev.key === 'ravok_streamers') renderStreamers();
+  if (ev.key === 'ravok_feedbacks') renderFeedbacks();
+  if (ev.key === 'ravok_goal_v1') loadSalesGoal();
+});
 
 // ====================================================
 // CARROSSEL DE SLIDES DO BANNER PRINCIPAL (HERO SLIDER)
@@ -1774,14 +1935,13 @@ const HERO_SLIDES = [
     tagIcon: 'images/autumn/folha_de_bordo_flutuante.png',
     tagText: 'TEMPORADA 3 • OUTONAL',
     title: 'COLHEITA &amp;<br>GLÓRIA ANCESTRAL',
-    desc: 'A nova era da Ravok Network chegou! Explore a atmosfera outonal, novos biomas de montanha, sistema de economia renovado e recompensas com entrega automática via Pix.',
+    desc: 'A nova era da Ravok Network chegou! Explore a atmosfera outonal, desbloqueie os VIPs Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa, novas Chaves S3 e texturas oficiais exclusivas com entrega automática.',
     charImg: 'images/fullbody.png',
     charAlt: 'Guerreiro Ravok 3D',
-    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Jogar agora: <b id="serverIpBanner">jogar.ravok.network</b></span>',
+    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Jogar agora: <b id="serverIpBanner">jogar.ravok.network</b> <span style="font-size:11px; opacity:0.85; margin-left:4px; font-weight:normal;">(Bedrock: 26575)</span></span>',
     primaryOnClick: 'copyServerIp()',
     secHtml: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Texturas HD</span>',
-    secHref: 'downloads/Ravok-ResourcePack-PTBR.zip',
-    secDownload: 'Ravok-ResourcePack-PTBR.zip'
+    secHref: '/texturas'
   },
   {
     tagIcon: 'images/autumn/girassol_radiante.png',

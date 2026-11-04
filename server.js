@@ -454,22 +454,99 @@ const DEFAULT_PRODUCTS = [
   }
 ];
 
+const DEFAULT_SLIDES = [
+  {
+    id: 'slide-spawn',
+    title: 'Spawn Oficial da Ravok',
+    desc: 'A grande praça central da Temporada 3 com tema outonal, decorações acolhedoras e portais de aventura.',
+    img: 'images/gallery/spawn_ravok_outonal.png'
+  },
+  {
+    id: 'slide-por-do-sol',
+    title: 'Pôr do Sol Ancestral',
+    desc: 'O fulgor do sol poente iluminando o cânion, guindastes de mineração e as montanhas outonais.',
+    img: 'images/gallery/por_do_sol_canyon.png'
+  },
+  {
+    id: 'slide-vips',
+    title: 'Cargos & Ranks VIP',
+    desc: 'Área exclusiva dos Ranks da Temporada de Outono: Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa.',
+    img: 'images/gallery/npc_vip_aurora.png'
+  },
+  {
+    id: 'slide-canyon',
+    title: 'Mina & Fortaleza Subterrânea',
+    desc: 'Pontes suspensas, trilhos de vagonetas e cavernas profundas nas muralhas de pedra.',
+    img: 'images/gallery/canyon_pedreira_fortaleza.png'
+  },
+  {
+    id: 'slide-mercado',
+    title: 'Mercado & Loja de Moedas',
+    desc: 'Mercado dos mercadores com a Loja de Moedas oficial (/coinshop), carroças rústicas e troca de itens raros.',
+    img: 'images/gallery/mercado_loja_moedas.png'
+  },
+  {
+    id: 'slide-pedreira',
+    title: 'Pedreira & Vila dos Trabalhadores',
+    desc: 'Moinho de vento, cascata natural e sistema de guindastes que abastecem as construções do reino.',
+    img: 'images/gallery/pedreira_vila_trabalhadores.png'
+  },
+  {
+    id: 'slide-bosque-outonal',
+    title: 'Bosque das Folhas Douradas',
+    desc: 'As colinas outonais da Temporada 3 repletas de carvalhos rubros, árvores douradas e cerejeiras.',
+    img: 'images/gallery/vale_outonal_bosque.png'
+  }
+];
+
 const DEFAULT_FEEDBACKS = [
-  { id: 1, nick: 'Guiileu', stars: 5, comment: 'Servidor incrível! As caixas e os pets personalizados são absurdamente bem feitos.', date: '04/09/2026' },
-  { id: 2, nick: 'DarkKnight99', stars: 5, comment: 'Comprei o VIP Paladin e recebi na mesma hora pelo /resgatar. Loja 10/10.', date: '03/09/2026' },
-  { id: 3, nick: 'LethiciaCraft', stars: 5, comment: 'Comunidade super acolhedora e suporte rápido no Discord. Parabéns!', date: '02/09/2026' }
+  { id: 'fb-1', nick: 'DargonLord', stars: 5, comment: 'O melhor servidor de survival que já joguei! Economia bem balanceada, suporte rápido e a entrega do VIP caiu na hora com o /resgatar.', date: '02/09/2026' },
+  { id: 'fb-2', nick: 'StellaCraft', stars: 5, comment: 'Os pets mágicos são incrivelmente fofos e as caixas de voto realmente dão itens que valem a pena. Comunidade nota 10!', date: '03/09/2026' },
+  { id: 'fb-3', nick: 'Pedro_Gamer99', stars: 5, comment: 'Zero lag e o sistema de RTP por continentes/mundo normal funciona liso. Parabéns à equipe do Ravok!', date: '04/09/2026' }
 ];
 
 const DEFAULT_STREAMERS = [
-  { id: 1, name: 'RavokGamer', platform: 'Twitch', avatar: 'https://mc-heads.net/avatar/RavokGamer/100', url: 'https://twitch.tv', isLive: true },
-  { id: 2, name: 'PixelMaster', platform: 'YouTube', avatar: 'https://mc-heads.net/avatar/PixelMaster/100', url: 'https://youtube.com', isLive: false }
+  {
+    id: 'str-1',
+    name: 'RavokPlayerTV',
+    platform: 'Twitch',
+    avatar: 'https://mc-heads.net/avatar/RavokPlayer/64',
+    url: 'https://twitch.tv',
+    channelUrl: 'https://twitch.tv',
+    isLive: true,
+    bio: 'Transmissões diárias construindo megabases e explorando as dungeons do servidor!'
+  },
+  {
+    id: 'str-2',
+    name: 'CraftMasterBR',
+    platform: 'YouTube',
+    avatar: 'https://mc-heads.net/avatar/CraftMaster/64',
+    url: 'https://youtube.com',
+    channelUrl: 'https://youtube.com',
+    isLive: false,
+    bio: 'Série completa de Survival RPG, farm de coins e abertura de caixas raras.'
+  },
+  {
+    id: 'str-3',
+    name: 'LunaGamer',
+    platform: 'TikTok',
+    avatar: 'https://mc-heads.net/avatar/LunaGamer/64',
+    url: 'https://tiktok.com',
+    channelUrl: 'https://tiktok.com',
+    isLive: true,
+    bio: 'Clipes diários com os melhores momentos, PvP na arena e sorteios para inscritos!'
+  }
 ];
 
 const DEFAULT_SETTINGS = {
-  apiUrl: 'http://localhost:3000',
-  apiToken: 'ravok_sec_99a8b7c6d5e4',
+  apiUrl: process.env.API_URL || 'https://ravok-site.vercel.app',
+  apiToken: process.env.PLUGIN_API_TOKEN || 'ravok_sec_99a8b7c6d5e4',
   adminUser: 'guiilew',
   adminPassword: process.env.ADMIN_PASSWORD || '000e2ecd4a',
+  goalMode: 'manual',
+  goalManualPercent: 0,
+  metaVendasValor: 2000,
+  metaVendasBase: 0,
   mpPublicKey: '',
   mpAccessToken: '',
   discordInviteUrl: 'https://discord.gg',
@@ -615,6 +692,116 @@ const DEFAULT_VOTE_ARENA = {
   votesHistory: []
 };
 
+// Helper para sanitizar slides (remover banners vazios ou imagens antigas deletadas)
+function sanitizeSlides(list) {
+  if (!Array.isArray(list)) return [];
+  const brokenImages = ['ravok_bg_hq.png', 'hero-landscape.png', 'gallery-1.png'];
+  return list.filter(s => {
+    if (!s || typeof s.img !== 'string') return false;
+    const clean = s.img.trim();
+    if (!clean) return false;
+    return !brokenImages.some(bad => clean.includes(bad));
+  });
+}
+
+// Helper para normalizar streamers (garantindo url + channelUrl + bio)
+function normalizeStreamer(s) {
+  if (!s || !s.name) return null;
+  const cleanUrl = String(s.channelUrl || s.url || 'https://twitch.tv').trim();
+  return {
+    id: s.id !== undefined ? s.id : `str-${Date.now()}`,
+    name: String(s.name).trim(),
+    platform: s.platform || 'Twitch',
+    avatar: s.avatar || `https://mc-heads.net/avatar/${encodeURIComponent(String(s.name).trim())}/64`,
+    url: cleanUrl,
+    channelUrl: cleanUrl,
+    bio: s.bio || 'Transmissões e vídeos oficiais jogando no servidor Ravok Network!',
+    isLive: Boolean(s.isLive)
+  };
+}
+
+// Helper unificado para calcular a Meta Mensal (%)
+function computeGoalStatus() {
+  const s = (db && db.settings) ? db.settings : DEFAULT_SETTINGS;
+  const orders = (db && Array.isArray(db.orders)) ? db.orders : [];
+  const goalMode = s.goalMode === 'auto' ? 'auto' : 'manual';
+  const manualPercent = Math.min(100, Math.max(0, Math.round(Number(s.goalManualPercent || 0))));
+  const targetGoal = Math.max(1, Number(s.metaVendasValor || 2000));
+  const baseSales = Math.max(0, Number(s.metaVendasBase || 0));
+
+  const approvedTotal = orders
+    .filter(o => ['aprovado', 'approved', 'paid', 'completed', 'entregue'].includes(String(o.status || '').toLowerCase()))
+    .reduce((acc, o) => acc + Number(o.total || 0), 0);
+
+  const totalArrecadado = Math.max(0, baseSales + approvedTotal);
+  const autoPercent = Math.min(100, Math.round((totalArrecadado / targetGoal) * 100));
+  const percent = goalMode === 'manual' ? manualPercent : autoPercent;
+  const falta = Math.max(0, targetGoal - totalArrecadado);
+
+  return {
+    goalMode,
+    manualPercent,
+    autoPercent,
+    totalArrecadado,
+    targetGoal,
+    baseSales,
+    percent,
+    falta
+  };
+}
+
+// Suporte opcional a persistência em nuvem via Vercel KV / Upstash Redis REST
+const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
+const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
+let cloudKvHydrated = false;
+
+async function saveDbToCloudKv(data) {
+  if (!KV_URL || !KV_TOKEN) return;
+  try {
+    await fetch(`${KV_URL.replace(/\/$/, '')}/set/ravok_db_v1`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${KV_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data),
+      signal: AbortSignal.timeout(3500)
+    });
+  } catch (e) {
+    console.warn('[CloudKV] Aviso ao salvar no KV:', e.message);
+  }
+}
+
+async function hydrateDbFromCloudKvOnce() {
+  if (cloudKvHydrated || !KV_URL || !KV_TOKEN) return;
+  cloudKvHydrated = true;
+  try {
+    const res = await fetch(`${KV_URL.replace(/\/$/, '')}/get/ravok_db_v1`, {
+      headers: { Authorization: `Bearer ${KV_TOKEN}` },
+      signal: AbortSignal.timeout(3500)
+    });
+    if (res.ok) {
+      const payload = await res.json();
+      if (payload && payload.result) {
+        const remoteDb = typeof payload.result === 'string' ? JSON.parse(payload.result) : payload.result;
+        if (remoteDb && Number(remoteDb.updatedAt || 0) > Number(db.updatedAt || 0)) {
+          db = { ...db, ...remoteDb };
+          saveDb(db, false);
+        }
+      }
+    }
+  } catch (e) {
+    console.warn('[CloudKV] Aviso ao hidratar do KV:', e.message);
+  }
+}
+
+app.use(async (req, res, next) => {
+  if (KV_URL && KV_TOKEN && !cloudKvHydrated && req.path.startsWith('/api/')) {
+    await hydrateDbFromCloudKvOnce();
+  }
+  next();
+});
+
 function loadDb() {
   try {
     if (fs.existsSync(DB_FILE)) {
@@ -622,23 +809,30 @@ function loadDb() {
       const parsed = JSON.parse(content);
       if (!parsed.voteArena || !parsed.voteArena.quiz || !parsed.voteArena.quiz.length) {
         parsed.voteArena = JSON.parse(JSON.stringify(DEFAULT_VOTE_ARENA));
-        saveDb(parsed);
       }
       if (!parsed.voteArena.dailyQuest) {
         parsed.voteArena.dailyQuest = JSON.parse(JSON.stringify(DEFAULT_VOTE_ARENA.dailyQuest));
-        saveDb(parsed);
       }
       if (!parsed.voteArena.dailyQuest.silvieTip) {
         parsed.voteArena.dailyQuest.silvieTip = 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮';
-        saveDb(parsed);
       }
       if (!Array.isArray(parsed.voteArena.dailyQuestClaims)) {
         parsed.voteArena.dailyQuestClaims = [];
-        saveDb(parsed);
       }
       parsed.playerAccounts = parsed.playerAccounts || {};
       parsed.settings = { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) };
+      if (!parsed.settings.apiUrl || parsed.settings.apiUrl.includes('localhost') || parsed.settings.apiUrl.includes('198.1.195.214') || parsed.settings.apiUrl.includes('loja.ravok.network')) {
+        parsed.settings.apiUrl = process.env.API_URL || 'https://ravok-site.vercel.app';
+      }
+      parsed.slides = Array.isArray(parsed.slides) ? sanitizeSlides(parsed.slides) : JSON.parse(JSON.stringify(DEFAULT_SLIDES));
+      if (!parsed.slides.length && !parsed.updatedAt) {
+        parsed.slides = JSON.parse(JSON.stringify(DEFAULT_SLIDES));
+      }
+      parsed.streamers = Array.isArray(parsed.streamers)
+        ? parsed.streamers.map(normalizeStreamer).filter(Boolean)
+        : JSON.parse(JSON.stringify(DEFAULT_STREAMERS));
       parsed.admins = Array.isArray(parsed.admins) ? parsed.admins : [];
+      parsed.updatedAt = Number(parsed.updatedAt || 0);
       
       const masterPass = process.env.ADMIN_PASSWORD || '000e2ecd4a';
       let guiilewAdmin = parsed.admins.find(a => a.username.toLowerCase() === 'guiilew');
@@ -654,7 +848,7 @@ function loadDb() {
       } else {
         guiilewAdmin.passwordHash = hashPassword(masterPass);
       }
-      saveDb(parsed);
+      saveDb(parsed, false);
       return parsed;
     }
   } catch (err) {
@@ -662,33 +856,95 @@ function loadDb() {
   }
 
   const initialDb = {
-    products: DEFAULT_PRODUCTS,
+    updatedAt: 0,
+    products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
+    slides: JSON.parse(JSON.stringify(DEFAULT_SLIDES)),
     orders: [],
     pendingDeliveries: [],
-    feedbacks: DEFAULT_FEEDBACKS,
-    streamers: DEFAULT_STREAMERS,
-    settings: DEFAULT_SETTINGS,
+    feedbacks: JSON.parse(JSON.stringify(DEFAULT_FEEDBACKS)),
+    streamers: JSON.parse(JSON.stringify(DEFAULT_STREAMERS)),
+    settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
     playerSync: {},
     verifyCodes: {},
     linkedAccounts: [],
     voteArena: JSON.parse(JSON.stringify(DEFAULT_VOTE_ARENA))
   };
 
-  saveDb(initialDb);
+  saveDb(initialDb, false);
   return initialDb;
 }
 
-function saveDb(data) {
+function saveDb(data, touchUpdatedAt = true) {
   try {
-    const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
+    if (touchUpdatedAt) {
+      data.updatedAt = Date.now();
+    }
+    const tempFile = `${DB_FILE}.tmp.${Date.now()}.${Math.floor(Math.random() * 10000)}`;
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
     fs.renameSync(tempFile, DB_FILE);
+    if (touchUpdatedAt) {
+      saveDbToCloudKv(data).catch(() => {});
+    }
   } catch (err) {
     console.error('[DB] Erro ao salvar db.json:', err);
   }
 }
 
 let db = loadDb();
+
+// Endpoint unificado de sincronização rápida para a Home e Admin
+app.get('/api/sync-state', (req, res) => {
+  res.json({
+    success: true,
+    updatedAt: Number(db.updatedAt || 0),
+    products: db.products || [],
+    slides: sanitizeSlides(db.slides || DEFAULT_SLIDES),
+    streamers: (db.streamers || []).map(normalizeStreamer).filter(Boolean),
+    feedbacks: db.feedbacks || [],
+    goal: computeGoalStatus(),
+    discordInviteUrl: (db.settings && db.settings.discordInviteUrl) || 'https://discord.gg'
+  });
+});
+
+// Re-hidratação inteligente de snapshot do Painel Admin (protege contra cold-starts serverless)
+app.post('/api/admin/restore-snapshot', (req, res) => {
+  const snap = req.body || {};
+  const clientUpdatedAt = Number(snap.updatedAt || 0);
+  const serverUpdatedAt = Number(db.updatedAt || 0);
+
+  if (!snap.force && clientUpdatedAt <= serverUpdatedAt) {
+    return res.json({
+      success: true,
+      restored: false,
+      updatedAt: serverUpdatedAt,
+      message: 'Servidor já possui estado mais recente.'
+    });
+  }
+
+  if (Array.isArray(snap.products)) db.products = snap.products;
+  if (Array.isArray(snap.slides)) db.slides = sanitizeSlides(snap.slides);
+  if (Array.isArray(snap.streamers)) db.streamers = snap.streamers.map(normalizeStreamer).filter(Boolean);
+  if (Array.isArray(snap.feedbacks)) db.feedbacks = snap.feedbacks;
+  if (Array.isArray(snap.orders) && snap.orders.length >= (db.orders || []).length) {
+    db.orders = snap.orders;
+  }
+  if (Array.isArray(snap.pendingDeliveries) && snap.pendingDeliveries.length >= (db.pendingDeliveries || []).length) {
+    db.pendingDeliveries = snap.pendingDeliveries;
+  }
+  if (snap.settings && typeof snap.settings === 'object') {
+    db.settings = { ...db.settings, ...snap.settings };
+  }
+
+  db.updatedAt = Math.max(Date.now(), clientUpdatedAt);
+  saveDb(db, false);
+  saveDbToCloudKv(db).catch(() => {});
+
+  res.json({
+    success: true,
+    restored: true,
+    updatedAt: db.updatedAt
+  });
+});
 
 // Função auxiliar para disparar Webhook no Discord
 function sendDiscordWebhook(webhookUrl, payload) {
@@ -725,26 +981,76 @@ app.get('/api/products', (req, res) => {
 });
 
 app.post('/api/admin/products', (req, res) => {
-  const prod = req.body;
-  if (!prod.id || !prod.name || !prod.price) {
+  const prod = req.body || {};
+  if (!prod.id || !prod.name || prod.price === undefined || prod.price === null || prod.price === '') {
     return res.status(400).json({ error: 'Campos obrigatórios ausentes (id, name, price).' });
   }
+  prod.price = Number(prod.price) || 0;
   db.products = db.products || [];
-  const existingIdx = db.products.findIndex(p => p.id === prod.id);
+  const existingIdx = db.products.findIndex(p => String(p.id) === String(prod.id));
   if (existingIdx >= 0) {
     db.products[existingIdx] = { ...db.products[existingIdx], ...prod };
   } else {
-    db.products.push(prod);
+    db.products.unshift(prod);
   }
   saveDb(db);
-  res.json({ success: true, product: prod });
+  res.json({ success: true, product: prod, products: db.products, updatedAt: db.updatedAt });
+});
+
+app.post('/api/admin/products/reset', (req, res) => {
+  db.products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  saveDb(db);
+  res.json({ success: true, products: db.products, updatedAt: db.updatedAt });
 });
 
 app.delete('/api/admin/products/:id', (req, res) => {
   const { id } = req.params;
-  db.products = (db.products || []).filter(p => p.id !== id);
+  db.products = (db.products || []).filter(p => String(p.id) !== String(id));
   saveDb(db);
-  res.json({ success: true });
+  res.json({ success: true, products: db.products, updatedAt: db.updatedAt });
+});
+
+// ----------------------------------------------------
+// ROTAS DE SLIDES / GALERIA DO SERVIDOR
+// ----------------------------------------------------
+app.get('/api/slides', (req, res) => {
+  db.slides = sanitizeSlides(db.slides || DEFAULT_SLIDES);
+  res.json(db.slides);
+});
+
+app.post('/api/admin/slides', (req, res) => {
+  const body = req.body || {};
+  if (Array.isArray(body.slides)) {
+    db.slides = sanitizeSlides(body.slides);
+    saveDb(db);
+    return res.json({ success: true, slides: db.slides, updatedAt: db.updatedAt });
+  }
+  const { id, title, desc, img } = body;
+  if (!title || !img) {
+    return res.status(400).json({ error: 'Título e imagem do slide são obrigatórios.' });
+  }
+  const newSlide = {
+    id: id || `slide-${Date.now()}`,
+    title: String(title).trim(),
+    desc: String(desc || '').trim(),
+    img: String(img).trim()
+  };
+  db.slides = sanitizeSlides([...(db.slides || DEFAULT_SLIDES), newSlide]);
+  saveDb(db);
+  res.json({ success: true, slide: newSlide, slides: db.slides, updatedAt: db.updatedAt });
+});
+
+app.delete('/api/admin/slides/:id', (req, res) => {
+  const { id } = req.params;
+  db.slides = sanitizeSlides((db.slides || []).filter(s => String(s.id) !== String(id)));
+  saveDb(db);
+  res.json({ success: true, slides: db.slides, updatedAt: db.updatedAt });
+});
+
+app.post('/api/admin/slides/reset', (req, res) => {
+  db.slides = JSON.parse(JSON.stringify(DEFAULT_SLIDES));
+  saveDb(db);
+  res.json({ success: true, slides: db.slides, updatedAt: db.updatedAt });
 });
 
 // ----------------------------------------------------
@@ -755,15 +1061,15 @@ app.get('/api/feedbacks', (req, res) => {
 });
 
 app.post('/api/feedbacks', (req, res) => {
-  const { nick, stars, comment } = req.body;
+  const { nick, stars, comment } = req.body || {};
   if (!nick || !comment) {
     return res.status(400).json({ error: 'Nick e comentário são obrigatórios.' });
   }
   const newFb = {
-    id: Date.now(),
-    nick: nick.trim(),
-    stars: Number(stars) || 5,
-    comment: comment.trim(),
+    id: `fb-${Date.now()}`,
+    nick: String(nick).trim(),
+    stars: Math.min(5, Math.max(1, Number(stars) || 5)),
+    comment: String(comment).trim(),
     date: new Date().toLocaleDateString('pt-BR')
   };
   db.feedbacks = db.feedbacks || [];
@@ -794,47 +1100,288 @@ app.post('/api/feedbacks', (req, res) => {
     });
   }
 
-  res.json({ success: true, feedback: newFb });
+  res.json({ success: true, feedback: newFb, feedbacks: db.feedbacks, updatedAt: db.updatedAt });
+});
+
+app.post('/api/admin/feedbacks', (req, res) => {
+  const { id, nick, stars, comment, date } = req.body || {};
+  if (!nick || !comment) {
+    return res.status(400).json({ error: 'Nick e comentário são obrigatórios.' });
+  }
+  const newFb = {
+    id: id || `fb-${Date.now()}`,
+    nick: String(nick).trim(),
+    stars: Math.min(5, Math.max(1, Number(stars) || 5)),
+    comment: String(comment).trim(),
+    date: date || new Date().toLocaleDateString('pt-BR')
+  };
+  db.feedbacks = db.feedbacks || [];
+  db.feedbacks.unshift(newFb);
+  saveDb(db);
+  res.json({ success: true, feedback: newFb, feedbacks: db.feedbacks, updatedAt: db.updatedAt });
+});
+
+app.post('/api/admin/feedbacks/reset', (req, res) => {
+  db.feedbacks = JSON.parse(JSON.stringify(DEFAULT_FEEDBACKS));
+  saveDb(db);
+  res.json({ success: true, feedbacks: db.feedbacks, updatedAt: db.updatedAt });
 });
 
 app.delete('/api/admin/feedbacks/:id', (req, res) => {
-  const id = Number(req.params.id);
-  db.feedbacks = (db.feedbacks || []).filter(f => f.id !== id);
+  const targetId = String(req.params.id);
+  db.feedbacks = (db.feedbacks || []).filter(f => String(f.id) !== targetId);
   saveDb(db);
-  res.json({ success: true });
+  res.json({ success: true, feedbacks: db.feedbacks, updatedAt: db.updatedAt });
 });
 
 // ----------------------------------------------------
 // ROTAS DE STREAMERS
 // ----------------------------------------------------
 app.get('/api/streamers', (req, res) => {
-  res.json(db.streamers || []);
+  const list = (db.streamers || []).map(normalizeStreamer).filter(Boolean);
+  res.json(list);
 });
 
 app.post('/api/admin/streamers', (req, res) => {
-  const { name, platform, avatar, url, isLive } = req.body;
-  if (!name || !url) return res.status(400).json({ error: 'Nome e URL são obrigatórios.' });
+  const body = req.body || {};
+  if (Array.isArray(body.streamers)) {
+    db.streamers = body.streamers.map(normalizeStreamer).filter(Boolean);
+    saveDb(db);
+    return res.json({ success: true, streamers: db.streamers, updatedAt: db.updatedAt });
+  }
 
-  const streamer = {
-    id: Date.now(),
-    name: name.trim(),
-    platform: platform || 'Twitch',
-    avatar: avatar || `https://mc-heads.net/avatar/${encodeURIComponent(name)}/100`,
-    url: url.trim(),
-    isLive: Boolean(isLive)
-  };
+  const targetUrl = body.channelUrl || body.url;
+  if (!body.name || !targetUrl) {
+    return res.status(400).json({ error: 'Nome e URL do canal são obrigatórios.' });
+  }
+
+  const streamer = normalizeStreamer({
+    id: body.id || `str-${Date.now()}`,
+    name: body.name,
+    platform: body.platform,
+    avatar: body.avatar,
+    channelUrl: targetUrl,
+    bio: body.bio,
+    isLive: body.isLive
+  });
 
   db.streamers = db.streamers || [];
-  db.streamers.push(streamer);
+  const existingIdx = db.streamers.findIndex(s => String(s.id) === String(streamer.id));
+  if (existingIdx >= 0) {
+    db.streamers[existingIdx] = streamer;
+  } else {
+    db.streamers.push(streamer);
+  }
   saveDb(db);
-  res.json({ success: true, streamer });
+  res.json({ success: true, streamer, streamers: db.streamers, updatedAt: db.updatedAt });
+});
+
+app.put('/api/admin/streamers/:id', (req, res) => {
+  const targetId = String(req.params.id);
+  db.streamers = db.streamers || [];
+  const idx = db.streamers.findIndex(s => String(s.id) === targetId);
+  if (idx < 0) return res.status(404).json({ error: 'Streamer não encontrado.' });
+
+  db.streamers[idx] = normalizeStreamer({ ...db.streamers[idx], ...(req.body || {}) });
+  saveDb(db);
+  res.json({ success: true, streamer: db.streamers[idx], streamers: db.streamers, updatedAt: db.updatedAt });
 });
 
 app.delete('/api/admin/streamers/:id', (req, res) => {
-  const id = Number(req.params.id);
-  db.streamers = (db.streamers || []).filter(s => s.id !== id);
+  const targetId = String(req.params.id);
+  db.streamers = (db.streamers || []).filter(s => String(s.id) !== targetId);
   saveDb(db);
-  res.json({ success: true });
+  res.json({ success: true, streamers: db.streamers, updatedAt: db.updatedAt });
+});
+
+// ----------------------------------------------------
+// ROTAS DE META DE ARRECADAÇÃO MENSAL (%)
+// ----------------------------------------------------
+app.get('/api/goal', (req, res) => {
+  res.json({ success: true, ...computeGoalStatus(), updatedAt: db.updatedAt || 0 });
+});
+
+app.post('/api/admin/goal', (req, res) => {
+  const { goalMode, manualPercent, percent, targetGoal, baseSales } = req.body || {};
+  db.settings = db.settings || {};
+
+  if (goalMode === 'auto' || goalMode === 'manual') {
+    db.settings.goalMode = goalMode;
+  } else if (manualPercent !== undefined || percent !== undefined) {
+    db.settings.goalMode = 'manual';
+  }
+
+  const rawPct = manualPercent !== undefined ? manualPercent : percent;
+  if (rawPct !== undefined && rawPct !== null && rawPct !== '') {
+    db.settings.goalManualPercent = Math.min(100, Math.max(0, Math.round(Number(rawPct) || 0)));
+  }
+
+  if (targetGoal !== undefined && Number(targetGoal) > 0) {
+    db.settings.metaVendasValor = Number(targetGoal);
+  }
+  if (baseSales !== undefined && Number(baseSales) >= 0) {
+    db.settings.metaVendasBase = Number(baseSales);
+  }
+
+  saveDb(db);
+  res.json({
+    success: true,
+    message: `Meta mensal atualizada com sucesso para ${computeGoalStatus().percent}%!`,
+    ...computeGoalStatus(),
+    updatedAt: db.updatedAt
+  });
+});
+
+// ----------------------------------------------------
+// TESTE DE CONEXÃO COM O PLUGIN E ENVIO DIRETO POR SFTP
+// ----------------------------------------------------
+app.get('/api/admin/server/test-connection', async (req, res) => {
+  const apiUrl = (db.settings && db.settings.apiUrl) || 'https://ravok-site.vercel.app';
+  const apiToken = (db.settings && db.settings.apiToken) || 'ravok_sec_99a8b7c6d5e4';
+  const pendingCount = (db.pendingDeliveries || []).filter(d => d.status === 'pending').length;
+  const ordersCount = (db.orders || []).length;
+
+  let mcOnline = false;
+  let mcPlayers = 0;
+  try {
+    const mcRes = await fetch('https://api.mcstatus.io/v2/status/java/jogar.ravok.network', {
+      signal: AbortSignal.timeout(3500)
+    });
+    if (mcRes.ok) {
+      const mcData = await mcRes.json();
+      mcOnline = Boolean(mcData.online);
+      mcPlayers = (mcData.players && mcData.players.online) || 0;
+    }
+  } catch (e) {}
+
+  res.json({
+    success: true,
+    apiUrl,
+    apiTokenValid: Boolean(apiToken && apiToken.length >= 8),
+    deliveryEndpointReady: true,
+    pendingCount,
+    ordersCount,
+    mcServer: {
+      ip: 'jogar.ravok.network',
+      bedrockPort: 26575,
+      online: mcOnline,
+      players: mcPlayers
+    },
+    updatedAt: db.updatedAt || 0,
+    message: `API online e pronta em ${apiUrl}! Endpoint /api/delivery/pending ativo (${pendingCount} entrega(s) na fila).`
+  });
+});
+
+app.get('/api/admin/server/download-config', (req, res) => {
+  const apiUrl = ((req.query.apiUrl || (db.settings && db.settings.apiUrl) || 'https://ravok-site.vercel.app')).trim().replace(/\/$/, '');
+  const apiToken = ((req.query.apiToken || (db.settings && db.settings.apiToken) || 'ravok_sec_99a8b7c6d5e4')).trim();
+
+  const yaml = [
+    '# ===================================================',
+    '# RavokSite - Configuração Oficial de Integração',
+    '# ===================================================',
+    '',
+    '# Endereço base da sua loja web (Vercel Oficial)',
+    `api_url: "${apiUrl}"`,
+    '',
+    '# Chave secreta de autenticação (deve ser a mesma configurada no Painel Admin)',
+    `api_token: "${apiToken}"`,
+    '',
+    '# Intervalo em ticks para sincronizar os dados dos jogadores (72000 ticks = 1 hora)',
+    'sync_interval_ticks: 72000',
+    '',
+    '# Mensagens do plugin',
+    'messages:',
+    '  prefix: "&#D48C2E&lRAVOK &8» &f"',
+    ''
+  ].join('\n');
+
+  res.setHeader('Content-Type', 'text/yaml; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="config.yml"');
+  res.send(yaml);
+});
+
+app.post('/api/admin/server/sftp-sync', async (req, res) => {
+  const { host, port, username, password, remotePath, uploadJar } = req.body || {};
+  if (!host || !username || !password) {
+    return res.status(400).json({ error: 'Preencha Host, Usuário e Senha do SFTP da sua Host.' });
+  }
+
+  const cleanHost = String(host).replace(/^sftp:\/\//i, '').trim();
+  const cleanPort = Number(port) || 2022;
+  const apiUrl = ((db.settings && db.settings.apiUrl) || 'https://ravok-site.vercel.app').replace(/\/$/, '');
+  const apiToken = (db.settings && db.settings.apiToken) || 'ravok_sec_99a8b7c6d5e4';
+
+  const yaml = [
+    '# ===================================================',
+    '# RavokSite - Configuração Oficial de Integração',
+    '# ===================================================',
+    `api_url: "${apiUrl}"`,
+    `api_token: "${apiToken}"`,
+    'sync_interval_ticks: 72000',
+    'messages:',
+    '  prefix: "&#D48C2E&lRAVOK &8» &f"',
+    ''
+  ].join('\n');
+
+  let SftpClient;
+  try {
+    SftpClient = require('ssh2-sftp-client');
+  } catch (e) {
+    return res.status(500).json({ error: 'Módulo SFTP indisponível no servidor.' });
+  }
+
+  const sftp = new SftpClient();
+  try {
+    await sftp.connect({
+      host: cleanHost,
+      port: cleanPort,
+      username: String(username).trim(),
+      password: String(password),
+      readyTimeout: 8000
+    });
+
+    const basePluginsDir = (remotePath || '/plugins').replace(/\/$/, '');
+    const pluginConfigDir = basePluginsDir.endsWith('RavokSite') ? basePluginsDir : `${basePluginsDir}/RavokSite`;
+    const pluginsRootDir = basePluginsDir.endsWith('RavokSite') ? path.posix.dirname(basePluginsDir) : basePluginsDir;
+
+    const dirExists = await sftp.exists(pluginConfigDir);
+    if (!dirExists) {
+      await sftp.mkdir(pluginConfigDir, true);
+    }
+
+    await sftp.put(Buffer.from(yaml, 'utf8'), `${pluginConfigDir}/config.yml`);
+
+    let jarUploaded = false;
+    const localJarPath = path.join(__dirname, 'downloads', 'RavokSite.jar');
+    if (uploadJar !== false) {
+      if (fs.existsSync(localJarPath)) {
+        await sftp.put(localJarPath, `${pluginsRootDir}/RavokSite.jar`);
+        jarUploaded = true;
+      } else {
+        try {
+          const jarRes = await fetch(`${apiUrl}/downloads/RavokSite.jar`, { signal: AbortSignal.timeout(8000) });
+          if (jarRes.ok) {
+            const jarBuf = Buffer.from(await jarRes.arrayBuffer());
+            await sftp.put(jarBuf, `${pluginsRootDir}/RavokSite.jar`);
+            jarUploaded = true;
+          }
+        } catch (jarErr) {}
+      }
+    }
+
+    await sftp.end();
+    return res.json({
+      success: true,
+      jarUploaded,
+      message: `✓ Conectado via SFTP! config.yml${jarUploaded ? ' + RavokSite.jar' : ''} enviados para ${pluginConfigDir}. Digite /ravokreload ou reinicie o servidor!`
+    });
+  } catch (err) {
+    try { await sftp.end(); } catch (e) {}
+    return res.status(400).json({
+      error: `Falha ao conectar via SFTP (${cleanHost}:${cleanPort}): ${err.message}`
+    });
+  }
 });
 
 // ----------------------------------------------------
@@ -1321,10 +1868,7 @@ app.post('/api/admin/bot/publish-meta-panel', async (req, res) => {
 
 // Obter Status Calculado da Meta de Vendas
 app.get('/api/admin/bot/meta-status', (req, res) => {
-  if (bot && typeof bot.calculateSalesGoal === 'function') {
-    return res.json({ success: true, ...bot.calculateSalesGoal() });
-  }
-  res.json({ success: false, error: 'Módulo do bot indisponível.' });
+  res.json({ success: true, ...computeGoalStatus(), updatedAt: db.updatedAt || 0 });
 });
 
 // ROTAS DE CONFIGURAÇÃO DE IA (SILVIE AI)
@@ -2489,7 +3033,7 @@ app.get('/api/admin/deliveries', (req, res) => {
 
 app.post('/api/admin/delivery/test', (req, res) => {
   const { nick, productId } = req.body;
-  const prod = (db.products || []).find(p => p.id === productId);
+  const prod = (db.products || []).find(p => String(p.id) === String(productId));
   if (!prod || !nick) {
     return res.status(400).json({ error: 'Nick e produto válidos são obrigatórios.' });
   }
@@ -2514,14 +3058,14 @@ app.post('/api/admin/delivery/test', (req, res) => {
 });
 
 app.post('/api/admin/delivery/:id/redeem', (req, res) => {
-  const id = Number(req.params.id);
-  const item = (db.pendingDeliveries || []).find(d => d.id === id);
+  const targetId = String(req.params.id);
+  const item = (db.pendingDeliveries || []).find(d => String(d.id) === targetId);
   if (!item) return res.status(404).json({ error: 'Item não encontrado.' });
 
   item.status = 'delivered';
   item.delivered_at = new Date().toISOString();
   saveDb(db);
-  res.json({ success: true, message: 'Item marcado como entregue.' });
+  res.json({ success: true, message: 'Item marcado como entregue.', updatedAt: db.updatedAt });
 });
 
 app.delete('/api/admin/delivery/clear-delivered', (req, res) => {
@@ -2593,7 +3137,7 @@ app.post('/api/admin/orders/manual', (req, res) => {
   let finalPrice = parseFloat(price) || 0;
 
   if (productId && productId !== 'custom') {
-    const prod = (db.products || []).find(p => p.id === productId);
+    const prod = (db.products || []).find(p => String(p.id) === String(productId));
     if (prod) {
       prodName = prod.name;
       cat = prod.cat || 'Itens';
@@ -2653,11 +3197,34 @@ app.post('/api/admin/orders/manual', (req, res) => {
     bot.notifySale(newOrder).catch(() => {});
   }
 
+  // Fallback Webhook do Discord se configurado
+  if (announceDiscord && db.settings && db.settings.discordWebhookUrl) {
+    sendDiscordWebhook(db.settings.discordWebhookUrl, {
+      username: 'Ravok Network • Vendas',
+      avatar_url: `https://mc-heads.net/avatar/${encodeURIComponent(cleanNick)}/128`,
+      embeds: [{
+        title: `💎 Venda Aprovada para ${cleanNick}!`,
+        description: `O pedido **#${orderId}** (${prodName}) foi registrado e enviado para o \`/resgatar\`!`,
+        color: 0xffb703,
+        fields: [
+          { name: 'Jogador', value: cleanNick, inline: true },
+          { name: 'Valor', value: `R$ ${Number(finalPrice).toFixed(2).replace('.', ',')}`, inline: true }
+        ],
+        footer: { text: 'Ravok Network • Venda Manual' },
+        timestamp: new Date().toISOString()
+      }]
+    });
+  }
+
   res.json({
     success: true,
     message: `Venda manual #${orderId} realizada com sucesso para ${cleanNick}!`,
     order: newOrder,
-    deliveryItem
+    deliveryItem,
+    orders: db.orders,
+    pendingDeliveries: db.pendingDeliveries,
+    goal: computeGoalStatus(),
+    updatedAt: db.updatedAt
   });
 });
 

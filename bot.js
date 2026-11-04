@@ -23,8 +23,9 @@ const fs = require('fs');
 const path = require('path');
 const { generateWelcomeCard } = require('./welcomeCard.js');
 
-const DB_FILE = path.join(__dirname, 'data', 'db.json');
-const API_BASE = process.env.API_URL || 'http://localhost:3000';
+const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'data') : path.join(__dirname, 'data');
+const DB_FILE = path.join(DATA_DIR, 'db.json');
+const API_BASE = process.env.API_URL || 'https://ravok-site.vercel.app';
 const SERVER_IP = 'jogar.ravok.network';
 
 function getDbSettings() {
@@ -2414,17 +2415,24 @@ function calculateSalesGoal() {
   } catch (e) {}
 
   const baseSales = Number(settings.metaVendasBase || 0);
-  const targetGoal = Number(settings.metaVendasValor || 100);
+  const targetGoal = Number(settings.metaVendasValor || 2000);
+  const goalMode = settings.goalMode || 'manual';
 
   const approvedTotal = orders
-    .filter(o => o.status === 'approved' || o.status === 'paid' || o.status === 'completed')
+    .filter(o => ['aprovado', 'approved', 'paid', 'completed', 'entregue'].includes(String(o.status || '').toLowerCase()))
     .reduce((acc, o) => acc + Number(o.total || 0), 0);
 
   const totalArrecadado = Math.max(0, baseSales + approvedTotal);
-  const percent = targetGoal > 0 ? Math.min(100, Math.round((totalArrecadado / targetGoal) * 100)) : 100;
+  const autoPercent = targetGoal > 0 ? Math.min(100, Math.round((totalArrecadado / targetGoal) * 100)) : 0;
+  const percent = goalMode === 'manual'
+    ? Math.min(100, Math.max(0, Math.round(Number(settings.goalManualPercent || 0))))
+    : autoPercent;
   const falta = Math.max(0, targetGoal - totalArrecadado);
 
   return {
+    goalMode,
+    manualPercent: Math.min(100, Math.max(0, Math.round(Number(settings.goalManualPercent || 0)))),
+    autoPercent,
     totalArrecadado,
     targetGoal,
     percent,

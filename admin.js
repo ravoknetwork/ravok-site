@@ -432,12 +432,47 @@ const DEFAULT_SLIDES = [
   }
 ];
 const escapeHtml = str => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
-// Limpeza única de cache local de testes para exibir banco novo limpo
-if (!sessionStorage.getItem('ravok_db_clean_v1')) {
-  localStorage.removeItem('ravok_orders');
-  localStorage.removeItem('ravok_pending_deliveries');
-  sessionStorage.setItem('ravok_db_clean_v1', 'true');
+
+function notifyPublicSite(type = 'all') {
+  try {
+    const bc = new BroadcastChannel('ravok_sync');
+    bc.postMessage({ type, ts: Date.now() });
+    bc.close();
+  } catch (e) {}
 }
+
+function getAdminAuthHeaders(extra = {}) {
+  const token = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token') || '';
+  return token ? { ...extra, 'x-admin-token': token } : { ...extra };
+}
+
+function saveAdminSnapshot(serverUpdatedAt) {
+  try {
+    const goalRaw = JSON.parse(localStorage.getItem('ravok_goal_v1') || '{}');
+    const apiRaw = JSON.parse(localStorage.getItem('ravok_api_settings') || '{}');
+    const discRaw = JSON.parse(localStorage.getItem('ravok_discord_settings') || '{}');
+    const snap = {
+      updatedAt: Number(serverUpdatedAt) || Date.now(),
+      products: getStoredProducts(),
+      slides: getStoredSlides(),
+      streamers: getStoredStreamers(),
+      feedbacks: getStoredFeedbacks(),
+      orders: getStoredOrders(),
+      pendingDeliveries: getStoredPendingDeliveries(),
+      settings: {
+        apiUrl: apiRaw.url || 'https://ravok-site.vercel.app',
+        apiToken: apiRaw.token || 'ravok_sec_99a8b7c6d5e4',
+        discordInviteUrl: discRaw.inviteUrl || 'https://discord.gg',
+        discordWebhookUrl: discRaw.webhookUrl || '',
+        goalMode: goalRaw.goalMode || 'manual',
+        goalManualPercent: Number(goalRaw.manualPercent !== undefined ? goalRaw.manualPercent : (goalRaw.percent || 0)),
+        metaVendasValor: Number(goalRaw.targetGoal || 2000)
+      }
+    };
+    localStorage.setItem('ravok_admin_snapshot_v1', JSON.stringify(snap));
+  } catch (e) {}
+}
+
 function toast(msg) {
   const t = by('#adminToast');
   t.textContent = msg;
@@ -570,30 +605,87 @@ if (logoutBtn) {
   };
 }
 
-// Sincronização geral com a API Node.js
+// Sincronização geral com a API Node.js (com proteção anti cold-start serverless)
 async function syncAdminFromBackend() {
   if (!window.location.protocol.startsWith('http')) return;
   try {
-    const adminToken = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token');
-    const authHeaders = adminToken ? { 'x-admin-token': adminToken } : {};
+    const authHeaders = getAdminAuthHeaders();
+    let localSnap = null;
+    try {
+      const rawSnap = localStorage.getItem('ravok_admin_snapshot_v1');
+      if (rawSnap) localSnap = JSON.parse(rawSnap);
+    } catch (e) {}
 
-    const [pRes, oRes, dRes, fRes, sRes, setRes] = await Promise.all([
-      fetch('/api/products'),
+    const syncRes = await fetch('/api/sync-state');
+    if (syncRes.ok) {
+      let state = await syncRes.json();
+
+      // Se o container serverless acabou de subir zerado e temos um snapshot administrativo mais recente, restaura no servidor!
+      if (localSnap && Number(localSnap.updatedAt || 0) > Number(state.updatedAt || 0)) {
+        try {
+          const restoreRes = await fetch('/api/admin/restore-snapshot', {
+            method: 'POST',
+            headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify(localSnap)
+          });
+          if (restoreRes.ok) {
+            const refreshed = await fetch('/api/sync-state');
+            if (refreshed.ok) state = await refreshed.json();
+          }
+        } catch (reErr) {}
+      }
+
+      if (Array.isArray(state.products)) {
+        localStorage.setItem('ravok_products_v5', JSON.stringify(state.products));
+        localStorage.setItem('ravok_products_synced', '1');
+      }
+      if (Array.isArray(state.slides)) {
+        localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(state.slides));
+      }
+      if (Array.isArray(state.streamers)) {
+        localStorage.setItem('ravok_streamers', JSON.stringify(state.streamers));
+        localStorage.setItem('ravok_streamers_synced', '1');
+      }
+      if (Array.isArray(state.feedbacks)) {
+        localStorage.setItem('ravok_feedbacks', JSON.stringify(state.feedbacks));
+        localStorage.setItem('ravok_feedbacks_synced', '1');
+      }
+      if (state.goal) {
+        localStorage.setItem('ravok_goal_v1', JSON.stringify(state.goal));
+      }
+    }
+
+    const [oRes, dRes, setRes] = await Promise.all([
       fetch('/api/admin/orders', { headers: authHeaders }),
       fetch('/api/admin/deliveries', { headers: authHeaders }),
-      fetch('/api/feedbacks'),
-      fetch('/api/streamers'),
       fetch('/api/admin/settings', { headers: authHeaders })
     ]);
 
-    if (pRes.ok) localStorage.setItem('ravok_products_v5', JSON.stringify(await pRes.json()));
-    if (oRes.ok) localStorage.setItem('ravok_orders', JSON.stringify(await oRes.json()));
-    if (dRes.ok) localStorage.setItem('ravok_pending_deliveries', JSON.stringify(await dRes.json()));
-    if (fRes.ok) localStorage.setItem('ravok_feedbacks', JSON.stringify(await fRes.json()));
-    if (sRes.ok) localStorage.setItem('ravok_streamers', JSON.stringify(await sRes.json()));
+    if (oRes.ok) {
+      const serverOrders = await oRes.json();
+      if (Array.isArray(serverOrders)) {
+        // Não sobrescrever pedidos locais se o servidor estiver vazio por cold-start e já houver pedidos no snapshot
+        const localOrders = getStoredOrders();
+        if (serverOrders.length > 0 || !localOrders.length) {
+          localStorage.setItem('ravok_orders', JSON.stringify(serverOrders));
+        }
+      }
+    }
+    if (dRes.ok) {
+      const serverDelivs = await dRes.json();
+      if (Array.isArray(serverDelivs)) {
+        const localDelivs = getStoredPendingDeliveries();
+        if (serverDelivs.length > 0 || !localDelivs.length) {
+          localStorage.setItem('ravok_pending_deliveries', JSON.stringify(serverDelivs));
+        }
+      }
+    }
     if (setRes.ok) {
       const set = await setRes.json();
-      localStorage.setItem('ravok_api_settings', JSON.stringify({ url: set.apiUrl, token: set.apiToken }));
+      const resolvedUrl = (!set.apiUrl || set.apiUrl.includes('localhost') || set.apiUrl.includes('loja.ravok.network'))
+        ? window.location.origin
+        : set.apiUrl;
+      localStorage.setItem('ravok_api_settings', JSON.stringify({ url: resolvedUrl, token: set.apiToken || 'ravok_sec_99a8b7c6d5e4' }));
       localStorage.setItem('ravok_discord_settings', JSON.stringify({ inviteUrl: set.discordInviteUrl, webhookUrl: set.discordWebhookUrl }));
       localStorage.setItem('ravok_mp_creds', JSON.stringify({ publicKey: set.mpPublicKey, accessToken: set.mpAccessToken }));
       localStorage.setItem('ravok_bot_settings', JSON.stringify({
@@ -606,6 +698,12 @@ async function syncAdminFromBackend() {
     }
 
     refreshDashboard();
+    renderProductsTable();
+    renderSliderTable();
+    renderStreamersTable();
+    renderFeedbacksTable();
+    renderOrdersTable();
+    renderServerTab();
   } catch (e) {
     console.log('Operando com armazenamento local no painel.');
   }
@@ -663,22 +761,146 @@ by('#quickAddProductBtn').onclick = () => {
 };
 
 // ----------------------------------------------------
-// 2. DASHBOARD
+// 2. DASHBOARD & CONTROLE DA META MENSAL (%)
 // ----------------------------------------------------
+function getStoredGoalState() {
+  try {
+    const raw = localStorage.getItem('ravok_goal_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch (e) {}
+  return { goalMode: 'manual', manualPercent: 0, percent: 0, targetGoal: 2000 };
+}
+
+function updateAdminGoalPreviewUI(goal) {
+  const pct = Math.min(100, Math.max(0, Math.round(Number(goal.percent || 0))));
+  const mode = goal.goalMode === 'auto' ? 'auto' : 'manual';
+  const pill = by('#adminGoalPreviewPill');
+  const fill = by('#adminGoalProgressFill');
+  const modeSelect = by('#adminGoalModeSelect');
+  const rangeInput = by('#adminGoalRange');
+  const numInput = by('#adminGoalPercentInput');
+  const targetInput = by('#adminGoalTargetInput');
+  const manualGroup = by('#adminGoalManualGroup');
+  const targetGroup = by('#adminGoalTargetGroup');
+
+  if (pill) pill.textContent = `${pct}% Atingida`;
+  if (fill) fill.style.width = `${pct}%`;
+  if (modeSelect && document.activeElement !== modeSelect) modeSelect.value = mode;
+  if (rangeInput && document.activeElement !== rangeInput) rangeInput.value = String(pct);
+  if (numInput && document.activeElement !== numInput) numInput.value = String(pct);
+  if (targetInput && goal.targetGoal && document.activeElement !== targetInput) {
+    targetInput.value = String(goal.targetGoal);
+  }
+  if (manualGroup) manualGroup.style.opacity = mode === 'manual' ? '1' : '0.45';
+  if (targetGroup) targetGroup.style.display = mode === 'auto' ? 'block' : 'none';
+}
+
+function setupAdminGoalControls() {
+  const modeSelect = by('#adminGoalModeSelect');
+  const rangeInput = by('#adminGoalRange');
+  const numInput = by('#adminGoalPercentInput');
+  const targetInput = by('#adminGoalTargetInput');
+  const saveBtn = by('#saveAdminGoalBtn');
+
+  if (!saveBtn) return;
+
+  if (modeSelect) {
+    modeSelect.onchange = () => {
+      const isAuto = modeSelect.value === 'auto';
+      if (by('#adminGoalManualGroup')) by('#adminGoalManualGroup').style.opacity = isAuto ? '0.45' : '1';
+      if (by('#adminGoalTargetGroup')) by('#adminGoalTargetGroup').style.display = isAuto ? 'block' : 'none';
+    };
+  }
+
+  if (rangeInput && numInput) {
+    rangeInput.oninput = () => {
+      numInput.value = rangeInput.value;
+      if (modeSelect) modeSelect.value = 'manual';
+      if (by('#adminGoalManualGroup')) by('#adminGoalManualGroup').style.opacity = '1';
+      if (by('#adminGoalTargetGroup')) by('#adminGoalTargetGroup').style.display = 'none';
+      if (by('#adminGoalPreviewPill')) by('#adminGoalPreviewPill').textContent = `${rangeInput.value}% Atingida`;
+      if (by('#adminGoalProgressFill')) by('#adminGoalProgressFill').style.width = `${rangeInput.value}%`;
+    };
+    numInput.oninput = () => {
+      const clamped = Math.min(100, Math.max(0, Math.round(Number(numInput.value) || 0)));
+      rangeInput.value = String(clamped);
+      if (modeSelect) modeSelect.value = 'manual';
+      if (by('#adminGoalPreviewPill')) by('#adminGoalPreviewPill').textContent = `${clamped}% Atingida`;
+      if (by('#adminGoalProgressFill')) by('#adminGoalProgressFill').style.width = `${clamped}%`;
+    };
+  }
+
+  window.setQuickGoalPercent = async (pct) => {
+    const clamped = Math.min(100, Math.max(0, Math.round(Number(pct) || 0)));
+    if (modeSelect) modeSelect.value = 'manual';
+    if (rangeInput) rangeInput.value = String(clamped);
+    if (numInput) numInput.value = String(clamped);
+    saveBtn.click();
+  };
+
+  saveBtn.onclick = async () => {
+    const goalMode = modeSelect ? modeSelect.value : 'manual';
+    const manualPercent = Math.min(100, Math.max(0, Math.round(Number(numInput ? numInput.value : 0) || 0)));
+    const targetGoal = Math.max(1, Number(targetInput ? targetInput.value : 2000) || 2000);
+
+    let updatedGoal = {
+      goalMode,
+      manualPercent,
+      targetGoal,
+      percent: goalMode === 'manual' ? manualPercent : 0
+    };
+
+    if (window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/admin/goal', {
+          method: 'POST',
+          headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ goalMode, manualPercent, targetGoal })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success) {
+            updatedGoal = data;
+          }
+        }
+      } catch (e) {}
+    }
+
+    localStorage.setItem('ravok_goal_v1', JSON.stringify(updatedGoal));
+    updateAdminGoalPreviewUI(updatedGoal);
+    saveAdminSnapshot(updatedGoal.updatedAt);
+    notifyPublicSite('goal');
+    toast(`✓ Meta mensal atualizada para ${updatedGoal.percent}% no site!`);
+  };
+}
+
+window.openManualSaleShortcut = () => {
+  const openBtn = by('#openManualSaleBtn');
+  if (openBtn) {
+    openBtn.click();
+  } else {
+    switchTab('orders');
+  }
+};
+
 function refreshDashboard() {
-  const products = getStoredProducts();
   const orders = getStoredOrders();
   const pending = getStoredPendingDeliveries();
   const feedbacks = getStoredFeedbacks();
 
   const totalRevenue = orders
-    .filter(o => o.status === 'aprovado' || o.status === 'entregue')
+    .filter(o => o.status === 'aprovado' || o.status === 'entregue' || o.status === 'approved')
     .reduce((acc, o) => acc + Number(o.total || 0), 0);
 
   by('#statRevenue').textContent = money(totalRevenue);
   by('#statOrdersCount').textContent = orders.length;
   by('#statPendingDeliveries').textContent = pending.filter(d => d.status === 'pending').length;
   by('#statFeedbacksCount').textContent = feedbacks.length;
+
+  updateAdminGoalPreviewUI(getStoredGoalState());
 
   const recentList = by('#recentOrdersList');
   if (!orders.length) {
@@ -687,12 +909,12 @@ function refreshDashboard() {
     recentList.innerHTML = orders.slice(0, 5).map(o => `
       <div style="display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid rgba(56,189,248,0.08);">
         <div>
-          <strong style="color:#fff; display:block; font-size:13px;">${o.nick}</strong>
+          <strong style="color:#fff; display:block; font-size:13px;">${escapeHtml(o.nick)}</strong>
           <small style="color:var(--muted);">${o.items ? o.items.length : 1} item(ns) • ${o.date}</small>
         </div>
         <div style="text-align:right;">
           <span style="color:var(--blue); font-weight:800; display:block;">${money(o.total)}</span>
-          <span class="badge ${o.status === 'aprovado' ? 'badge-success' : 'badge-warning'}">${o.status.toUpperCase()}</span>
+          <span class="badge ${o.status === 'aprovado' ? 'badge-success' : 'badge-warning'}">${String(o.status || 'aprovado').toUpperCase()}</span>
         </div>
       </div>
     `).join('');
@@ -710,7 +932,7 @@ function getStoredProducts() {
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed) && (parsed.length > 0 || localStorage.getItem('ravok_products_synced') === '1')) return parsed;
     } catch (e) {}
   }
   if (typeof DEFAULT_PRODUCTS !== 'undefined') {
@@ -720,8 +942,11 @@ function getStoredProducts() {
   return [];
 }
 
-function saveStoredProducts(prods) {
+function saveStoredProducts(prods, updatedAt) {
   localStorage.setItem('ravok_products_v5', JSON.stringify(prods));
+  localStorage.setItem('ravok_products_synced', '1');
+  saveAdminSnapshot(updatedAt);
+  notifyPublicSite('products');
   renderProductsTable();
   refreshDashboard();
 }
@@ -745,7 +970,7 @@ function renderProductsTable() {
         <td>${iconDisplay}</td>
         <td><strong style="color:#fff;">${p.name}</strong></td>
         <td><span class="badge badge-get">${p.cat}</span></td>
-        <td><strong>${money(p.price)}</strong></td>
+        <td><strong>${p.inestimavel || p.price === 0 ? '✨ Inestimável' : money(p.price)}</strong></td>
         <td><code>${p.guiIcon || 'CHEST'}</code></td>
         <td><code style="max-width:240px; overflow:hidden; text-overflow:ellipsis; display:inline-block;">${p.command || 'Nenhum'}</code></td>
         <td style="text-align:right;">
@@ -775,7 +1000,7 @@ by('#openProductModalBtn').onclick = () => openProductModal();
 by('#closeProductModalBtn').onclick = () => by('#productModal').close();
 by('#cancelProductBtn').onclick = () => by('#productModal').close();
 
-by('#productForm').onsubmit = (e) => {
+by('#productForm').onsubmit = async (e) => {
   e.preventDefault();
   const id = by('#editProductId').value || `item-${Date.now()}`;
   const name = by('#prodName').value.trim();
@@ -787,64 +1012,91 @@ by('#productForm').onsubmit = (e) => {
   const description = by('#prodDesc').value.trim();
 
   let prods = getStoredProducts();
-  const existingIdx = prods.findIndex(p => p.id === id);
-  const productData = { id, name, cat, price, icon, guiIcon, command, description };
+  const existingIdx = prods.findIndex(p => String(p.id) === String(id));
+  const defaultImg = icon.startsWith('http') || icon.startsWith('images/') || icon.startsWith('data:')
+    ? icon
+    : 'images/emblema_ravok_outonal.png';
+
+  const productData = existingIdx >= 0
+    ? { ...prods[existingIdx], id, name, cat, price, icon, guiIcon, command, description }
+    : { id, name, cat, price, icon, image: defaultImg, guiIcon, command, description };
 
   if (existingIdx >= 0) {
     prods[existingIdx] = productData;
-    toast(`Produto "${name}" atualizado com sucesso!`);
   } else {
     prods.unshift(productData);
-    toast(`Produto "${name}" adicionado com sucesso!`);
   }
 
-  saveStoredProducts(prods);
-
+  let serverUpdatedAt = Date.now();
   if (window.location.protocol.startsWith('http')) {
-    const adminToken = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token');
-    fetch('/api/admin/products', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-admin-token': adminToken
-      },
-      body: JSON.stringify(productData)
-    }).catch(() => {});
+    try {
+      const res = await fetch('/api/admin/products', {
+        method: 'POST',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(productData)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.products)) prods = data.products;
+        if (data.updatedAt) serverUpdatedAt = data.updatedAt;
+      }
+    } catch (err) {}
   }
 
+  saveStoredProducts(prods, serverUpdatedAt);
+  toast(existingIdx >= 0 ? `✓ Produto "${name}" atualizado e sincronizado!` : `✓ Produto "${name}" adicionado na loja!`);
   by('#productModal').close();
 };
 
 window.editProduct = (id) => {
   const prods = getStoredProducts();
-  const p = prods.find(item => item.id === id);
+  const p = prods.find(item => String(item.id) === String(id));
   if (p) openProductModal(p);
 };
 
-window.deleteProduct = (id) => {
+window.deleteProduct = async (id) => {
   if (confirm('Tem certeza de que deseja excluir este produto?')) {
-    let prods = getStoredProducts();
-    prods = prods.filter(p => p.id !== id);
-    saveStoredProducts(prods);
+    let prods = getStoredProducts().filter(p => String(p.id) !== String(id));
+    let serverUpdatedAt = Date.now();
 
     if (window.location.protocol.startsWith('http')) {
-      const adminToken = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token');
-      fetch(`/api/admin/products/${id}`, {
-        method: 'DELETE',
-        headers: { 'x-admin-token': adminToken }
-      }).catch(() => {});
+      try {
+        const res = await fetch(`/api/admin/products/${encodeURIComponent(id)}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.products)) prods = data.products;
+          if (data.updatedAt) serverUpdatedAt = data.updatedAt;
+        }
+      } catch (err) {}
     }
 
-    toast('Produto excluído com sucesso.');
+    saveStoredProducts(prods, serverUpdatedAt);
+    toast('✓ Produto excluído e sincronizado.');
   }
 };
 
-by('#resetProductsBtn').onclick = () => {
+by('#resetProductsBtn').onclick = async () => {
   if (confirm('Deseja restaurar a lista padrão de produtos da loja?')) {
-    localStorage.removeItem('ravok_products_v5');
-    toast('Produtos restaurados para os padrões.');
-    renderProductsTable();
-    refreshDashboard();
+    let prods = typeof DEFAULT_PRODUCTS !== 'undefined' ? DEFAULT_PRODUCTS : [];
+    let serverUpdatedAt = Date.now();
+    if (window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/admin/products/reset', {
+          method: 'POST',
+          headers: getAdminAuthHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.products)) prods = data.products;
+          if (data.updatedAt) serverUpdatedAt = data.updatedAt;
+        }
+      } catch (e) {}
+    }
+    saveStoredProducts(prods, serverUpdatedAt);
+    toast('✓ Produtos restaurados para os padrões oficiais.');
   }
 };
 
@@ -967,25 +1219,40 @@ window.deleteImage = (idx) => {
   }
 };
 
-// SLIDER TABLE NO PAINEL
+// SLIDER TABLE NO PAINEL (SINCRONIZADO COM A PÁGINA PRINCIPAL)
+function cleanSlidesList(list) {
+  if (!Array.isArray(list)) return [];
+  const broken = ['ravok_bg_hq.png', 'hero-landscape.png', 'gallery-1.png'];
+  return list.filter(s => s && typeof s.img === 'string' && s.img.trim() && !broken.some(b => s.img.includes(b)));
+}
+
 function getStoredSlides() {
-  const data = localStorage.getItem('ravok_slider_slides_s3_v2');
+  const data = localStorage.getItem('ravok_slider_slides_s3_v4');
   if (data) {
     try {
-      const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      const parsed = cleanSlidesList(JSON.parse(data));
+      if (parsed.length > 0) return parsed;
     } catch (e) {}
   }
   if (typeof DEFAULT_SLIDES !== 'undefined') {
-    localStorage.setItem('ravok_slider_slides_s3_v2', JSON.stringify(DEFAULT_SLIDES));
+    localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(DEFAULT_SLIDES));
     return DEFAULT_SLIDES;
   }
   return [];
 }
 
+function saveStoredSlides(slides, updatedAt) {
+  const clean = cleanSlidesList(slides);
+  localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(clean));
+  saveAdminSnapshot(updatedAt);
+  notifyPublicSite('slides');
+  renderSliderTable();
+}
+
 function renderSliderTable() {
   const slides = getStoredSlides();
   const tbody = by('#sliderTableBody');
+  if (!tbody) return;
 
   if (!slides.length) {
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--muted); padding:20px;">Nenhum slide cadastrado.</td></tr>';
@@ -995,10 +1262,10 @@ function renderSliderTable() {
   tbody.innerHTML = slides.map((s, idx) => `
     <tr>
       <td>
-        <img src="${s.img}" style="width:70px; height:44px; object-fit:cover; border-radius:6px; border:1px solid var(--panel-border);">
+        <img src="${s.img}" style="width:70px; height:44px; object-fit:cover; border-radius:6px; border:1px solid var(--panel-border);" onerror="this.src='images/gallery/spawn_ravok_outonal.png'">
       </td>
-      <td><strong style="color:#fff;">${s.title}</strong></td>
-      <td><span style="color:var(--muted); font-size:12px;">${s.desc || ''}</span></td>
+      <td><strong style="color:#fff;">${escapeHtml(s.title)}</strong></td>
+      <td><span style="color:var(--muted); font-size:12px;">${escapeHtml(s.desc || '')}</span></td>
       <td style="text-align:right;">
         <button class="btn-danger" onclick="deleteSlide(${idx})">Excluir</button>
       </td>
@@ -1020,7 +1287,7 @@ by('#slideFileInput').onchange = (e) => {
   reader.readAsDataURL(file);
 };
 
-by('#slideForm').onsubmit = (e) => {
+by('#slideForm').onsubmit = async (e) => {
   e.preventDefault();
   const title = by('#slideTitle').value.trim();
   const desc = by('#slideDesc').value.trim();
@@ -1028,79 +1295,153 @@ by('#slideForm').onsubmit = (e) => {
 
   if (!title || !img) return;
 
-  const slides = getStoredSlides();
-  slides.push({
+  let slides = getStoredSlides();
+  const newSlide = {
     id: `slide-${Date.now()}`,
-    title: title,
-    desc: desc,
-    img: img
-  });
+    title,
+    desc,
+    img
+  };
+  slides.push(newSlide);
 
-  localStorage.setItem('ravok_slider_slides_s3_v2', JSON.stringify(slides));
+  let updatedAt = Date.now();
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      const res = await fetch('/api/admin/slides', {
+        method: 'POST',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ slides })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.slides)) slides = data.slides;
+        if (data.updatedAt) updatedAt = data.updatedAt;
+      }
+    } catch (err) {}
+  }
+
+  saveStoredSlides(slides, updatedAt);
   by('#slideModal').close();
   by('#slideForm').reset();
-  renderSliderTable();
-  toast('Novo slide adicionado à galeria!');
+  toast('✓ Novo slide adicionado e sincronizado com o site!');
 };
 
-window.deleteSlide = (idx) => {
+window.deleteSlide = async (idx) => {
   if (confirm('Deseja excluir este slide?')) {
-    const slides = getStoredSlides();
+    let slides = getStoredSlides();
+    const removed = slides[idx];
     slides.splice(idx, 1);
-    localStorage.setItem('ravok_slider_slides_s3_v2', JSON.stringify(slides));
-    renderSliderTable();
-    toast('Slide removido.');
+
+    let updatedAt = Date.now();
+    if (window.location.protocol.startsWith('http') && removed) {
+      try {
+        const res = await fetch('/api/admin/slides', {
+          method: 'POST',
+          headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ slides })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.slides)) slides = data.slides;
+          if (data.updatedAt) updatedAt = data.updatedAt;
+        }
+      } catch (err) {}
+    }
+
+    saveStoredSlides(slides, updatedAt);
+    toast('✓ Slide removido com sucesso.');
   }
 };
 
+if (by('#resetSlidesBtn')) {
+  by('#resetSlidesBtn').onclick = async () => {
+    if (!confirm('Restaurar os 7 slides oficiais da Galeria do Servidor?')) return;
+    let slides = typeof DEFAULT_SLIDES !== 'undefined' ? DEFAULT_SLIDES : [];
+    let updatedAt = Date.now();
+    if (window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/admin/slides/reset', {
+          method: 'POST',
+          headers: getAdminAuthHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.slides)) slides = data.slides;
+          if (data.updatedAt) updatedAt = data.updatedAt;
+        }
+      } catch (e) {}
+    }
+    saveStoredSlides(slides, updatedAt);
+    toast('✓ Slides da galeria restaurados com sucesso!');
+  };
+}
+
 // ----------------------------------------------------
-// 5. STREAMERS & CRIADORES
+// 5. STREAMERS & CRIADORES (SINCRONIZADO COM BACKEND)
 // ----------------------------------------------------
 function getStoredStreamers() {
   const data = localStorage.getItem('ravok_streamers');
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) {
+        return parsed.map(s => ({
+          ...s,
+          channelUrl: s.channelUrl || s.url || 'https://twitch.tv',
+          url: s.url || s.channelUrl || 'https://twitch.tv'
+        }));
+      }
     } catch (e) {}
   }
   return [];
 }
 
+function saveStoredStreamers(streamers, updatedAt) {
+  localStorage.setItem('ravok_streamers', JSON.stringify(streamers));
+  localStorage.setItem('ravok_streamers_synced', '1');
+  saveAdminSnapshot(updatedAt);
+  notifyPublicSite('streamers');
+  renderStreamersTable();
+}
+
 function renderStreamersTable() {
   const streamers = getStoredStreamers();
   const tbody = by('#streamersTableBody');
+  if (!tbody) return;
 
   if (!streamers.length) {
     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--muted); padding:30px;">Nenhum criador parceiro registrado.</td></tr>';
     return;
   }
 
-  tbody.innerHTML = streamers.map((s, idx) => `
-    <tr>
-      <td>
-        <img src="${s.avatar}" style="width:34px; height:34px; border-radius:8px; border:1px solid var(--blue-bright);">
-      </td>
-      <td><strong style="color:#fff;">${s.name}</strong></td>
-      <td><span class="badge badge-get">${s.platform}</span></td>
-      <td><a href="${s.channelUrl}" target="_blank" style="color:var(--blue-bright); text-decoration:none;">${s.channelUrl}</a></td>
-      <td>
-        <button class="btn-sm" onclick="toggleStreamerLive(${idx})">
-          ${s.isLive ? '🔴 AO VIVO' : '● Offline'}
-        </button>
-      </td>
-      <td style="text-align:right;">
-        <button class="btn-danger" onclick="deleteStreamer(${idx})">Excluir</button>
-      </td>
-    </tr>
-  `).join('');
+  tbody.innerHTML = streamers.map((s, idx) => {
+    const link = s.channelUrl || s.url || 'https://twitch.tv';
+    return `
+      <tr>
+        <td>
+          <img src="${s.avatar}" style="width:34px; height:34px; border-radius:8px; border:1px solid var(--blue-bright);">
+        </td>
+        <td><strong style="color:#fff;">${escapeHtml(s.name)}</strong></td>
+        <td><span class="badge badge-get">${escapeHtml(s.platform)}</span></td>
+        <td><a href="${escapeHtml(link)}" target="_blank" style="color:var(--blue-bright); text-decoration:none;">${escapeHtml(link)}</a></td>
+        <td>
+          <button class="btn-sm" onclick="toggleStreamerLive(${idx})">
+            ${s.isLive ? '🔴 AO VIVO' : '● Offline'}
+          </button>
+        </td>
+        <td style="text-align:right;">
+          <button class="btn-danger" onclick="deleteStreamer(${idx})">Excluir</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
 by('#openStreamerModalBtn').onclick = () => by('#streamerModal').showModal();
 by('#closeStreamerModalBtn').onclick = () => by('#streamerModal').close();
 by('#cancelStreamerBtn').onclick = () => by('#streamerModal').close();
 
-by('#streamerForm').onsubmit = (e) => {
+by('#streamerForm').onsubmit = async (e) => {
   e.preventDefault();
   const name = by('#strName').value.trim();
   const platform = by('#strPlatform').value;
@@ -1111,48 +1452,99 @@ by('#streamerForm').onsubmit = (e) => {
 
   const avatar = avatarNick.startsWith('http')
     ? avatarNick
-    : `https://mc-heads.net/avatar/${avatarNick}/64`;
+    : `https://mc-heads.net/avatar/${encodeURIComponent(avatarNick)}/64`;
 
-  const streamers = getStoredStreamers();
-  streamers.push({
+  const newStreamer = {
     id: `str-${Date.now()}`,
     name,
     platform,
+    url: channelUrl,
     channelUrl,
     avatar,
     isLive,
     bio
-  });
+  };
 
-  localStorage.setItem('ravok_streamers', JSON.stringify(streamers));
+  let streamers = getStoredStreamers();
+  streamers.push(newStreamer);
+  let updatedAt = Date.now();
+
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      const res = await fetch('/api/admin/streamers', {
+        method: 'POST',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(newStreamer)
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.streamers)) streamers = data.streamers;
+        if (data.updatedAt) updatedAt = data.updatedAt;
+      }
+    } catch (err) {}
+  }
+
+  saveStoredStreamers(streamers, updatedAt);
   by('#streamerModal').close();
   by('#streamerForm').reset();
-  renderStreamersTable();
-  toast(`Criador "${name}" adicionado com sucesso!`);
+  toast(`✓ Criador "${name}" adicionado e sincronizado com o site!`);
 };
 
-window.toggleStreamerLive = (idx) => {
-  const streamers = getStoredStreamers();
-  if (streamers[idx]) {
-    streamers[idx].isLive = !streamers[idx].isLive;
-    localStorage.setItem('ravok_streamers', JSON.stringify(streamers));
-    renderStreamersTable();
-    toast(`Status de ${streamers[idx].name} alterado!`);
+window.toggleStreamerLive = async (idx) => {
+  let streamers = getStoredStreamers();
+  if (!streamers[idx]) return;
+
+  streamers[idx].isLive = !streamers[idx].isLive;
+  const target = streamers[idx];
+  let updatedAt = Date.now();
+
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      const res = await fetch(`/api/admin/streamers/${encodeURIComponent(target.id)}`, {
+        method: 'PUT',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ isLive: target.isLive })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (Array.isArray(data.streamers)) streamers = data.streamers;
+        if (data.updatedAt) updatedAt = data.updatedAt;
+      }
+    } catch (err) {}
   }
+
+  saveStoredStreamers(streamers, updatedAt);
+  toast(`✓ Status de ${target.name} alterado para ${target.isLive ? 'AO VIVO' : 'Offline'}!`);
 };
 
-window.deleteStreamer = (idx) => {
+window.deleteStreamer = async (idx) => {
   if (confirm('Deseja excluir este criador?')) {
-    const streamers = getStoredStreamers();
+    let streamers = getStoredStreamers();
+    const target = streamers[idx];
     streamers.splice(idx, 1);
-    localStorage.setItem('ravok_streamers', JSON.stringify(streamers));
-    renderStreamersTable();
-    toast('Criador removido.');
+    let updatedAt = Date.now();
+
+    if (window.location.protocol.startsWith('http') && target) {
+      try {
+        const res = await fetch(`/api/admin/streamers/${encodeURIComponent(target.id)}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.streamers)) streamers = data.streamers;
+          if (data.updatedAt) updatedAt = data.updatedAt;
+        }
+      } catch (err) {}
+    }
+
+    saveStoredStreamers(streamers, updatedAt);
+    toast('✓ Criador removido e sincronizado.');
   }
 };
 
 // ----------------------------------------------------
-// 6. AVALIAÇÕES (FEEDBACKS)
+// 6. AVALIAÇÕES / FEEDBACKS (SINCRONIZADO COM BACKEND)
 // ----------------------------------------------------
 function getStoredFeedbacks() {
   const data = localStorage.getItem('ravok_feedbacks');
@@ -1165,9 +1557,19 @@ function getStoredFeedbacks() {
   return [];
 }
 
+function saveStoredFeedbacks(fbs, updatedAt) {
+  localStorage.setItem('ravok_feedbacks', JSON.stringify(fbs));
+  localStorage.setItem('ravok_feedbacks_synced', '1');
+  saveAdminSnapshot(updatedAt);
+  notifyPublicSite('feedbacks');
+  renderFeedbacksTable();
+  refreshDashboard();
+}
+
 function renderFeedbacksTable() {
   const feedbacks = getStoredFeedbacks();
   const tbody = by('#feedbacksTableBody');
+  if (!tbody) return;
 
   if (!feedbacks.length) {
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:30px;">Nenhuma avaliação registrada ainda.</td></tr>';
@@ -1178,13 +1580,13 @@ function renderFeedbacksTable() {
     <tr>
       <td>
         <div style="display:flex; align-items:center; gap:10px;">
-          <img src="https://mc-heads.net/avatar/${f.nick}/32" style="width:28px; height:28px; border-radius:6px; image-rendering:pixelated;">
-          <strong style="color:#fff;">${f.nick}</strong>
+          <img src="https://mc-heads.net/avatar/${encodeURIComponent(f.nick)}/32" style="width:28px; height:28px; border-radius:6px; image-rendering:pixelated;">
+          <strong style="color:#fff;">${escapeHtml(f.nick)}</strong>
         </div>
       </td>
-      <td><span style="color:#fbbf24; font-size:14px;">${'★'.repeat(f.stars)}</span></td>
-      <td><span style="color:var(--ink); font-size:13px; max-width:400px; display:inline-block;">"${f.comment}"</span></td>
-      <td><small style="color:var(--muted);">${f.date || 'Recente'}</small></td>
+      <td><span style="color:#fbbf24; font-size:14px;">${'★'.repeat(Number(f.stars) || 5)}</span></td>
+      <td><span style="color:var(--ink); font-size:13px; max-width:400px; display:inline-block;">"${escapeHtml(f.comment)}"</span></td>
+      <td><small style="color:var(--muted);">${escapeHtml(f.date || 'Recente')}</small></td>
       <td style="text-align:right;">
         <button class="btn-danger" onclick="deleteFeedback(${idx})">Excluir</button>
       </td>
@@ -1192,23 +1594,102 @@ function renderFeedbacksTable() {
   `).join('');
 }
 
-window.deleteFeedback = (idx) => {
+if (by('#openAdminFeedbackModalBtn')) {
+  by('#openAdminFeedbackModalBtn').onclick = () => by('#adminFeedbackModal') && by('#adminFeedbackModal').showModal();
+}
+if (by('#closeAdminFeedbackModalBtn')) {
+  by('#closeAdminFeedbackModalBtn').onclick = () => by('#adminFeedbackModal') && by('#adminFeedbackModal').close();
+}
+if (by('#cancelAdminFeedbackBtn')) {
+  by('#cancelAdminFeedbackBtn').onclick = () => by('#adminFeedbackModal') && by('#adminFeedbackModal').close();
+}
+if (by('#adminFeedbackForm')) {
+  by('#adminFeedbackForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const nick = by('#adminFbNick').value.trim();
+    const stars = parseInt(by('#adminFbStars').value, 10) || 5;
+    const comment = by('#adminFbComment').value.trim();
+    if (!nick || !comment) return;
+
+    const newFb = {
+      id: `fb-${Date.now()}`,
+      nick,
+      stars,
+      comment,
+      date: new Date().toLocaleDateString('pt-BR')
+    };
+
+    let fbs = getStoredFeedbacks();
+    fbs.unshift(newFb);
+    let updatedAt = Date.now();
+
+    if (window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/admin/feedbacks', {
+          method: 'POST',
+          headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(newFb)
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.feedbacks)) fbs = data.feedbacks;
+          if (data.updatedAt) updatedAt = data.updatedAt;
+        }
+      } catch (err) {}
+    }
+
+    saveStoredFeedbacks(fbs, updatedAt);
+    by('#adminFeedbackModal').close();
+    by('#adminFeedbackForm').reset();
+    toast(`✓ Avaliação de "${nick}" adicionada e sincronizada!`);
+  };
+}
+
+window.deleteFeedback = async (idx) => {
   if (confirm('Deseja excluir esta avaliação?')) {
-    const fbs = getStoredFeedbacks();
+    let fbs = getStoredFeedbacks();
+    const target = fbs[idx];
     fbs.splice(idx, 1);
-    localStorage.setItem('ravok_feedbacks', JSON.stringify(fbs));
-    renderFeedbacksTable();
-    refreshDashboard();
-    toast('Avaliação excluída.');
+    let updatedAt = Date.now();
+
+    if (window.location.protocol.startsWith('http') && target) {
+      try {
+        const res = await fetch(`/api/admin/feedbacks/${encodeURIComponent(target.id)}`, {
+          method: 'DELETE',
+          headers: getAdminAuthHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.feedbacks)) fbs = data.feedbacks;
+          if (data.updatedAt) updatedAt = data.updatedAt;
+        }
+      } catch (err) {}
+    }
+
+    saveStoredFeedbacks(fbs, updatedAt);
+    toast('✓ Avaliação excluída e sincronizada.');
   }
 };
 
-by('#resetFeedbacksBtn').onclick = () => {
+by('#resetFeedbacksBtn').onclick = async () => {
   if (confirm('Restaurar as avaliações padrão?')) {
-    localStorage.removeItem('ravok_feedbacks');
-    renderFeedbacksTable();
-    refreshDashboard();
-    toast('Avaliações restauradas.');
+    let fbs = [];
+    let updatedAt = Date.now();
+    if (window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/admin/feedbacks/reset', {
+          method: 'POST',
+          headers: getAdminAuthHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data.feedbacks)) fbs = data.feedbacks;
+          if (data.updatedAt) updatedAt = data.updatedAt;
+        }
+      } catch (e) {}
+    }
+    saveStoredFeedbacks(fbs, updatedAt);
+    toast('✓ Avaliações restauradas e sincronizadas.');
   }
 };
 
@@ -1216,14 +1697,24 @@ by('#resetFeedbacksBtn').onclick = () => {
 // 7. INTEGRAÇÃO SERVIDOR & DISCORD
 // ----------------------------------------------------
 function getApiSettings() {
+  const defaultOrigin = window.location.protocol.startsWith('http')
+    ? window.location.origin
+    : 'https://ravok-site.vercel.app';
+
   const saved = localStorage.getItem('ravok_api_settings');
   if (saved) {
     try {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (parsed && parsed.url) {
+        if (parsed.url.includes('loja.ravok.network') || parsed.url.includes('198.1.195.214') || (parsed.url.includes('localhost') && !window.location.hostname.includes('localhost'))) {
+          parsed.url = defaultOrigin;
+        }
+        return parsed;
+      }
     } catch (e) {}
   }
   return {
-    url: 'https://loja.ravok.network',
+    url: defaultOrigin,
     token: 'ravok_sec_99a8b7c6d5e4'
   };
 }
@@ -1239,16 +1730,17 @@ function getStoredPendingDeliveries() {
   return [];
 }
 
-function saveStoredPendingDeliveries(deliveries) {
+function saveStoredPendingDeliveries(deliveries, updatedAt) {
   localStorage.setItem('ravok_pending_deliveries', JSON.stringify(deliveries));
+  saveAdminSnapshot(updatedAt);
   renderServerTab();
   refreshDashboard();
 }
 
 function renderServerTab() {
   const settings = getApiSettings();
-  by('#serverApiUrl').value = settings.url;
-  by('#serverApiToken').value = settings.token;
+  if (by('#serverApiUrl')) by('#serverApiUrl').value = settings.url;
+  if (by('#serverApiToken')) by('#serverApiToken').value = settings.token;
 
   // Discord
   const discordSettings = JSON.parse(localStorage.getItem('ravok_discord_settings') || '{}');
@@ -1265,13 +1757,16 @@ function renderServerTab() {
   // Produtos para despacho manual
   const prods = getStoredProducts();
   const testSelect = by('#testProductSelect');
-  testSelect.innerHTML = prods.map(p => `
-    <option value="${p.id}">${p.name} (${p.cat}) — ${p.command || 'Sem comando'}</option>
-  `).join('');
+  if (testSelect) {
+    testSelect.innerHTML = prods.map(p => `
+      <option value="${p.id}">${p.name} (${p.cat}) — ${p.command || 'Sem comando'}</option>
+    `).join('');
+  }
 
   // Fila de entregas
   const queue = getStoredPendingDeliveries();
   const tbody = by('#deliveryQueueTableBody');
+  if (!tbody) return;
 
   if (!queue.length) {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:30px;">Nenhum item pendente no momento. Todas as entregas estão em dia.</td></tr>';
@@ -1281,11 +1776,11 @@ function renderServerTab() {
   tbody.innerHTML = queue.map((item) => `
     <tr>
       <td><code>#${item.orderId || item.id}</code></td>
-      <td><strong style="color:var(--blue);">${item.nick}</strong></td>
-      <td><strong style="color:#fff;">${item.product_name}</strong></td>
-      <td><span class="badge badge-get">${item.category}</span></td>
-      <td><code>${item.gui_icon || 'CHEST'}</code></td>
-      <td><code style="max-width:240px; overflow:hidden; text-overflow:ellipsis; display:inline-block;">${item.command}</code></td>
+      <td><strong style="color:var(--blue);">${escapeHtml(item.nick)}</strong></td>
+      <td><strong style="color:#fff;">${escapeHtml(item.product_name)}</strong></td>
+      <td><span class="badge badge-get">${escapeHtml(item.category)}</span></td>
+      <td><code>${escapeHtml(item.gui_icon || 'CHEST')}</code></td>
+      <td><code style="max-width:240px; overflow:hidden; text-overflow:ellipsis; display:inline-block;">${escapeHtml(item.command)}</code></td>
       <td><span class="badge ${item.status === 'pending' ? 'badge-warning' : 'badge-success'}">${item.status === 'pending' ? 'Aguardando /resgatar' : 'Resgatado'}</span></td>
       <td style="text-align:right;">
         ${item.status === 'pending'
@@ -1304,7 +1799,7 @@ function renderServerTab() {
 }
 
 by('#saveApiSettingsBtn').onclick = async () => {
-  const url = by('#serverApiUrl').value.trim();
+  const url = by('#serverApiUrl').value.trim().replace(/\/$/, '');
   const token = by('#serverApiToken').value.trim();
   localStorage.setItem('ravok_api_settings', JSON.stringify({ url, token }));
 
@@ -1312,15 +1807,179 @@ by('#saveApiSettingsBtn').onclick = async () => {
     try {
       await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ apiUrl: url, apiToken: token })
       });
     } catch (e) {}
   }
 
-  toast('Configurações da API salvas com sucesso!');
+  saveAdminSnapshot();
+  toast('✓ Configurações da API salvas com sucesso!');
   refreshDashboard();
 };
+
+if (by('#testServerConnBtn')) {
+  by('#testServerConnBtn').onclick = async () => {
+    const resBox = by('#serverConnTestResult');
+    if (resBox) {
+      resBox.style.display = 'block';
+      resBox.style.background = 'rgba(255, 193, 7, 0.1)';
+      resBox.style.border = '1px solid rgba(255, 193, 7, 0.35)';
+      resBox.style.color = '#ffe082';
+      resBox.innerHTML = '⏳ Testando comunicação da API e endpoint <code>/api/delivery/pending</code>...';
+    }
+
+    if (!window.location.protocol.startsWith('http')) {
+      if (resBox) resBox.innerHTML = '⚠️ Abra o painel pelo endereço oficial (<code>https://ravok-site.vercel.app/admin</code>) para testar a API em tempo real.';
+      return;
+    }
+
+    const t0 = Date.now();
+    try {
+      const tokenVal = by('#serverApiToken').value.trim();
+      const [diagRes, pendingRes] = await Promise.all([
+        fetch('/api/admin/server/test-connection', { headers: getAdminAuthHeaders() }),
+        fetch(`/api/delivery/pending?nick=Guiilew&key=${encodeURIComponent(tokenVal)}`)
+      ]);
+      const latency = Date.now() - t0;
+      const diag = diagRes.ok ? await diagRes.json() : null;
+
+      if (diag && pendingRes.ok) {
+        if (resBox) {
+          resBox.style.background = 'rgba(0, 255, 204, 0.1)';
+          resBox.style.border = '1px solid rgba(0, 255, 204, 0.4)';
+          resBox.style.color = '#d1fae5';
+          resBox.innerHTML = `
+            <strong>✅ Conexão com o Site 100% Operacional (${latency}ms)!</strong><br>
+            • URL Ativa: <code>${escapeHtml(window.location.origin)}</code><br>
+            • Rota <code>/api/delivery/pending</code> validada com sucesso com o token atual.<br>
+            • Servidor MC (<code>jogar.ravok.network</code> • Bedrock <code>26575</code>): <strong>${diag.mcServer && diag.mcServer.online ? `ONLINE (${diag.mcServer.players} jogadores)` : 'Aguardando / Manutenção'}</strong><br>
+            <span style="color:#fde68a;">👉 Se no jogo aparecer falha, baixe o <code>config.yml</code> + <code>RavokSite.jar</code> acima (ou use o botão SFTP abaixo) e reinicie o plugin!</span>
+          `;
+        }
+        toast('✓ API do site testada e 100% operacional!');
+      } else {
+        if (resBox) {
+          resBox.style.background = 'rgba(239, 68, 68, 0.12)';
+          resBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          resBox.style.color = '#fecaca';
+          resBox.innerHTML = '❌ Token divergente! Clique em <strong>Salvar Configurações</strong> acima primeiro para sincronizar o token.';
+        }
+      }
+    } catch (err) {
+      if (resBox) {
+        resBox.style.background = 'rgba(239, 68, 68, 0.12)';
+        resBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        resBox.style.color = '#fecaca';
+        resBox.innerHTML = `❌ Falha ao contatar a API: ${escapeHtml(err.message)}`;
+      }
+    }
+  };
+}
+
+if (by('#downloadPluginConfigBtn')) {
+  by('#downloadPluginConfigBtn').onclick = () => {
+    const apiUrl = (by('#serverApiUrl').value.trim() || window.location.origin).replace(/\/$/, '');
+    const apiToken = by('#serverApiToken').value.trim() || 'ravok_sec_99a8b7c6d5e4';
+    const yaml = [
+      '# ===================================================',
+      '# RavokSite - Configuração Oficial de Integração',
+      '# ===================================================',
+      '',
+      '# Endereço base da sua loja web (Vercel Oficial)',
+      `api_url: "${apiUrl}"`,
+      '',
+      '# Chave secreta de autenticação (mesma do Painel Admin)',
+      `api_token: "${apiToken}"`,
+      '',
+      'sync_interval_ticks: 72000',
+      'messages:',
+      '  prefix: "&#D48C2E&lRAVOK &8» &f"',
+      ''
+    ].join('\n');
+
+    const blob = new Blob([yaml], { type: 'text/yaml;charset=utf-8' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'config.yml';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    toast('✓ Arquivo config.yml baixado! Coloque em /plugins/RavokSite/config.yml');
+  };
+}
+
+if (by('#sftpSyncForm')) {
+  by('#sftpSyncForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const host = by('#sftpHostInput').value.trim();
+    const port = parseInt(by('#sftpPortInput').value, 10) || 2022;
+    const remotePath = by('#sftpRemotePathInput').value.trim() || '/plugins';
+    const username = by('#sftpUserInput').value.trim();
+    const password = by('#sftpPassInput').value;
+    const uploadJar = by('#sftpUploadJarCheck').checked;
+    const statusBox = by('#sftpSyncStatus');
+    const btn = by('#runSftpSyncBtn');
+
+    if (!host || !username || !password) {
+      return toast('Preencha Host, Usuário e Senha do SFTP.');
+    }
+
+    if (btn) btn.disabled = true;
+    if (statusBox) {
+      statusBox.style.display = 'block';
+      statusBox.style.background = 'rgba(255, 193, 7, 0.1)';
+      statusBox.style.border = '1px solid rgba(255, 193, 7, 0.35)';
+      statusBox.style.color = '#ffe082';
+      statusBox.textContent = `⏳ Conectando via SFTP em ${host}:${port} e enviando arquivos do plugin...`;
+    }
+
+    try {
+      // Garantir que apiUrl e apiToken atuais estejam salvos antes do envio
+      await fetch('/api/admin/settings', {
+        method: 'POST',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({
+          apiUrl: by('#serverApiUrl').value.trim().replace(/\/$/, ''),
+          apiToken: by('#serverApiToken').value.trim()
+        })
+      }).catch(() => {});
+
+      const res = await fetch('/api/admin/server/sftp-sync', {
+        method: 'POST',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ host, port, remotePath, username, password, uploadJar })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        if (statusBox) {
+          statusBox.style.background = 'rgba(0, 255, 204, 0.1)';
+          statusBox.style.border = '1px solid rgba(0, 255, 204, 0.4)';
+          statusBox.style.color = '#d1fae5';
+          statusBox.textContent = data.message;
+        }
+        toast('✓ Plugin e config.yml sincronizados via SFTP com sucesso!');
+      } else {
+        if (statusBox) {
+          statusBox.style.background = 'rgba(239, 68, 68, 0.12)';
+          statusBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+          statusBox.style.color = '#fecaca';
+          statusBox.textContent = '❌ ' + (data.error || 'Não foi possível enviar via SFTP.');
+        }
+        toast(data.error || 'Falha na conexão SFTP.');
+      }
+    } catch (err) {
+      if (statusBox) {
+        statusBox.style.background = 'rgba(239, 68, 68, 0.12)';
+        statusBox.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+        statusBox.style.color = '#fecaca';
+        statusBox.textContent = '❌ Erro de rede ao enviar comando SFTP.';
+      }
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  };
+}
 
 by('#generateTokenBtn').onclick = () => {
   const rand = 'ravok_sec_' + Array.from(crypto.getRandomValues(new Uint8Array(12)))
@@ -1344,13 +2003,15 @@ by('#saveDiscordBtn').onclick = async () => {
     try {
       await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ discordInviteUrl: inviteUrl, discordWebhookUrl: webhookUrl })
       });
     } catch (e) {}
   }
 
-  toast('Configurações do Discord salvas!');
+  saveAdminSnapshot();
+  notifyPublicSite('discord');
+  toast('✓ Configurações do Discord salvas!');
 };
 
 // TESTAR DISCORD WEBHOOK AO VIVO
@@ -2022,7 +2683,7 @@ function updateWelcomeBgUI(url) {
   if (select) {
     if (!cleanUrl) {
       select.value = '';
-    } else if (cleanUrl === 'images/ravok_bg_hq.png' || cleanUrl === 'banner-server.png' || cleanUrl === 'images/hero-landscape.png') {
+    } else if (cleanUrl === 'images/gallery/spawn_ravok_outonal.png' || cleanUrl === 'banner-server.png' || cleanUrl === 'images/gallery/por_do_sol_canyon.png') {
       select.value = cleanUrl;
     } else {
       select.value = 'custom';
@@ -2374,8 +3035,18 @@ by('#sendTestItemBtn').onclick = async () => {
 window.markDeliveryDelivered = async (id) => {
   if (window.location.protocol.startsWith('http')) {
     try {
-      const res = await fetch(`/api/admin/delivery/${id}/redeem`, { method: 'POST' });
+      const res = await fetch(`/api/admin/delivery/${encodeURIComponent(id)}/redeem`, {
+        method: 'POST',
+        headers: getAdminAuthHeaders()
+      });
       if (res.ok) {
+        const queue = getStoredPendingDeliveries();
+        const item = queue.find(d => String(d.id) === String(id));
+        if (item) {
+          item.status = 'delivered';
+          item.delivered_at = new Date().toISOString();
+          saveStoredPendingDeliveries(queue);
+        }
         await syncAdminFromBackend();
         return toast('✓ Item marcado como entregue com sucesso!');
       }
@@ -2388,8 +3059,6 @@ window.markDeliveryDelivered = async (id) => {
     item.status = 'delivered';
     item.delivered_at = new Date().toISOString();
     saveStoredPendingDeliveries(queue);
-    renderDeliveriesQueue();
-    refreshDashboard();
   }
   toast('✓ Item marcado como entregue com sucesso!');
 };
@@ -2397,37 +3066,37 @@ window.markDeliveryDelivered = async (id) => {
 window.deleteDeliveryItem = async (id) => {
   if (!confirm('Deseja realmente remover este item da fila de entregas?')) return;
 
+  let queue = getStoredPendingDeliveries().filter(d => String(d.id) !== String(id));
+  localStorage.setItem('ravok_pending_deliveries', JSON.stringify(queue));
+
   if (window.location.protocol.startsWith('http')) {
     try {
-      const res = await fetch(`/api/admin/delivery/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        await syncAdminFromBackend();
-        return toast('✓ Item removido da fila com sucesso.');
-      }
+      await fetch(`/api/admin/delivery/${encodeURIComponent(id)}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders()
+      });
     } catch (e) {}
   }
 
-  let queue = getStoredPendingDeliveries();
-  queue = queue.filter(d => String(d.id) !== String(id));
   saveStoredPendingDeliveries(queue);
-  renderDeliveriesQueue();
-  refreshDashboard();
-  toast('Item removido da fila.');
+  toast('✓ Item removido da fila com sucesso.');
 };
 
 by('#clearDeliveredBtn').onclick = async () => {
+  let queue = getStoredPendingDeliveries().filter(d => d.status === 'pending');
+  localStorage.setItem('ravok_pending_deliveries', JSON.stringify(queue));
+
   if (window.location.protocol.startsWith('http')) {
     try {
-      await fetch('/api/admin/delivery/clear-delivered', { method: 'DELETE' });
-      await syncAdminFromBackend();
-      return toast('Entregas concluídas foram limpas.');
+      await fetch('/api/admin/delivery/clear-delivered', {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders()
+      });
     } catch (e) {}
   }
 
-  let queue = getStoredPendingDeliveries();
-  queue = queue.filter(d => d.status === 'pending');
   saveStoredPendingDeliveries(queue);
-  toast('Entregas concluídas foram limpas.');
+  toast('✓ Entregas concluídas foram limpas.');
 };
 
 // ----------------------------------------------------
@@ -2447,10 +3116,11 @@ function getStoredOrders() {
 function renderOrdersTable() {
   const orders = getStoredOrders();
   const tbody = by('#ordersTableBody');
+  if (!tbody) return;
 
   const mpCreds = JSON.parse(localStorage.getItem('ravok_mp_creds') || '{}');
-  if (mpCreds.publicKey) by('#mpPublicKey').value = mpCreds.publicKey;
-  if (mpCreds.accessToken) by('#mpAccessToken').value = mpCreds.accessToken;
+  if (mpCreds.publicKey && by('#mpPublicKey')) by('#mpPublicKey').value = mpCreds.publicKey;
+  if (mpCreds.accessToken && by('#mpAccessToken')) by('#mpAccessToken').value = mpCreds.accessToken;
 
   if (!orders.length) {
     tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:30px;">Nenhum pedido realizado ainda.</td></tr>';
@@ -2462,11 +3132,11 @@ function renderOrdersTable() {
     return `
       <tr>
         <td><code>#${o.id}</code></td>
-        <td><strong style="color:var(--blue);">${o.nick}</strong></td>
-        <td>${itemsDesc}</td>
+        <td><strong style="color:var(--blue);">${escapeHtml(o.nick)}</strong></td>
+        <td>${escapeHtml(itemsDesc)}</td>
         <td><strong style="color:#fff;">${money(o.total)}</strong></td>
-        <td>${o.date}</td>
-        <td><span class="badge ${o.status === 'aprovado' ? 'badge-success' : 'badge-warning'}">${o.status.toUpperCase()}</span></td>
+        <td>${escapeHtml(o.date)}</td>
+        <td><span class="badge ${o.status === 'aprovado' ? 'badge-success' : 'badge-warning'}">${String(o.status || 'aprovado').toUpperCase()}</span></td>
         <td style="text-align:right;">
           <button class="btn-sm btn-danger" onclick="deleteOrder('${o.id}')" title="Excluir este pedido">🗑️ Excluir</button>
         </td>
@@ -2478,22 +3148,22 @@ function renderOrdersTable() {
 window.deleteOrder = async (orderId) => {
   if (!confirm(`Deseja realmente excluir o pedido #${orderId}?`)) return;
 
+  let orders = getStoredOrders().filter(o => String(o.id) !== String(orderId));
+  localStorage.setItem('ravok_orders', JSON.stringify(orders));
+
   if (window.location.protocol.startsWith('http')) {
     try {
-      const res = await fetch(`/api/admin/orders/${orderId}`, { method: 'DELETE' });
-      if (res.ok) {
-        await syncAdminFromBackend();
-        return toast(`✓ Pedido #${orderId} excluído com sucesso.`);
-      }
+      await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}`, {
+        method: 'DELETE',
+        headers: getAdminAuthHeaders()
+      });
     } catch (e) {}
   }
 
-  let orders = getStoredOrders();
-  orders = orders.filter(o => String(o.id) !== String(orderId));
-  localStorage.setItem('ravok_orders', JSON.stringify(orders));
+  saveAdminSnapshot();
   renderOrdersTable();
   refreshDashboard();
-  toast(`Pedido #${orderId} excluído.`);
+  toast(`✓ Pedido #${orderId} excluído com sucesso.`);
 };
 
 by('#saveMpCredentialsBtn').onclick = async () => {
@@ -2505,17 +3175,18 @@ by('#saveMpCredentialsBtn').onclick = async () => {
     try {
       await fetch('/api/admin/settings', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify({ mpPublicKey: publicKey, mpAccessToken: accessToken })
       });
     } catch (e) {}
   }
 
-  toast('Credenciais do Mercado Pago salvas com sucesso!');
+  saveAdminSnapshot();
+  toast('✓ Credenciais do Mercado Pago salvas com sucesso!');
 };
 
 // ====================================================
-// VENDA MANUAL (ADMIN)
+// VENDA MANUAL (ADMIN — SALVA PEDIDO + FILA + SNAPSHOT)
 // ====================================================
 function setupManualSale() {
   const openBtn = by('#openManualSaleBtn');
@@ -2538,7 +3209,7 @@ function setupManualSale() {
     const products = getStoredProducts();
     select.innerHTML = `
       <option value="">-- Selecione um produto ou Personalizado --</option>
-      ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-command="${(p.command || '').replace(/"/g, '&quot;')}">${p.name} — ${money(p.price)}</option>`).join('')}
+      ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-command="${(p.command || '').replace(/"/g, '&quot;')}">${p.name} — ${p.inestimavel || p.price === 0 ? 'Inestimável / R$ 0,00' : money(p.price)}</option>`).join('')}
       <option value="custom">✏️ Item / Comando Personalizado</option>
     `;
     by('#manualSaleNick').value = '';
@@ -2583,38 +3254,120 @@ function setupManualSale() {
     const enqueueDelivery = by('#manualSaleEnqueueDelivery').checked;
     const announceDiscord = by('#manualSaleAnnounceDiscord').checked;
 
-    try {
-      const res = await fetch('/api/admin/orders/manual', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          nick,
-          productId,
-          customName,
-          price,
-          command,
-          enqueueDelivery,
-          announceDiscord
-        })
-      });
+    const prod = productId && productId !== 'custom'
+      ? getStoredProducts().find(p => String(p.id) === String(productId))
+      : null;
 
-      const data = await res.json();
-      if (res.ok && data.success) {
-        toast(`✓ ${data.message}`);
-        modal.close();
-        await syncAdminFromBackend();
-        renderOrdersTable();
-        if (typeof renderDeliveriesQueueTable === 'function') renderDeliveriesQueueTable();
-      } else {
-        toast(data.error || 'Erro ao realizar venda manual.');
+    const resolvedName = (customName || (prod && prod.name) || 'Item Manual').trim();
+    const resolvedCmd = (command || (prod && prod.command) || 'say Entregue {player}').replace(/{player}|{nick}/gi, nick);
+    const resolvedCat = (prod && prod.cat) || 'Manual';
+    const resolvedGui = (prod && prod.guiIcon) || 'CHEST';
+
+    let savedViaApi = false;
+    let serverUpdatedAt = Date.now();
+
+    if (window.location.protocol.startsWith('http')) {
+      try {
+        const res = await fetch('/api/admin/orders/manual', {
+          method: 'POST',
+          headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({
+            nick,
+            productId,
+            customName: resolvedName,
+            price,
+            command: resolvedCmd,
+            enqueueDelivery,
+            announceDiscord
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          savedViaApi = true;
+          serverUpdatedAt = data.updatedAt || Date.now();
+
+          if (Array.isArray(data.orders)) {
+            localStorage.setItem('ravok_orders', JSON.stringify(data.orders));
+          } else if (data.order) {
+            const orders = getStoredOrders();
+            orders.unshift(data.order);
+            localStorage.setItem('ravok_orders', JSON.stringify(orders));
+          }
+
+          if (Array.isArray(data.pendingDeliveries)) {
+            localStorage.setItem('ravok_pending_deliveries', JSON.stringify(data.pendingDeliveries));
+          } else if (data.deliveryItem) {
+            const delivs = getStoredPendingDeliveries();
+            delivs.unshift(data.deliveryItem);
+            localStorage.setItem('ravok_pending_deliveries', JSON.stringify(delivs));
+          }
+
+          if (data.goal) {
+            localStorage.setItem('ravok_goal_v1', JSON.stringify(data.goal));
+          }
+
+          toast(`✓ ${data.message}`);
+        }
+      } catch (err) {
+        console.warn('API indisponível, salvando venda manual localmente:', err);
       }
-    } catch (err) {
-      toast('Erro de conexão ao processar venda manual.');
     }
+
+    if (!savedViaApi) {
+      const localOrderId = Math.floor(100000 + Math.random() * 900000);
+      const localOrder = {
+        id: localOrderId,
+        nick,
+        items: [{
+          id: productId || 'manual-item',
+          name: resolvedName,
+          price,
+          cat: resolvedCat,
+          command: resolvedCmd,
+          guiIcon: resolvedGui
+        }],
+        total: price,
+        date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
+        status: 'aprovado',
+        paymentMethod: 'Manual (Admin)',
+        approved_at: new Date().toISOString()
+      };
+
+      const orders = getStoredOrders();
+      orders.unshift(localOrder);
+      localStorage.setItem('ravok_orders', JSON.stringify(orders));
+
+      if (enqueueDelivery) {
+        const delivs = getStoredPendingDeliveries();
+        delivs.unshift({
+          id: Math.floor(10000000 + Math.random() * 89999999),
+          orderId: localOrderId,
+          nick,
+          product_name: resolvedName,
+          category: resolvedCat,
+          command: resolvedCmd,
+          gui_icon: resolvedGui,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        });
+        localStorage.setItem('ravok_pending_deliveries', JSON.stringify(delivs));
+      }
+
+      toast(`✓ Venda manual #${localOrderId} registrada com sucesso para ${nick}!`);
+    }
+
+    saveAdminSnapshot(serverUpdatedAt);
+    notifyPublicSite('orders');
+    modal.close();
+    renderOrdersTable();
+    renderServerTab();
+    refreshDashboard();
   };
 }
 
 // Inicialização inicial
+setupAdminGoalControls();
 setupManualSale();
 refreshDashboard();
 renderProductsTable();

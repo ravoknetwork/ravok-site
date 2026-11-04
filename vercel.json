@@ -2,6 +2,11 @@
   "version": 2,
   "framework": null,
   "cleanUrls": true,
+  "functions": {
+    "api/index.js": {
+      "includeFiles": "downloads/**"
+    }
+  },
   "rewrites": [
     {
       "source": "/api/(.*)",

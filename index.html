@@ -80,7 +80,7 @@
           <div class="rw-banner-actions" id="heroBannerActions">
             <button type="button" class="rw-banner-play-btn" id="heroBannerPlayBtn" onclick="copyServerIp()" title="Clique para copiar o IP e jogar">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
-              <span>Jogar agora: <b id="serverIpBanner">jogar.ravok.network</b></span>
+              <span>Jogar agora: <b id="serverIpBanner">jogar.ravok.network</b> <span style="font-size:11px; opacity:0.85; margin-left:4px; font-weight:normal;">(Bedrock: 26575)</span></span>
             </button>
             <a class="rw-banner-sec-btn" id="heroBannerSecBtn" href="/texturas" title="Ver Texturas & Baixar Resource Pack">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
@@ -107,15 +107,28 @@
       <div class="rw-subhero-grid">
         <!-- WIDGET 1: COMO ENTRAR, VERSÃO E IP -->
         <div class="rw-connect-card">
-          <div>
+          <div style="position:relative; z-index:2;">
             <div class="rw-connect-top">
-              <span class="rw-version-badge">1.20 - 1.21.4</span>
+              <span class="rw-version-badge">Java 1.20 - 1.21.x • Bedrock</span>
               <a href="#como-funciona" class="rw-how-to-join">Como entrar?</a>
             </div>
-            <h3 class="rw-connect-title">Comece sua jornada agora mesmo!</h3>
-            <div class="rw-ip-row" onclick="copyServerIp()" title="Clique para copiar o IP">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-              <span>jogar.ravok.network</span>
+            <h3 class="rw-connect-title" style="margin-bottom:10px;">Comece sua jornada agora mesmo!</h3>
+            
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <!-- IP Java -->
+              <div class="rw-ip-row" onclick="copyServerIp('java')" title="Clique para copiar o IP Java" style="padding: 6px 12px; font-size: 11.5px;">
+                <span style="font-weight: 800; font-size: 10px; background: rgba(255, 193, 7, 0.2); color: var(--amber-gold); padding: 2px 5px; border-radius: 4px;">JAVA</span>
+                <span>jogar.ravok.network</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </div>
+
+              <!-- IP Bedrock + Porta -->
+              <div class="rw-ip-row" onclick="copyServerIp('bedrock')" title="Clique para copiar o IP e Porta Bedrock" style="padding: 6px 12px; font-size: 11.5px; border-color: rgba(66, 165, 245, 0.35);">
+                <span style="font-weight: 800; font-size: 10px; background: rgba(33, 150, 243, 0.2); color: #64B5F6; padding: 2px 5px; border-radius: 4px;">BEDROCK</span>
+                <span>jogar.ravok.network</span>
+                <span style="color: var(--amber-gold); font-weight: 700; margin-left: 2px;">:26575</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto; color:#64B5F6;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </div>
             </div>
           </div>
           <img src="images/kayzel1.png" alt="Personagem Ravok" class="rw-connect-char">

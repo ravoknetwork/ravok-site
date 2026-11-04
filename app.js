@@ -2005,12 +2005,27 @@ function renderPlayerTopbar(user) {
   }
 }
 
-// Copiar IP do servidor com feedback elegante
-function copyServerIp() {
+// Copiar IP do servidor com feedback elegante (Java e Bedrock)
+function copyServerIp(target = 'all') {
+  if (target === 'bedrock') {
+    const ip = 'jogar.ravok.network';
+    const port = '26575';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(`${ip}:${port}`).then(() => {
+        toast(`📱 IP Bedrock copiado: ${ip} (Porta: ${port})`);
+      }).catch(() => {
+        prompt('IP e Porta Bedrock:', `${ip} | Porta: ${port}`);
+      });
+    } else {
+      prompt('IP e Porta Bedrock:', `${ip} | Porta: ${port}`);
+    }
+    return;
+  }
+
   const ip = 'jogar.ravok.network';
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(ip).then(() => {
-      toast('📋 IP jogar.ravok.network copiado com sucesso! Venha jogar!');
+      toast('☕ IP Java copiado: jogar.ravok.network (Bedrock Porta: 26575)');
     }).catch(() => {
       prompt('Copie o IP do servidor:', ip);
     });

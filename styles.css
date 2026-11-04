@@ -3400,6 +3400,11 @@ input:focus, textarea:focus, select:focus {
   color: #FFF;
 }
 
+.rw-card-badge.purple {
+  background: linear-gradient(135deg, #7B1FA2, #C56CEE);
+  color: #FFF;
+}
+
 /* Container de Imagem Quadrado com Bordas Arredondadas */
 .rw-card-media {
   aspect-ratio: 1 / 1;

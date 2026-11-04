@@ -13,8 +13,9 @@ const DEFAULT_PRODUCTS = [
     badgeColor: 'orange',
     tag: '[VENDAVAL]',
     tagClass: 'vendaval',
+    prefixImg: 'images/prefixes/knight.png',
     icon: '🌪️',
-    image: 'images/kits/previewknight.png',
+    image: 'products/VIPS/membro.png',
     name: 'VIP VENDAVAL',
     description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
     price: 14.90,
@@ -38,8 +39,9 @@ const DEFAULT_PRODUCTS = [
     badgeColor: 'gold',
     tag: '[FLAMEJANTE]',
     tagClass: 'flamejante',
+    prefixImg: 'images/prefixes/lord.png',
     icon: '🔥',
-    image: 'images/kits/previewlord.png',
+    image: 'products/VIPS/vip_aura.png',
     name: 'VIP FLAMEJANTE',
     description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
     price: 29.90,
@@ -63,8 +65,9 @@ const DEFAULT_PRODUCTS = [
     badgeColor: 'gold',
     tag: '[CARVALHO]',
     tagClass: 'carvalho',
+    prefixImg: 'images/prefixes/paladin.png',
     icon: '🛡️',
-    image: 'images/kits/previewpaladin.png',
+    image: 'products/VIPS/aventureiro.png',
     name: 'VIP CARVALHO',
     description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
     price: 44.90,
@@ -89,8 +92,9 @@ const DEFAULT_PRODUCTS = [
     badgeColor: 'gold',
     tag: '[AURORA]',
     tagClass: 'aurora',
+    prefixImg: 'images/prefixes/duke.png',
     icon: '✨',
-    image: 'images/gallery/npc_vip_aurora.png',
+    image: 'products/VIPS/vip_astro.png',
     name: 'VIP AURORA',
     description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
     price: 64.90,
@@ -115,8 +119,9 @@ const DEFAULT_PRODUCTS = [
     badgeColor: 'gold',
     tag: '[SOLAR]',
     tagClass: 'solar',
+    prefixImg: 'images/prefixes/king.png',
     icon: '👑',
-    image: 'images/kits/previewking.png',
+    image: 'products/VIPS/vip_celestial.png',
     name: 'VIP SOLAR',
     description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
     price: 0,
@@ -142,8 +147,9 @@ const DEFAULT_PRODUCTS = [
     badgeColor: 'purple',
     tag: '[DEUSA]',
     tagClass: 'deusa',
+    prefixImg: 'images/prefixes/deusa.png',
     icon: '🔮',
-    image: 'images/prefixes/deusa.png',
+    image: 'products/VIPS/vip_eclipse.png',
     name: 'VIP DEUSA',
     description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
     price: 0,
@@ -170,7 +176,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'INICIAL',
     badgeColor: 'orange',
     icon: '🪙',
-    image: 'images/autumn/pedra_do_sol_ancestral.png',
+    image: 'images/products/moedas_1000.png',
     name: '1.000 Moedas',
     description: 'Pacote inicial de moedas para gastar na Loja de Moedas (/coinshop) do servidor.',
     price: 9.90,
@@ -182,7 +188,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'POPULAR',
     badgeColor: 'gold',
     icon: '🪙',
-    image: 'images/autumn/bussola_de_latao_dourado.png',
+    image: 'images/products/moedas_2500.png',
     name: '2.500 Moedas',
     description: 'Mais moedas para desbloquear cosméticos, utilitários e itens exclusivos.',
     price: 19.90,
@@ -194,7 +200,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'AVANÇADO',
     badgeColor: 'gold',
     icon: '🪙',
-    image: 'images/autumn/girassol_radiante.png',
+    image: 'images/products/moedas_5000.png',
     name: '5.000 Moedas',
     description: 'Excelente custo-benefício para adquirir visuais raros e itens na Coin Shop.',
     price: 34.90,
@@ -206,7 +212,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'DESTAQUE',
     badgeColor: 'red',
     icon: '🪙',
-    image: 'images/autumn/fogueira_acolhedora.png',
+    image: 'images/products/moedas_8000.png',
     name: '8.000 Moedas',
     description: 'Grande pacote de moedas para evoluir com tudo na Temporada 3.',
     price: 49.90,
@@ -218,7 +224,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'ELITE',
     badgeColor: 'gold',
     icon: '🪙',
-    image: 'images/emblema_ravok_outonal.png',
+    image: 'images/products/moedas_10000.png',
     name: '10.000 Moedas',
     description: 'Pacote de elite para mercadores e líderes de clã dominarem a economia.',
     price: 59.90,
@@ -230,7 +236,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'SUPREMO',
     badgeColor: 'gold',
     icon: '🪙',
-    image: 'images/emblema_ravok_outonal.png',
+    image: 'images/products/moedas_20000.png',
     name: '20.000 + 2.000 Bônus',
     description: 'O maior pacote do servidor! Receba 20.000 moedas + 2.000 moedas extras de brinde (Total: 22.000 Moedas)!',
     price: 99.90,
@@ -245,7 +251,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'VOTO',
     badgeColor: 'orange',
     icon: '🗝️',
-    image: 'images/chave_voto_s3.png',
+    image: 'images/products/chave_voto_hd.png',
     name: '3x Chave de Voto',
     description: 'Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.',
     price: 4.90,
@@ -322,7 +328,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'NOVIDADE',
     badgeColor: 'gold',
     icon: '📜',
-    image: 'images/toolskins.png',
+    image: 'images/products/voucher_toolskin_hd.png',
     name: 'Voucher Skin Aleatória',
     description: 'Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!',
     price: 14.90,
@@ -343,7 +349,7 @@ const DEFAULT_PRODUCTS = [
     badge: '3D',
     badgeColor: 'orange',
     icon: '🦖',
-    image: 'images/autumn/girassol_radiante.png',
+    image: 'images/products/pet_dino_hd.png',
     name: 'Pet Dinossauro 3D',
     description: 'Um companheiro pré-histórico com animações customizadas e efeitos sonoros.',
     price: 29.90,
@@ -355,7 +361,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'MÁGICO',
     badgeColor: 'gold',
     icon: '🧊',
-    image: 'images/autumn/pedra_do_sol_ancestral.png',
+    image: 'images/products/pet_cubee_hd.png',
     name: 'Pet Cubee Mágico',
     description: 'Cubinho flutuante que segue você com partículas de luz e animações suaves.',
     price: 34.90,
@@ -369,7 +375,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'RARO',
     badgeColor: 'red',
     icon: '🪓',
-    image: 'images/autumn/fogueira_acolhedora.png',
+    image: 'images/products/machado_chamas_hd.png',
     name: 'Machado das Chamas',
     description: 'Skin cosmética para machados com partículas de fogo perpétuas.',
     price: 14.90,
@@ -381,7 +387,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'LENDÁRIO',
     badgeColor: 'gold',
     icon: '⚔️',
-    image: 'images/autumn/bussola_de_latao_dourado.png',
+    image: 'images/products/espada_solar_hd.png',
     name: 'Espada Rúnica Solar',
     description: 'Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.',
     price: 19.90,
@@ -510,17 +516,117 @@ function normalizeClientStreamer(s) {
   };
 }
 
+const OFFICIAL_PRODUCT_IMAGES = {
+  'vip-vendaval': 'products/VIPS/membro.png',
+  'vip-outono': 'products/VIPS/membro.png',
+  'vip-flamejante': 'products/VIPS/vip_aura.png',
+  'vip-ambar': 'products/VIPS/vip_aura.png',
+  'vip-carvalho': 'products/VIPS/aventureiro.png',
+  'vip-aurora': 'products/VIPS/vip_astro.png',
+  'vip-solar': 'products/VIPS/vip_celestial.png',
+  'vip-deusa': 'products/VIPS/vip_eclipse.png',
+  'coins-1000': 'images/products/moedas_1000.png',
+  'coins-2500': 'images/products/moedas_2500.png',
+  'coins-5000': 'images/products/moedas_5000.png',
+  'coins-8000': 'images/products/moedas_8000.png',
+  'coins-10000': 'images/products/moedas_10000.png',
+  'coins-20000': 'images/products/moedas_20000.png',
+  'key-voto': 'images/products/chave_voto_hd.png',
+  'key-vote': 'images/products/chave_voto_hd.png',
+  'key-comum': 'images/chave_comum.png',
+  'key-common': 'images/chave_comum.png',
+  'key-rara': 'images/chave_rara.png',
+  'key-rare': 'images/chave_rara.png',
+  'key-epica': 'images/chave_epica.png',
+  'key-epic': 'images/chave_epica.png',
+  'key-superior': 'images/chave_lendaria.png',
+  'key-combo': 'images/chave_epic_dragon.png',
+  'voucher-skin-aleatoria': 'images/products/voucher_toolskin_hd.png',
+  'pet-dino': 'images/products/pet_dino_hd.png',
+  'pet-cubee': 'images/products/pet_cubee_hd.png',
+  'cosmetic-fire': 'images/products/machado_chamas_hd.png',
+  'cosmetic-sword': 'images/products/espada_solar_hd.png'
+};
+
+const OFFICIAL_PREFIX_IMGS = {
+  'vip-vendaval': 'images/prefixes/knight.png',
+  'vip-flamejante': 'images/prefixes/lord.png',
+  'vip-carvalho': 'images/prefixes/paladin.png',
+  'vip-aurora': 'images/prefixes/duke.png',
+  'vip-solar': 'images/prefixes/king.png',
+  'vip-deusa': 'images/prefixes/deusa.png'
+};
+
+const LEGACY_BROKEN_PRODUCT_IMAGES = [
+  'images/kits/preview',
+  'images/autumn/pedra_do_sol_ancestral.png',
+  'images/autumn/bussola_de_latao_dourado.png',
+  'images/autumn/girassol_radiante.png',
+  'images/autumn/fogueira_acolhedora.png',
+  'images/gallery/npc_vip_aurora.png',
+  'images/prefixes/deusa.png',
+  'images/chave_voto_s3.png',
+  'images/toolskins.png'
+];
+
+function upgradeClientProducts(list) {
+  if (!Array.isArray(list)) return DEFAULT_PRODUCTS;
+  return list.map(raw => {
+    if (!raw || typeof raw !== 'object') return null;
+    const p = { ...raw };
+    if (p.id === 'vip-outono') {
+      p.id = 'vip-vendaval';
+      p.name = 'VIP VENDAVAL';
+      p.tag = '[VENDAVAL]';
+      p.tagClass = 'vendaval';
+    } else if (p.id === 'vip-ambar') {
+      p.id = 'vip-flamejante';
+      p.name = 'VIP FLAMEJANTE';
+      p.tag = '[FLAMEJANTE]';
+      p.tagClass = 'flamejante';
+    }
+    const img = String(p.image || '').trim();
+    const isLegacyBroken = !img
+      || LEGACY_BROKEN_PRODUCT_IMAGES.some(b => img.includes(b))
+      || (img === 'images/emblema_ravok_outonal.png' && OFFICIAL_PRODUCT_IMAGES[p.id]);
+
+    if (isLegacyBroken) {
+      if (OFFICIAL_PRODUCT_IMAGES[p.id]) {
+        p.image = OFFICIAL_PRODUCT_IMAGES[p.id];
+      } else if (p.cat === 'Coins') {
+        p.image = 'images/products/moedas_2500.png';
+      } else if (p.cat === 'VIPs') {
+        p.image = 'products/VIPS/membro.png';
+      } else if (p.cat === 'Chaves') {
+        p.image = 'images/chave_comum.png';
+      } else if (p.cat === 'Vouchers') {
+        p.image = 'images/products/voucher_toolskin_hd.png';
+      } else if (p.cat === 'Pets') {
+        p.image = 'images/products/pet_dino_hd.png';
+      } else if (p.cat === 'Cosméticos') {
+        p.image = 'images/products/espada_solar_hd.png';
+      }
+    }
+    if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
+      p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+    }
+    return p;
+  }).filter(Boolean);
+}
+
 function getProducts() {
-  const saved = localStorage.getItem('ravok_products_v5');
+  const saved = localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && (parsed.length > 0 || localStorage.getItem('ravok_products_synced') === '1')) {
-        return parsed;
+        const upgraded = upgradeClientProducts(parsed);
+        localStorage.setItem('ravok_products_v6', JSON.stringify(upgraded));
+        return upgraded;
       }
     } catch (e) {}
   }
-  localStorage.setItem('ravok_products_v5', JSON.stringify(DEFAULT_PRODUCTS));
+  localStorage.setItem('ravok_products_v6', JSON.stringify(DEFAULT_PRODUCTS));
   return DEFAULT_PRODUCTS;
 }
 
@@ -537,10 +643,14 @@ function getSlides() {
 }
 
 window.goToSlide = function(idx) {
-  currentSlideIndex = idx;
-  renderSlider();
-  const el = by('#galeria');
-  if (el) el.scrollIntoView({ behavior: 'smooth' });
+  stepSlider(idx);
+  const sliderBox = by('#serverSlider');
+  if (sliderBox) {
+    const rect = sliderBox.getBoundingClientRect();
+    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+      sliderBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
 };
 
 function getStreamers() {
@@ -693,7 +803,7 @@ function renderProducts() {
             ${p.tag ? `
               <div class="rw-card-tag-badge">
                 <span class="tag-label">TAG</span>
-                <span class="tag-val ${p.tagClass || ''}">${p.tag}</span>
+                ${p.prefixImg ? `<img src="${p.prefixImg}" alt="${p.tag}" style="height:15px; image-rendering:pixelated; vertical-align:middle;">` : `<span class="tag-val ${p.tagClass || ''}">${p.tag}</span>`}
               </div>
             ` : ''}
             <h3 class="rw-card-name">${p.name}</h3>
@@ -806,7 +916,7 @@ function openProductDetails(id) {
       tagWrap.innerHTML = `
         <div class="rw-card-tag-badge" style="margin:0;">
           <span class="tag-label">TAG OFICIAL:</span>
-          <span class="tag-val ${p.tagClass || ''}" style="font-size:13px;">${p.tag}</span>
+          ${p.prefixImg ? `<img src="${p.prefixImg}" alt="${p.tag}" style="height:17px; image-rendering:pixelated; vertical-align:middle;">` : `<span class="tag-val ${p.tagClass || ''}" style="font-size:13px;">${p.tag}</span>`}
         </div>
       `;
       tagWrap.style.display = 'block';
@@ -879,7 +989,7 @@ function buyCustomCoins() {
     name: `Pacote ${coins.toLocaleString('pt-BR')} Coins`,
     price: price,
     icon: '🪙',
-    image: 'images/autumn/pedra_do_sol_ancestral.png',
+    image: 'images/products/moedas_2500.png',
     command: `coins give {player} ${coins}`
   };
 
@@ -928,7 +1038,7 @@ function renderCart() {
   } else {
     by('#cartItems').innerHTML = cart.map((p, i) => `
       <div class="cart-item">
-        <div class="mini">${p.icon && !p.icon.startsWith('http') ? p.icon : '✦'}</div>
+        <div class="mini">${p.image ? `<img src="${p.image}" alt="${p.name}" style="width:32px; height:32px; object-fit:contain;">` : (p.icon && !p.icon.startsWith('http') ? p.icon : '✦')}</div>
         <div style="flex:1;">
           <strong>${p.name}</strong>
           <span>${money(p.price)}</span>
@@ -1023,13 +1133,13 @@ function renderSlider() {
   `).join('');
 
   document.querySelectorAll('.slider-dot').forEach(b => {
-    b.onclick = () => goToSlide(parseInt(b.dataset.slide, 10));
+    b.onclick = () => stepSlider(parseInt(b.dataset.slide, 10));
   });
 
   startSliderAutoPlay();
 }
 
-function goToSlide(index) {
+function stepSlider(index) {
   const slides = getSlides();
   if (!slides.length) return;
   currentSlideIndex = (index + slides.length) % slides.length;
@@ -1047,7 +1157,7 @@ function goToSlide(index) {
 function startSliderAutoPlay() {
   clearInterval(slideInterval);
   slideInterval = setInterval(() => {
-    goToSlide(currentSlideIndex + 1);
+    stepSlider(currentSlideIndex + 1);
   }, 5000);
 }
 
@@ -1056,8 +1166,8 @@ function resetSliderTimer() {
   startSliderAutoPlay();
 }
 
-if (by('#sliderPrevBtn')) by('#sliderPrevBtn').onclick = () => goToSlide(currentSlideIndex - 1);
-if (by('#sliderNextBtn')) by('#sliderNextBtn').onclick = () => goToSlide(currentSlideIndex + 1);
+if (by('#sliderPrevBtn')) by('#sliderPrevBtn').onclick = () => stepSlider(currentSlideIndex - 1);
+if (by('#sliderNextBtn')) by('#sliderNextBtn').onclick = () => stepSlider(currentSlideIndex + 1);
 
 // ====================================================
 // STREAMERS & CRIADORES DE CONTEÚDO
@@ -1737,8 +1847,13 @@ async function syncWithBackend() {
   try {
     let localSnap = null;
     try {
-      const rawSnap = localStorage.getItem('ravok_admin_snapshot_v1');
-      if (rawSnap) localSnap = JSON.parse(rawSnap);
+      const rawSnap = localStorage.getItem('ravok_admin_snapshot_v2') || localStorage.getItem('ravok_admin_snapshot_v1');
+      if (rawSnap) {
+        localSnap = JSON.parse(rawSnap);
+        if (localSnap && Array.isArray(localSnap.products)) {
+          localSnap.products = upgradeClientProducts(localSnap.products);
+        }
+      }
     } catch (e) {}
 
     const resState = await fetch('/api/sync-state');
@@ -1761,9 +1876,10 @@ async function syncWithBackend() {
       }
 
       if (Array.isArray(state.products)) {
-        localStorage.setItem('ravok_products_v5', JSON.stringify(state.products));
+        const cleanProds = upgradeClientProducts(state.products);
+        localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
         localStorage.setItem('ravok_products_synced', '1');
-        products = state.products;
+        products = cleanProds;
         renderProducts();
       }
 
@@ -1809,9 +1925,10 @@ async function syncWithBackend() {
     if (resProd.ok) {
       const prods = await resProd.json();
       if (Array.isArray(prods)) {
-        localStorage.setItem('ravok_products_v5', JSON.stringify(prods));
+        const cleanProds = upgradeClientProducts(prods);
+        localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
         localStorage.setItem('ravok_products_synced', '1');
-        products = prods;
+        products = cleanProds;
         renderProducts();
       }
     }
@@ -1920,7 +2037,7 @@ try {
 
 window.addEventListener('storage', (ev) => {
   if (!ev.key) return;
-  if (ev.key === 'ravok_products_v5') renderProducts();
+  if (ev.key === 'ravok_products_v6' || ev.key === 'ravok_products_v5') renderProducts();
   if (ev.key === 'ravok_slider_slides_s3_v4') renderSlider();
   if (ev.key === 'ravok_streamers') renderStreamers();
   if (ev.key === 'ravok_feedbacks') renderFeedbacks();
@@ -1970,7 +2087,7 @@ const HERO_SLIDES = [
     secOnClick: "filterCategoryAndScroll('Coins')"
   },
   {
-    tagIcon: 'images/toolskins.png',
+    tagIcon: 'images/products/voucher_toolskin_hd.png',
     tagText: 'CHAVES &amp; VOUCHERS • NOVIDADE S3',
     title: 'CHAVES MÍSTICAS &amp;<br>VISUAIS DE FERRAMENTAS',
     desc: 'Abra Caixas Místicas com Chaves Lendárias e garanta o novo Voucher de Skin Aleatória com mais de 130 visuais épicos para espadas, machados, picaretas e arcos!',

@@ -82,7 +82,7 @@
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
               <span>Jogar agora: <b id="serverIpBanner">jogar.ravok.network</b></span>
             </button>
-            <a class="rw-banner-sec-btn" id="heroBannerSecBtn" href="downloads/Ravok-ResourcePack-PTBR.zip" download="Ravok-ResourcePack-PTBR.zip" title="Baixar Texturas Oficiais HD">
+            <a class="rw-banner-sec-btn" id="heroBannerSecBtn" href="/texturas" title="Ver Texturas & Baixar Resource Pack">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               <span>Texturas HD</span>
             </a>
@@ -152,12 +152,12 @@
 
           <div class="rw-calc-bottom-row">
             <div class="rw-calc-values">
-              <div class="rw-calc-val-box">
-                <span id="goalCurrentDisplay">R$ 0,00</span>
-              </div>
-              <span class="rw-calc-swap-icon">de</span>
               <div class="rw-calc-val-box gold">
-                <span id="goalTargetDisplay">R$ 2.000,00</span>
+                <span id="goalPercentDisplay">0%</span>
+              </div>
+              <span class="rw-calc-swap-icon">concluída</span>
+              <div class="rw-calc-val-box">
+                <span>Meta Mensal</span>
               </div>
               <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" class="rw-calc-coin-thumb" style="width:28px; height:28px;">
             </div>
@@ -191,6 +191,38 @@
 
         <div class="slider-dots" id="sliderDots">
           <!-- Pontos gerados via JavaScript -->
+        </div>
+      </div>
+
+      <!-- MINIATURAS DA GALERIA EM GRADE -->
+      <div class="gallery-photo-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:24px;">
+        <div class="gallery-thumb-item" onclick="goToSlide(0)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/spawn_ravok_outonal.png" alt="Spawn Oficial" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🏛️ Spawn &amp; Praça</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(1)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/por_do_sol_canyon.png" alt="Pôr do Sol" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🌅 Pôr do Sol Cânion</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(2)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/npc_vip_aurora.png" alt="Ranks VIP" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">👑 Ranks VIP &amp; Pedestal</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(3)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/canyon_pedreira_fortaleza.png" alt="Fortaleza" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">⛏️ Mina Subterrânea</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(4)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/mercado_loja_moedas.png" alt="Mercado de Moedas" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🪙 Mercado &amp; Moedas</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(5)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/pedreira_vila_trabalhadores.png" alt="Pedreira" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🌾 Pedreira &amp; Vila</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(6)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/vale_outonal_bosque.png" alt="Bosque Dourado" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🍁 Bosque das Folhas</span>
         </div>
       </div>
     </section>

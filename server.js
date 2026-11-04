@@ -47,6 +47,9 @@ app.get('/', (req, res) => {
 app.get('/votar', (req, res) => {
   res.sendFile(path.join(__dirname, 'votar.html'));
 });
+app.get('/texturas', (req, res) => {
+  res.sendFile(path.join(__dirname, 'texturas.html'));
+});
 app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
@@ -76,7 +79,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[VENDAVAL]',
     tagClass: 'vendaval',
     icon: '🌪️',
-    image: 'images/kayzel1.png',
+    image: 'images/kits/previewknight.png',
     name: 'VIP VENDAVAL',
     description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
     price: 14.90,
@@ -101,7 +104,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[FLAMEJANTE]',
     tagClass: 'flamejante',
     icon: '🔥',
-    image: 'images/kayzel2.png',
+    image: 'images/kits/previewlord.png',
     name: 'VIP FLAMEJANTE',
     description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
     price: 29.90,
@@ -126,7 +129,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[CARVALHO]',
     tagClass: 'carvalho',
     icon: '🛡️',
-    image: 'images/kayzel3.png',
+    image: 'images/kits/previewpaladin.png',
     name: 'VIP CARVALHO',
     description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
     price: 44.90,
@@ -152,7 +155,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[AURORA]',
     tagClass: 'aurora',
     icon: '✨',
-    image: 'images/kayzel4.png',
+    image: 'images/gallery/npc_vip_aurora.png',
     name: 'VIP AURORA',
     description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
     price: 64.90,
@@ -173,16 +176,17 @@ const DEFAULT_PRODUCTS = [
   {
     id: 'vip-solar',
     cat: 'VIPs',
-    badge: 'SUPREMO',
-    badgeColor: 'red',
+    badge: 'VALOR INESTIMÁVEL',
+    badgeColor: 'gold',
     tag: '[SOLAR]',
     tagClass: 'solar',
     icon: '👑',
-    image: 'images/kayzel5.png',
+    image: 'images/kits/previewking.png',
     name: 'VIP SOLAR',
-    description: 'Tag [SOLAR], Casas ILIMITADAS, Kit Solar do Rei, voar livremente com /fly, imortalidade com /god e aura mística.',
-    price: 89.90,
-    oldPrice: 119.90,
+    description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
+    price: 0,
+    oldPrice: null,
+    inestimavel: true,
     homes: 999,
     kit: 'Kit Solar do Rei',
     commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/heal', '/compactar', '/hat', '/fly', '/god'],
@@ -199,16 +203,17 @@ const DEFAULT_PRODUCTS = [
   {
     id: 'vip-deusa',
     cat: 'VIPs',
-    badge: 'DIVINO',
-    badgeColor: 'gold',
+    badge: 'DIGNIDADE DIVINA',
+    badgeColor: 'purple',
     tag: '[DEUSA]',
     tagClass: 'deusa',
     icon: '🔮',
-    image: 'images/kayzel6.png',
+    image: 'images/prefixes/deusa.png',
     name: 'VIP DEUSA',
-    description: 'A patente mais alta do servidor! Tag [DEUSA], sethomes ilimitadas, /repair all, acesso a todos os kits e aura suprema.',
-    price: 119.90,
-    oldPrice: 149.90,
+    description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
+    price: 0,
+    oldPrice: null,
+    inestimavel: true,
     homes: 999,
     kit: 'Todos os Kits',
     commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/repair all', '/heal', '/compactar', '/hat', '/fly', '/god', 'prefixo deusa'],
@@ -463,7 +468,8 @@ const DEFAULT_STREAMERS = [
 const DEFAULT_SETTINGS = {
   apiUrl: 'http://localhost:3000',
   apiToken: 'ravok_sec_99a8b7c6d5e4',
-  adminPassword: 'admin',
+  adminUser: 'guiilew',
+  adminPassword: process.env.ADMIN_PASSWORD || '000e2ecd4a',
   mpPublicKey: '',
   mpAccessToken: '',
   discordInviteUrl: 'https://discord.gg',
@@ -633,17 +639,22 @@ function loadDb() {
       parsed.playerAccounts = parsed.playerAccounts || {};
       parsed.settings = { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) };
       parsed.admins = Array.isArray(parsed.admins) ? parsed.admins : [];
-      if (!parsed.admins.length) {
+      
+      const masterPass = process.env.ADMIN_PASSWORD || '000e2ecd4a';
+      let guiilewAdmin = parsed.admins.find(a => a.username.toLowerCase() === 'guiilew');
+      if (!guiilewAdmin) {
         parsed.admins.push({
-          username: 'admin',
-          name: 'Administrador Principal',
-          role: 'Dono / Fundador',
-          passwordHash: hashPassword(parsed.settings.adminPassword || 'admin'),
+          username: 'guiilew',
+          name: 'Guiilew',
+          role: 'Fundador / Dono',
+          passwordHash: hashPassword(masterPass),
           createdAt: new Date().toISOString(),
           lastLogin: null
         });
-        saveDb(parsed);
+      } else {
+        guiilewAdmin.passwordHash = hashPassword(masterPass);
       }
+      saveDb(parsed);
       return parsed;
     }
   } catch (err) {
@@ -853,22 +864,25 @@ app.post('/api/admin/settings', (req, res) => {
 
 app.post('/api/admin/login', (req, res) => {
   const { username, password } = req.body || {};
-  const currentPass = db.settings.adminPassword || 'admin';
+  const targetUser = String(username || '').trim().toLowerCase();
+  const inputPass = String(password || '');
 
-  // 1. Login com senha mestra (se username for 'admin' ou omitido)
-  if ((!username || username === 'admin') && password === currentPass) {
+  // Autenticação oficial: usuário guiilew com senha 000e2ecd4a
+  const masterPass = process.env.ADMIN_PASSWORD || '000e2ecd4a';
+
+  if ((targetUser === 'guiilew' || targetUser === 'admin') && (inputPass === masterPass || inputPass === '000e2ecd4a')) {
     return res.json({
       success: true,
       token: 'ravok_admin_' + Buffer.from(Date.now().toString()).toString('hex'),
-      user: { username: 'admin', name: 'Administrador Principal', role: 'Dono / Fundador' }
+      user: { username: 'guiilew', name: 'Guiilew', role: 'Fundador / Dono' }
     });
   }
 
-  // 2. Login por conta de administrador individual
-  if (username && Array.isArray(db.admins)) {
-    const hashed = hashPassword(password);
-    const found = db.admins.find(a => a.username.toLowerCase() === username.trim().toLowerCase());
-    if (found && (found.passwordHash === hashed || password === currentPass)) {
+  // Login por outros membros da staff cadastrados
+  if (targetUser && Array.isArray(db.admins)) {
+    const hashed = hashPassword(inputPass);
+    const found = db.admins.find(a => a.username.toLowerCase() === targetUser);
+    if (found && (found.passwordHash === hashed || inputPass === masterPass)) {
       found.lastLogin = new Date().toISOString();
       saveDb(db);
       return res.json({
@@ -880,6 +894,14 @@ app.post('/api/admin/login', (req, res) => {
   }
 
   res.status(401).json({ error: 'Usuário ou senha de administrador incorretos.' });
+});
+
+app.get('/api/admin/verify', (req, res) => {
+  const token = req.headers['x-admin-token'] || req.headers['authorization'];
+  if (token && typeof token === 'string' && (token.includes('ravok_admin_') || token.startsWith('Bearer ravok_admin_'))) {
+    return res.json({ valid: true, user: { username: 'guiilew', name: 'Guiilew', role: 'Fundador / Dono' } });
+  }
+  return res.status(401).json({ valid: false, error: 'Sessão administrativa expirada ou inválida.' });
 });
 
 // Listar todos os administradores cadastrados

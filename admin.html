@@ -12,7 +12,45 @@
   <link rel="stylesheet" href="admin.css">
 </head>
 <body>
-  <div class="admin-wrapper">
+  <!-- PORTAL DE SEGURANÇA MÁXIMA DO PAINEL ADMIN -->
+  <div id="adminAuthGate" style="display: flex; min-height: 100vh; width: 100%; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 20%, #3D2218 0%, #170C08 100%); padding: 20px; font-family: 'Plus Jakarta Sans', sans-serif;">
+    <div style="background: rgba(36, 21, 16, 0.95); border: 1px solid var(--amber-gold); border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 30px rgba(255, 193, 7, 0.2); padding: 40px 32px; max-width: 420px; width: 100%; text-align: center; position: relative;">
+      <div style="position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #8B0000, #D84315, #FFC107, #D84315, #8B0000); border-radius: 16px 16px 0 0;"></div>
+      
+      <img src="images/emblema_ravok_outonal.png" alt="Ravok Network" style="width: 58px; height: 58px; margin: 0 auto 16px; display: block; filter: drop-shadow(0 0 12px rgba(255,193,7,0.5));">
+      
+      <p style="color: var(--amber-gold); font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 6px;">ACESSO RESTRITO • STAFF</p>
+      <h2 style="font-family: 'Unbounded', sans-serif; font-size: 22px; color: #fff; margin-bottom: 8px;">Painel de Controle</h2>
+      <p style="color: var(--ravok-text-secondary); font-size: 13px; line-height: 1.5; margin-bottom: 24px;">Autentique-se com sua conta de administrador para gerenciar o reino, pedidos e configurações.</p>
+
+      <form id="adminLoginFormGate" style="text-align: left;">
+        <div style="margin-bottom: 16px;">
+          <label style="display: block; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'DM Mono', monospace;">USUÁRIO STAFF</label>
+          <input type="text" id="adminUsernameInput" placeholder="Ex: guiilew" required autocomplete="username" style="width: 100%; padding: 13px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #130B07; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+          <label style="display: block; font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 6px; font-family: 'DM Mono', monospace;">SENHA MESTRA</label>
+          <input type="password" id="adminPasswordInput" placeholder="Digite sua senha" required autocomplete="current-password" style="width: 100%; padding: 13px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: #130B07; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s;">
+        </div>
+
+        <div id="adminLoginError" style="display: none; padding: 10px 14px; background: rgba(139, 0, 0, 0.4); border: 1px solid #D84315; border-radius: 8px; color: #FFCDD2; font-size: 12px; margin-bottom: 16px; text-align: center;"></div>
+
+        <button type="submit" id="adminSubmitBtn" style="width: 100%; padding: 15px; border-radius: 10px; border: none; background: linear-gradient(135deg, #D84315 0%, #FF8F00 50%, #FFC107 100%); color: #1A0E0A; font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 20px rgba(216, 67, 21, 0.4);">
+          ACESSAR PAINEL ADMIN →
+        </button>
+      </form>
+
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center;">
+        <a href="/" style="color: var(--amber-gold); font-size: 12px; text-decoration: none; display: flex; align-items: center; gap: 4px;">
+          ← Voltar para a Loja
+        </a>
+        <span style="color: var(--ravok-text-muted); font-size: 11px; font-family: 'DM Mono', monospace;">SSL 256-Bit</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-wrapper" id="adminAppWrapper" style="display: none !important;">
     <!-- Sidebar -->
     <aside class="sidebar">
       <div class="sidebar-brand">
@@ -1762,22 +1800,6 @@
         <button type="submit" class="btn-primary">Salvar Piada</button>
       </div>
     </form>
-  </dialog>
-
-  <!-- MODAL: LOGIN DE ADMINISTRADOR -->
-  <dialog id="adminLoginModal" style="max-width: 380px; text-align: center; padding: 28px;">
-    <div style="font-size: 38px; margin-bottom: 8px;">🔒</div>
-    <p class="eyebrow" style="margin-bottom: 6px;">ACESSO RESTRITO</p>
-    <h2 style="margin-bottom: 6px; font-size: 20px;">Painel Administrativo</h2>
-    <p style="color: var(--muted); font-size: 13px; margin-bottom: 22px;">Digite a senha de administrador para gerenciar o servidor e a loja.</p>
-
-    <form id="adminLoginForm">
-      <input type="password" id="adminPasswordInput" placeholder="Senha (Padrão: admin)" required style="width: 100%; padding: 12px; margin-bottom: 14px; text-align: center; font-size: 15px; border-radius: 8px; border: 1px solid var(--panel-border); background: #060f24; color: #fff; outline: none;">
-      <button type="submit" class="btn-primary full" style="padding: 12px;">Entrar no Painel <span>→</span></button>
-    </form>
-    <div style="margin-top: 15px;">
-      <a href="index.html" class="btn-ghost" style="font-size: 12px; text-decoration: none;">← Voltar para a Loja</a>
-    </div>
   </dialog>
 
   <div class="toast" id="adminToast"></div>

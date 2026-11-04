@@ -12,7 +12,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[VENDAVAL]',
     tagClass: 'vendaval',
     icon: '🌪️',
-    image: 'images/kayzel1.png',
+    image: 'images/kits/previewknight.png',
     name: 'VIP VENDAVAL',
     description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
     price: 14.90,
@@ -37,7 +37,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[FLAMEJANTE]',
     tagClass: 'flamejante',
     icon: '🔥',
-    image: 'images/kayzel2.png',
+    image: 'images/kits/previewlord.png',
     name: 'VIP FLAMEJANTE',
     description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
     price: 29.90,
@@ -62,7 +62,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[CARVALHO]',
     tagClass: 'carvalho',
     icon: '🛡️',
-    image: 'images/kayzel3.png',
+    image: 'images/kits/previewpaladin.png',
     name: 'VIP CARVALHO',
     description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
     price: 44.90,
@@ -88,7 +88,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[AURORA]',
     tagClass: 'aurora',
     icon: '✨',
-    image: 'images/kayzel4.png',
+    image: 'images/gallery/npc_vip_aurora.png',
     name: 'VIP AURORA',
     description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
     price: 64.90,
@@ -109,16 +109,17 @@ const DEFAULT_PRODUCTS = [
   {
     id: 'vip-solar',
     cat: 'VIPs',
-    badge: 'SUPREMO',
-    badgeColor: 'red',
+    badge: 'VALOR INESTIMÁVEL',
+    badgeColor: 'gold',
     tag: '[SOLAR]',
     tagClass: 'solar',
     icon: '👑',
-    image: 'images/kayzel5.png',
+    image: 'images/kits/previewking.png',
     name: 'VIP SOLAR',
-    description: 'Tag [SOLAR], Casas ILIMITADAS, Kit Solar do Rei, voar livremente com /fly, imortalidade com /god e aura mística.',
-    price: 89.90,
-    oldPrice: 119.90,
+    description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
+    price: 0,
+    oldPrice: null,
+    inestimavel: true,
     homes: 999,
     kit: 'Kit Solar do Rei',
     commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/heal', '/compactar', '/hat', '/fly', '/god'],
@@ -135,16 +136,17 @@ const DEFAULT_PRODUCTS = [
   {
     id: 'vip-deusa',
     cat: 'VIPs',
-    badge: 'DIVINO',
-    badgeColor: 'gold',
+    badge: 'DIGNIDADE DIVINA',
+    badgeColor: 'purple',
     tag: '[DEUSA]',
     tagClass: 'deusa',
     icon: '🔮',
-    image: 'images/kayzel6.png',
+    image: 'images/prefixes/deusa.png',
     name: 'VIP DEUSA',
-    description: 'A patente mais alta do servidor! Tag [DEUSA], sethomes ilimitadas, /repair all, acesso a todos os kits e aura suprema.',
-    price: 119.90,
-    oldPrice: 149.90,
+    description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
+    price: 0,
+    oldPrice: null,
+    inestimavel: true,
     homes: 999,
     kit: 'Todos os Kits',
     commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/repair all', '/heal', '/compactar', '/hat', '/fly', '/god', 'prefixo deusa'],
@@ -465,50 +467,94 @@ function checkAdminAuth() {
     } catch (e) {}
   }
 
-  if (token) {
-    sessionStorage.setItem('ravok_admin_token', token);
-  } else if (window.location.protocol.startsWith('http')) {
-    const modal = by('#adminLoginModal');
-    if (modal) modal.showModal();
+  const gateEl = by('#adminAuthGate');
+  const appEl = by('#adminAppWrapper');
+
+  if (!token) {
+    if (gateEl) gateEl.style.display = 'flex';
+    if (appEl) appEl.style.setProperty('display', 'none', 'important');
+    return;
+  }
+
+  // Verificar validade do token com o servidor se estiver rodando via HTTP
+  if (window.location.protocol.startsWith('http')) {
+    fetch('/api/admin/verify', {
+      headers: { 'x-admin-token': token }
+    }).then(res => {
+      if (res.ok) {
+        sessionStorage.setItem('ravok_admin_token', token);
+        if (gateEl) gateEl.style.display = 'none';
+        if (appEl) appEl.style.setProperty('display', 'flex');
+        syncAdminFromBackend();
+      } else {
+        sessionStorage.removeItem('ravok_admin_token');
+        localStorage.removeItem('ravok_admin_token');
+        if (gateEl) gateEl.style.display = 'flex';
+        if (appEl) appEl.style.setProperty('display', 'none', 'important');
+      }
+    }).catch(() => {
+      // Offline fallback
+      if (gateEl) gateEl.style.display = 'none';
+      if (appEl) appEl.style.setProperty('display', 'flex');
+    });
+  } else {
+    if (gateEl) gateEl.style.display = 'none';
+    if (appEl) appEl.style.setProperty('display', 'flex');
   }
 }
 
-const loginForm = by('#adminLoginForm');
-if (loginForm) {
-  loginForm.onsubmit = async (e) => {
+const loginFormGate = by('#adminLoginFormGate') || by('#adminLoginForm');
+if (loginFormGate) {
+  loginFormGate.onsubmit = async (e) => {
     e.preventDefault();
+    const username = (by('#adminUsernameInput') ? by('#adminUsernameInput').value : 'guiilew').trim();
     const password = by('#adminPasswordInput').value;
+    const errorBox = by('#adminLoginError');
+    if (errorBox) errorBox.style.display = 'none';
 
     if (window.location.protocol.startsWith('http')) {
       try {
         const res = await fetch('/api/admin/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password })
+          body: JSON.stringify({ username, password })
         });
         const data = await res.json();
         if (res.ok && data.success) {
           sessionStorage.setItem('ravok_admin_token', data.token);
-          if (data.admin) {
-            localStorage.setItem('ravok_logged_admin', JSON.stringify(data.admin));
-            updateAdminSidebarProfile(data.admin);
+          localStorage.setItem('ravok_admin_token', data.token);
+          if (data.user) {
+            localStorage.setItem('ravok_logged_admin', JSON.stringify(data.user));
+            updateAdminSidebarProfile(data.user);
           }
-          by('#adminLoginModal').close();
-          toast('✓ Bem-vindo ao Painel Administrativo!');
+          if (by('#adminAuthGate')) by('#adminAuthGate').style.display = 'none';
+          if (by('#adminAppWrapper')) by('#adminAppWrapper').style.setProperty('display', 'flex');
+          toast('✓ Bem-vindo ao Painel, ' + (data.user ? data.user.name : 'Guiilew') + '!');
           syncAdminFromBackend();
         } else {
-          toast(data.error || 'Senha incorreta.');
+          if (errorBox) {
+            errorBox.textContent = data.error || 'Usuário ou senha incorretos.';
+            errorBox.style.display = 'block';
+          }
+          toast(data.error || 'Credenciais inválidas.');
         }
       } catch (err) {
-        toast('Erro ao conectar com a API.');
+        if (errorBox) {
+          errorBox.textContent = 'Erro ao conectar com a API do servidor.';
+          errorBox.style.display = 'block';
+        }
       }
     } else {
-      if (password === 'admin' || password === 'ravok2026') {
+      if ((username.toLowerCase() === 'guiilew' || username.toLowerCase() === 'admin') && password === '000e2ecd4a') {
         sessionStorage.setItem('ravok_admin_token', 'local_token');
-        by('#adminLoginModal').close();
+        if (by('#adminAuthGate')) by('#adminAuthGate').style.display = 'none';
+        if (by('#adminAppWrapper')) by('#adminAppWrapper').style.setProperty('display', 'flex');
         toast('✓ Bem-vindo ao Painel!');
       } else {
-        toast('Senha incorreta (Padrão: admin)');
+        if (errorBox) {
+          errorBox.textContent = 'Credenciais incorretas (Padrão: guiilew / 000e2ecd4a)';
+          errorBox.style.display = 'block';
+        }
       }
     }
   };
@@ -528,16 +574,19 @@ if (logoutBtn) {
 async function syncAdminFromBackend() {
   if (!window.location.protocol.startsWith('http')) return;
   try {
+    const adminToken = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token');
+    const authHeaders = adminToken ? { 'x-admin-token': adminToken } : {};
+
     const [pRes, oRes, dRes, fRes, sRes, setRes] = await Promise.all([
       fetch('/api/products'),
-      fetch('/api/admin/orders'),
-      fetch('/api/admin/deliveries'),
+      fetch('/api/admin/orders', { headers: authHeaders }),
+      fetch('/api/admin/deliveries', { headers: authHeaders }),
       fetch('/api/feedbacks'),
       fetch('/api/streamers'),
-      fetch('/api/admin/settings')
+      fetch('/api/admin/settings', { headers: authHeaders })
     ]);
 
-    if (pRes.ok) localStorage.setItem('ravok_products_vips_s3_v4', JSON.stringify(await pRes.json()));
+    if (pRes.ok) localStorage.setItem('ravok_products_v5', JSON.stringify(await pRes.json()));
     if (oRes.ok) localStorage.setItem('ravok_orders', JSON.stringify(await oRes.json()));
     if (dRes.ok) localStorage.setItem('ravok_pending_deliveries', JSON.stringify(await dRes.json()));
     if (fRes.ok) localStorage.setItem('ravok_feedbacks', JSON.stringify(await fRes.json()));
@@ -657,7 +706,7 @@ function refreshDashboard() {
 // 3. PRODUTOS (CRUD)
 // ----------------------------------------------------
 function getStoredProducts() {
-  const data = localStorage.getItem('ravok_products_vips_s3_v4');
+  const data = localStorage.getItem('ravok_products_v5');
   if (data) {
     try {
       const parsed = JSON.parse(data);
@@ -665,14 +714,14 @@ function getStoredProducts() {
     } catch (e) {}
   }
   if (typeof DEFAULT_PRODUCTS !== 'undefined') {
-    localStorage.setItem('ravok_products_vips_s3_v4', JSON.stringify(DEFAULT_PRODUCTS));
+    localStorage.setItem('ravok_products_v5', JSON.stringify(DEFAULT_PRODUCTS));
     return DEFAULT_PRODUCTS;
   }
   return [];
 }
 
 function saveStoredProducts(prods) {
-  localStorage.setItem('ravok_products_vips_s3_v4', JSON.stringify(prods));
+  localStorage.setItem('ravok_products_v5', JSON.stringify(prods));
   renderProductsTable();
   refreshDashboard();
 }
@@ -752,9 +801,13 @@ by('#productForm').onsubmit = (e) => {
   saveStoredProducts(prods);
 
   if (window.location.protocol.startsWith('http')) {
+    const adminToken = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token');
     fetch('/api/admin/products', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'x-admin-token': adminToken
+      },
       body: JSON.stringify(productData)
     }).catch(() => {});
   }
@@ -775,7 +828,11 @@ window.deleteProduct = (id) => {
     saveStoredProducts(prods);
 
     if (window.location.protocol.startsWith('http')) {
-      fetch(`/api/admin/products/${id}`, { method: 'DELETE' }).catch(() => {});
+      const adminToken = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token');
+      fetch(`/api/admin/products/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-admin-token': adminToken }
+      }).catch(() => {});
     }
 
     toast('Produto excluído com sucesso.');
@@ -784,7 +841,7 @@ window.deleteProduct = (id) => {
 
 by('#resetProductsBtn').onclick = () => {
   if (confirm('Deseja restaurar a lista padrão de produtos da loja?')) {
-    localStorage.removeItem('ravok_products_vips_s3_v4');
+    localStorage.removeItem('ravok_products_v5');
     toast('Produtos restaurados para os padrões.');
     renderProductsTable();
     refreshDashboard();

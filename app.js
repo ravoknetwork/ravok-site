@@ -14,7 +14,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[VENDAVAL]',
     tagClass: 'vendaval',
     icon: '🌪️',
-    image: 'images/kayzel1.png',
+    image: 'images/kits/previewknight.png',
     name: 'VIP VENDAVAL',
     description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
     price: 14.90,
@@ -39,7 +39,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[FLAMEJANTE]',
     tagClass: 'flamejante',
     icon: '🔥',
-    image: 'images/kayzel2.png',
+    image: 'images/kits/previewlord.png',
     name: 'VIP FLAMEJANTE',
     description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
     price: 29.90,
@@ -64,7 +64,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[CARVALHO]',
     tagClass: 'carvalho',
     icon: '🛡️',
-    image: 'images/kayzel3.png',
+    image: 'images/kits/previewpaladin.png',
     name: 'VIP CARVALHO',
     description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
     price: 44.90,
@@ -90,7 +90,7 @@ const DEFAULT_PRODUCTS = [
     tag: '[AURORA]',
     tagClass: 'aurora',
     icon: '✨',
-    image: 'images/kayzel4.png',
+    image: 'images/gallery/npc_vip_aurora.png',
     name: 'VIP AURORA',
     description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
     price: 64.90,
@@ -111,16 +111,17 @@ const DEFAULT_PRODUCTS = [
   {
     id: 'vip-solar',
     cat: 'VIPs',
-    badge: 'SUPREMO',
-    badgeColor: 'red',
+    badge: 'VALOR INESTIMÁVEL',
+    badgeColor: 'gold',
     tag: '[SOLAR]',
     tagClass: 'solar',
     icon: '👑',
-    image: 'images/kayzel5.png',
+    image: 'images/kits/previewking.png',
     name: 'VIP SOLAR',
-    description: 'Tag [SOLAR], Casas ILIMITADAS, Kit Solar do Rei, voar livremente com /fly, imortalidade com /god e aura mística.',
-    price: 89.90,
-    oldPrice: 119.90,
+    description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
+    price: 0,
+    oldPrice: null,
+    inestimavel: true,
     homes: 999,
     kit: 'Kit Solar do Rei',
     commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/heal', '/compactar', '/hat', '/fly', '/god'],
@@ -137,16 +138,17 @@ const DEFAULT_PRODUCTS = [
   {
     id: 'vip-deusa',
     cat: 'VIPs',
-    badge: 'DIVINO',
-    badgeColor: 'gold',
+    badge: 'DIGNIDADE DIVINA',
+    badgeColor: 'purple',
     tag: '[DEUSA]',
     tagClass: 'deusa',
     icon: '🔮',
-    image: 'images/kayzel6.png',
+    image: 'images/prefixes/deusa.png',
     name: 'VIP DEUSA',
-    description: 'A patente mais alta do servidor! Tag [DEUSA], sethomes ilimitadas, /repair all, acesso a todos os kits e aura suprema.',
-    price: 119.90,
-    oldPrice: 149.90,
+    description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
+    price: 0,
+    oldPrice: null,
+    inestimavel: true,
     homes: 999,
     kit: 'Todos os Kits',
     commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/repair all', '/heal', '/compactar', '/hat', '/fly', '/god', 'prefixo deusa'],
@@ -491,28 +493,35 @@ const DEFAULT_FEEDBACKS = [
 
 // Utilitários de leitura do LocalStorage
 function getProducts() {
-  const saved = localStorage.getItem('ravok_products_vips_s3_v4') || localStorage.getItem('ravok_products_vips_s3_v2') || localStorage.getItem('ravok_products_vips_s3');
+  const saved = localStorage.getItem('ravok_products_v5');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.some(p => p.id === 'coins-20000')) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     } catch (e) {}
   }
-  localStorage.setItem('ravok_products_vips_s3_v4', JSON.stringify(DEFAULT_PRODUCTS));
+  localStorage.setItem('ravok_products_v5', JSON.stringify(DEFAULT_PRODUCTS));
   return DEFAULT_PRODUCTS;
 }
 
 function getSlides() {
-  const saved = localStorage.getItem('ravok_slider_slides_s3_v2') || localStorage.getItem('ravok_slider_slides_s3');
+  const saved = localStorage.getItem('ravok_slider_slides_s3_v4');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length >= DEFAULT_SLIDES.length) return parsed;
     } catch (e) {}
   }
-  localStorage.setItem('ravok_slider_slides_s3_v2', JSON.stringify(DEFAULT_SLIDES));
+  localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(DEFAULT_SLIDES));
   return DEFAULT_SLIDES;
 }
+
+window.goToSlide = function(idx) {
+  currentSlideIndex = idx;
+  renderSlider();
+  const el = by('#galeria');
+  if (el) el.scrollIntoView({ behavior: 'smooth' });
+};
 
 function getStreamers() {
   const saved = localStorage.getItem('ravok_streamers');
@@ -679,11 +688,19 @@ function renderProducts() {
             `}
 
             <div class="rw-card-price-row">
-              <span class="rw-card-price-label">a partir de</span>
-              <span class="rw-card-price">${money(p.price)}</span>
-              ${p.oldPrice ? `<span class="rw-card-old-price">${money(p.oldPrice)}</span>` : ''}
+              ${p.inestimavel || p.price === 0 ? `
+                <span class="rw-card-price" style="color:var(--amber-gold); font-size:15px; font-weight:800; text-shadow:0 0 10px rgba(255,193,7,0.5);">✨ Valor Inestimável</span>
+              ` : `
+                <span class="rw-card-price-label">a partir de</span>
+                <span class="rw-card-price">${money(p.price)}</span>
+                ${p.oldPrice ? `<span class="rw-card-old-price">${money(p.oldPrice)}</span>` : ''}
+              `}
             </div>
-            <button type="button" class="rw-buy-btn" data-add="${p.id}">Comprar</button>
+            ${p.inestimavel || p.price === 0 ? `
+              <button type="button" class="rw-buy-btn" style="background:linear-gradient(135deg, rgba(255,193,7,0.15), rgba(216,67,21,0.25)); border:1px solid var(--amber-gold); color:var(--amber-gold);" onclick="openProductDetails('${p.id}')">Rank Especial</button>
+            ` : `
+              <button type="button" class="rw-buy-btn" data-add="${p.id}">Comprar</button>
+            `}
           </div>
         </article>
       `;
@@ -719,13 +736,40 @@ function openProductDetails(id) {
 
   if (titleEl) titleEl.textContent = p.name;
   if (imgEl) imgEl.src = p.image || 'images/emblema_ravok_outonal.png';
-  if (priceEl) priceEl.textContent = money(p.price);
-  if (oldPriceEl) {
-    if (p.oldPrice) {
-      oldPriceEl.textContent = money(p.oldPrice);
-      oldPriceEl.style.display = 'inline';
-    } else {
-      oldPriceEl.style.display = 'none';
+  
+  const buyBtn = by('#vipModalBuyBtn');
+
+  if (p.inestimavel || p.price === 0) {
+    if (priceEl) priceEl.textContent = '✨ Valor Inestimável';
+    if (oldPriceEl) oldPriceEl.style.display = 'none';
+    if (buyBtn) {
+      buyBtn.textContent = 'Rank Especial (Não Comprável)';
+      buyBtn.style.background = 'rgba(255,255,255,0.08)';
+      buyBtn.style.color = 'var(--amber-gold)';
+      buyBtn.style.border = '1px solid var(--amber-gold)';
+      buyBtn.onclick = () => {
+        alert('Este rank possui Valor Inestimável e é concedido apenas em eventos sagrados ou conquistas épicas do reino!');
+      };
+    }
+  } else {
+    if (priceEl) priceEl.textContent = money(p.price);
+    if (oldPriceEl) {
+      if (p.oldPrice) {
+        oldPriceEl.textContent = money(p.oldPrice);
+        oldPriceEl.style.display = 'inline';
+      } else {
+        oldPriceEl.style.display = 'none';
+      }
+    }
+    if (buyBtn) {
+      buyBtn.textContent = 'Adicionar à Sacola';
+      buyBtn.style.background = '';
+      buyBtn.style.color = '';
+      buyBtn.style.border = '';
+      buyBtn.onclick = () => {
+        addToCart(p.id);
+        modal.close();
+      };
     }
   }
 
@@ -769,14 +813,6 @@ function openProductDetails(id) {
     } else {
       cmdsContainer.style.display = 'none';
     }
-  }
-
-  const buyBtn = by('#vipModalBuyBtn');
-  if (buyBtn) {
-    buyBtn.onclick = () => {
-      addToCart(p.id);
-      modal.close();
-    };
   }
 
   modal.showModal();
@@ -839,11 +875,14 @@ window.buyCustomCoins = buyCustomCoins;
 
 function addToCart(id) {
   const prod = products.find(p => p.id === id);
-  if (prod) {
-    cart.push(prod);
-    renderCart();
-    toast(`"${prod.name}" adicionado à sacola.`);
+  if (!prod) return;
+  if (prod.inestimavel || prod.price === 0) {
+    alert(`O rank ${prod.name} possui Valor Inestimável e não pode ser comprado diretamente na loja. Participe de eventos, torneios ou desafios especiais no servidor para conquistá-lo!`);
+    return;
   }
+  cart.push(prod);
+  renderCart();
+  toast(`"${prod.name}" adicionado à sacola.`);
 }
 
 let activeCoupon = null;
@@ -1636,7 +1675,8 @@ async function syncWithBackend() {
     if (resProd.ok) {
       const prods = await resProd.json();
       if (Array.isArray(prods) && prods.length) {
-        localStorage.setItem('ravok_products_vips_s3', JSON.stringify(prods));
+        localStorage.setItem('ravok_products_v5', JSON.stringify(prods));
+        products = prods;
         renderProducts();
       }
     }
@@ -1703,26 +1743,25 @@ async function loadSalesGoal() {
   // Atualizar elementos no DOM
   const percentEl = by('#goalPercentPill');
   const fillEl = by('#goalProgressFill');
-  const currentEl = by('#goalCurrentDisplay');
-  const targetEl = by('#goalTargetDisplay');
-  const isZero = (goalData.percent || 0) <= 0;
+  const percentDisplayEl = by('#goalPercentDisplay');
+  const percentVal = Math.min(100, Math.max(0, goalData.percent || 0));
+  const isZero = percentVal <= 0;
 
-  if (percentEl) percentEl.textContent = `${goalData.percent || 0}% Atingida`;
+  if (percentEl) percentEl.textContent = `${percentVal}% Atingida`;
   if (fillEl) {
-    fillEl.style.width = `${Math.min(100, Math.max(0, goalData.percent || 0))}%`;
+    fillEl.style.width = `${percentVal}%`;
     const glow = fillEl.querySelector('.rw-goal-progress-glow');
     if (glow) glow.style.display = isZero ? 'none' : 'block';
   }
-  if (currentEl) currentEl.textContent = Number(goalData.totalArrecadado || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-  if (targetEl) targetEl.textContent = Number(goalData.targetGoal || 2000).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  if (percentDisplayEl) percentDisplayEl.textContent = `${percentVal}%`;
 
   // Atualizar milestones dinâmicos
   const m50 = by('#goalMilestone50');
   const m75 = by('#goalMilestone75');
   const m100 = by('#goalMilestone100');
-  if (m50) m50.classList.toggle('reached', (goalData.percent || 0) >= 50);
-  if (m75) m75.classList.toggle('reached', (goalData.percent || 0) >= 75);
-  if (m100) m100.classList.toggle('reached', (goalData.percent || 0) >= 100);
+  if (m50) m50.classList.toggle('reached', percentVal >= 50);
+  if (m75) m75.classList.toggle('reached', percentVal >= 75);
+  if (m100) m100.classList.toggle('reached', percentVal >= 100);
 }
 window.loadSalesGoal = loadSalesGoal;
 

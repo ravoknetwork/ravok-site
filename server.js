@@ -40,6 +40,20 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Servir arquivos estáticos da pasta raiz
 app.use(express.static(__dirname));
 
+// Rotas explícitas para garantir exibição das páginas principais
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+app.get('/votar', (req, res) => {
+  res.sendFile(path.join(__dirname, 'votar.html'));
+});
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, 'admin.html'));
+});
+app.get('/rankings', (req, res) => {
+  res.sendFile(path.join(__dirname, 'rankings.html'));
+});
+
 // Gerador de IDs seguros de 8 dígitos (compatível com int 32-bit e long 64-bit no Minecraft)
 function generateSafeId() {
   return Math.floor(10000000 + Math.random() * 89999999);

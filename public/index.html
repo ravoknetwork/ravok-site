@@ -1,622 +1,416 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-  <link rel="shortcut icon" href="images/emblema_ravok_outonal.png" type="image/x-icon">
-  
-  <title>Ravok Network - Servidor Minecraft Survival RPG</title>
-  
-  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-grid.min.css">
-  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap-reboot.min.css">
-  <link rel="stylesheet" href="assets/dropdown/css/style.css">
-  <link rel="stylesheet" href="assets/socicon/css/styles.css">
-  <link rel="stylesheet" href="assets/theme/css/style.css">
-  <link rel="preload" href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900,100i,200i,300i,400i,500i,600i,700i,800i,900i&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:100,200,300,400,500,600,700,800,900,100i,200i,300i,400i,500i,600i,700i,800i,900i&display=swap"></noscript>
-  <link rel="preload" as="style" href="assets/mobirise/css/mbr-additional.css"><link rel="stylesheet" href="assets/mobirise/css/mbr-additional.css" type="text/css">
-  <link rel="stylesheet" href="assets/theme/css/sunstone-ravok.css">
-
-  <!-- SEO & Open Graph -->
-  <meta name="description" content="Explore um mundo Survival RPG vivo, construa seu reino, automatize pedreiras, domine encantamentos raros e dispute batalhas inesquecíveis no Ravok Network!">
-  <meta name="keywords" content="Minecraft, Survival, RPG, Servidor Minecraft, Ravok, Outonal, Economia, Pedreira, VIP, Chaves">
-  <meta name="author" content="Ravok Network">
-  <meta property="og:title" content="Ravok Network ~ Survival RPG S3">
-  <meta property="og:description" content="Explore um mundo RPG vivo, dispute o topo da economia, encare chefões em masmorras e construa seu império na Temporada Outonal!">
-  <meta property="og:image" content="images/emblema_ravok_outonal.png">
-  <meta property="og:url" content="https://ravok-site.vercel.app">
-  <meta name="twitter:card" content="summary_large_image">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Ravok Network — Loja &amp; Comunidade Oficial (Temporada 3: Outono)</title>
+  <meta name="description" content="A loja e comunidade oficial do Ravok Network. Compre Ranks, Coins, Chaves e Pets com entrega automática.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="ravok-theme">
+  <div class="aurora aurora-one"></div>
+  <div class="aurora aurora-two"></div>
 
-<style>
-::-webkit-scrollbar {
-  width: 6px;
-  height: 10px;
-}
-::-webkit-scrollbar-thumb {
-  background: #ffaa00;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #ffc44d;
-}
-::-webkit-scrollbar-track {
-  background: black;
-  border-radius: 0px;
-  box-shadow: inset 0px 0px 0px 0px #0a0a0a;
-}
-</style>
+  <header class="topbar">
+    <div class="topbar-brand-wrap">
+      <!-- BOTÕES SQUIRCLE DE AÇÕES RÁPIDAS (REFERÊNCIA RAVOK RULES) -->
+      <div class="topbar-quick-squircles">
+        <button type="button" class="squircle-btn" onclick="openAuthModal('login')" title="Minha Conta / Acesso">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </button>
+        <button type="button" class="squircle-btn" id="squircleQuickNick" onclick="document.getElementById('playerDialog').showModal()" title="Informar Nick do Minecraft">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+        </button>
+      </div>
 
-<!-- ====================================================
-     SECTION 1: NAVBAR (Sunstone menu01-3)
-     ==================================================== -->
-<section data-bs-version="5.1" class="menu menu1 cid-uF6VuTCSgy" once="menu" id="menu01-3">
-    <nav class="navbar navbar-dropdown navbar-fixed-top navbar-expand-lg">
-        <div class="container">
-            <div class="navbar-brand">
-                <span class="navbar-logo">
-                    <a href="index.html">
-                        <img src="images/emblema_ravok_outonal.png" alt="Ravok Network" style="height: 4.4rem; image-rendering: auto;">
-                    </a>
-                </span>
-            </div>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbarSupportedContent" data-bs-target="#navbarSupportedContent" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-                <div class="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav nav-dropdown" data-app-modern-menu="true">
-                    <li class="nav-item"><a class="nav-link link text-white text-primary display-4" href="index.html">Início</a></li>
-                    <li class="nav-item"><a class="nav-link link text-white display-4" href="#loja">Loja</a></li>
-                    <li class="nav-item"><a class="nav-link link text-white text-primary display-4" href="rules.html">Regras</a></li>
-                    <li class="nav-item"><a class="nav-link link text-white text-primary display-4" href="staff.html">Equipe</a></li>
-                    <li class="nav-item"><a class="nav-link link text-white text-primary display-4" href="vote.html">Votar</a></li>
-                    <li class="nav-item"><a class="nav-link link text-white text-primary display-4" href="faq.html">FAQ</a></li>
-                    <li class="nav-item"><a class="nav-link link text-white text-primary display-4" href="texturas.html">Texturas</a></li>
-                    <li class="nav-item"><a class="nav-link link text-white text-primary display-4" href="admin.html">Painel</a></li>
-                </ul>
-                
-                <div class="navbar-buttons mbr-section-btn d-flex align-items-center gap-2">
-                    <a class="btn btn-sm btn-secondary display-4" href="https://discord.gg/ravok" target="_blank">
-                        <span class="socicon socicon-discord mbr-iconfont mbr-iconfont-btn"></span>Discord
-                    </a>
-                    
-                    <button class="btn btn-sm btn-primary display-4 d-inline-flex align-items-center gap-1" id="cartButton" type="button" title="Abrir Sacola de Compras">
-                        <span>🛒</span>
-                        <span id="cartCount">0</span>
-                    </button>
-
-                    <div id="unloggedAuthGroup" class="d-inline-flex">
-                        <button class="btn btn-sm btn-outline-light display-4" id="openAuthModalBtn" type="button">
-                            👤 Entrar
-                        </button>
-                    </div>
-
-                    <div id="playerLoggedPill" class="d-none align-items-center gap-2">
-                        <div class="d-flex align-items-center gap-1" id="openPlayer" style="cursor:pointer;" title="Ver Perfil do Jogador">
-                            <img id="topbarPlayerAvatar" src="images/emblema_ravok_outonal.png" alt="Avatar" style="width:26px; height:26px; border-radius:4px; image-rendering:pixelated;">
-                            <span id="topbarPlayerNick" class="text-white fw-bold small">Jogador</span>
-                            <span id="topbarPlayerCoins" class="badge bg-warning text-dark small">0 Coins</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <a class="brand" href="#inicio" aria-label="Ravok Network" style="display:flex; align-items:center; gap:10px;">
+        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:38px; height:38px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(255,193,7,0.5));">
+        <div style="display:flex; flex-direction:column; line-height:1.1;">
+          <span style="font-family:'Unbounded', sans-serif; font-size:18px; font-weight:800; color:#fff; text-shadow:0 0 14px var(--blue-glow); letter-spacing:-0.5px;">RAVOK</span>
+          <span style="color:var(--amber-gold); font-size:9px; font-weight:700; letter-spacing:1.5px; font-family:'DM Mono', monospace;">TEMPORADA 3 • OUTONO</span>
         </div>
+      </a>
+
+      <!-- STATUS DO SERVIDOR (CLIQUE PARA COPIAR IP) -->
+      <button type="button" class="server-status-pill" id="topbarStatusPill" onclick="copyServerIp()" title="Clique para copiar o IP do servidor: jogar.ravok.network">
+        <span class="status-pulse-dot" id="serverPulseDot"></span>
+        <span class="status-badge-text"><b id="onlineCountNum">0</b> online</span>
+        <span class="copy-ip-hint">jogar.ravok.network 📋</span>
+      </button>
+    </div>
+
+    <!-- MENU DE NAVEGAÇÃO COMPLETO RAVOK -->
+    <nav class="topbar-nav" id="topbarNav">
+      <a href="#inicio" class="active">Início</a>
+      <a href="#produtos">Loja</a>
+      <a href="#galeria">Galeria</a>
+      <a href="#como-funciona">Como Funciona</a>
+      <a href="#streamers">Streamers</a>
+      <a href="#feedbacks">Avaliações</a>
+      <a href="rules.html">Regras</a>
+      <a href="staff.html">Equipe</a>
+      <a href="vote.html">Votar</a>
+      <a href="faq.html">FAQ</a>
+      <a href="texturas.html">Texturas</a>
+      <a href="#comunidade">Discord</a>
     </nav>
-</section>
 
-<!-- ====================================================
-     SECTION 2: HERO (Sunstone header01-1)
-     ==================================================== -->
-<section data-bs-version="5.1" class="header1 cid-uF6MAHwKOk" id="header01-1">
-    <div class="mbr-overlay" style="opacity: 0.92; background-color: rgb(10, 10, 10);"></div>
-    <div class="container">
-    <div class="row align-left justify-content-center align-content-around">
-        <div class="col-12 col-lg col-md-12 md-pb">
-            <div class="text-wrapper">
-                <h2 class="mbr-section-subtitle mbr-fonts-style mb-2 align-left display-7" style="color:#ffaa00;">
-                    <strong>🍂 TEMPORADA 3 • OUTONAL</strong>
-                </h2>
-                <h1 class="mbr-section-title mbr-fonts-style mb-4 align-left display-1">
-                    <strong>COLHEITA &amp; <span class="highlight"><b>GLÓRIA</b></span> ANCESTRAL</strong>
-                </h1>
-
-                <p class="mbr-text mbr-fonts-style align-left display-7">
-                    A nova era da Ravok Network chegou! Explore a atmosfera outonal, desbloqueie os VIPs Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa, novas Chaves S3 e texturas oficiais exclusivas com entrega automática.
-                </p>
-                <div class="mbr-section-btn mt-4 d-flex flex-wrap gap-2">
-                    <a class="btn btn-success display-4" id="heroCopyIpBtn" href="javascript:void(0);" onclick="copyServerIp('java')" title="Copiar IP do Servidor">
-                        ■ Jogar Agora: jogar.ravok.network
-                    </a>
-                    <a class="btn btn-primary display-4" href="#loja">■ Visitar Loja</a>
-                    <a class="btn btn-outline-light display-4" href="texturas.html">■ Texturas HD</a>
-                </div>
-
-                <div class="row justify-content-left align-content-start mt-4">
-                    <div class="col-md-4 col-12">
-                        <div class="feature-box">
-                            <h3 class="number mbr-fonts-style align-left me-1 display-5">
-                                <strong><span style="color: #ffaa00;">●</span> 5.346+</strong>
-                            </h3>
-                            <p class="mbr-section-text mbr-fonts-style align-left display-4">
-                                Jogadores Registrados<br>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <div class="feature-box">
-                            <h3 class="number mbr-fonts-style align-left me-1 display-5">
-                                <strong><span style="color: #36e826;">●</span> <b id="player-count">Online</b></strong>
-                            </h3>
-                            <p class="mbr-section-text mbr-fonts-style align-left display-4">
-                                Jogadores Online<br>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <div class="feature-box">
-                            <h3 class="number mbr-fonts-style align-left me-1 display-5">
-                                <strong><span style="color: #f0ff00;">●</span> S3</strong>
-                            </h3>
-                            <p class="mbr-section-text mbr-fonts-style align-left display-4">
-                                Survival RPG Outonal
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
+    <div class="top-actions">
+      <!-- BOTÕES DE AUTENTICAÇÃO DO JOGADOR -->
+      <div id="playerAuthWrap">
+        <!-- Grupo Deslogado (Ocultado quando logado) -->
+        <div class="unlogged-auth-group" id="unloggedAuthGroup">
+          <button type="button" class="btn-topbar-ghost" id="openAuthModalBtn" onclick="openAuthModal('login')">
+            <span>👤</span> Entrar
+          </button>
+          <button type="button" class="btn-topbar-cta" id="openRegisterModalBtn" onclick="openAuthModal('register')">
+            <span>✦</span> Criar Conta
+          </button>
         </div>
-        <div class="col-12 col-md-12 col-lg-5 image-wrapper text-center">
-            <img class="w-100" src="images/fullbody.png" alt="Guerreiro Ravok 3D" style="max-height: 520px; object-fit: contain; filter: drop-shadow(0 20px 30px rgba(0,0,0,0.8));">
+
+        <!-- Pílula do Jogador Logado (Exibida quando logado) -->
+        <div class="player-logged-pill" id="playerLoggedPill" style="display:none;" title="Abrir Meu Perfil & Saldo" onclick="openPlayerPortal()">
+          <img class="player-avatar-small" id="topbarPlayerAvatar" src="https://mc-heads.net/avatar/steve/32" alt="Skin">
+          <div class="player-logged-info">
+            <span class="player-logged-nick" id="topbarPlayerNick">...</span>
+            <span class="player-logged-coins" id="topbarPlayerCoins">🪙 0 Coins</span>
+          </div>
+          <span class="player-menu-arrow">▾</span>
         </div>
+      </div>
+
+      <!-- SACOLA DE COMPRAS -->
+      <button class="cart-button" id="cartButton" title="Abrir Sacola"><span class="cart-btn-label">Sacola</span> <b id="cartCount">0</b></button>
+
+      <!-- BOTÃO ACESSO STAFF / ADMIN -->
+      <button type="button" class="btn-staff-access" id="openStaffAuthBtn" onclick="openAuthModal('staff')" title="Área da Staff & Configurações">
+        <span>🛡️</span> <span class="staff-btn-label">Staff</span>
+      </button>
     </div>
-</div>
-<div class="custom-shape-divider-bottom-1741670519">
-    <svg data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-        <path d="M600,112.77C268.63,112.77,0,65.52,0,7.23V120H1200V7.23C1200,65.52,931.37,112.77,600,112.77Z" class="shape-fill"></path>
-    </svg>
-</div>
-</section>
+  </header>
 
-<!-- ====================================================
-     SECTION 3: SUB-HERO (CONEXÃO RÁPIDA & META DA COMUNIDADE)
-     ==================================================== -->
-<section class="py-4" style="background-color: #070707;">
-    <div class="container">
-        <div class="rw-subhero-grid">
+  <main id="inicio">
+    <!-- HERO SECTION -->
+        <!-- HERO SECTION ESTILO REALLYWORLD (BANNER PRINCIPAL + 2 WIDGETS) -->
+    <section class="rw-hero-section" id="hero">
+      <!-- 1. BANNER PRINCIPAL COM 3D CHARACTER E PALETA OUTONAL -->
+      <div class="rw-banner-card" id="rwHeroBannerCard">
+        <div class="rw-banner-content" id="rwHeroBannerContent">
+          <div class="rw-banner-tag" id="heroBannerTag">
+            <img src="images/autumn/folha_de_bordo_flutuante.png" alt="Folha Outonal" id="heroBannerTagImg">
+            <span id="heroBannerTagText">TEMPORADA 3 • OUTONAL</span>
+          </div>
+          <h1 class="rw-banner-title" id="heroBannerTitle">COLHEITA &amp;<br>GLÓRIA ANCESTRAL</h1>
+          <p class="rw-banner-desc" id="heroBannerDesc">
+            A nova era da Ravok Network chegou! Explore a atmosfera outonal, desbloqueie os VIPs Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa, novas Chaves S3 e texturas oficiais exclusivas com entrega automática.
+          </p>
+          <div class="rw-banner-actions" id="heroBannerActions">
+            <button type="button" class="rw-banner-play-btn" id="heroBannerPlayBtn" onclick="copyServerIp()" title="Clique para copiar o IP e jogar">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+              <span>Jogar agora: <b id="serverIpBanner">jogar.ravok.network</b> <span style="font-size:11px; opacity:0.85; margin-left:4px; font-weight:normal;">(Bedrock: 26575)</span></span>
+            </button>
+            <a class="rw-banner-sec-btn" id="heroBannerSecBtn" href="/texturas" title="Ver Texturas & Baixar Resource Pack">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              <span>Texturas HD</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- PERSONAGEM 3D SAINDO DA BORDA (EXATAMENTE COMO NO DESIGN REALLYWORLD) -->
+        <div class="rw-banner-char-wrap" id="rwHeroBannerCharWrap">
+          <img src="images/fullbody.png" alt="Guerreiro Ravok 3D" id="heroBannerCharImg">
+        </div>
+
+        <!-- PONTOS DE NAVEGAÇÃO DO BANNER -->
+        <div class="rw-banner-dots" id="heroBannerDots">
+          <span class="rw-banner-dot active" data-hero-slide="0" aria-label="Slide 1: Temporada 3"></span>
+          <span class="rw-banner-dot" data-hero-slide="1" aria-label="Slide 2: Ranks VIP"></span>
+          <span class="rw-banner-dot" data-hero-slide="2" aria-label="Slide 3: Moedas & Coins"></span>
+          <span class="rw-banner-dot" data-hero-slide="3" aria-label="Slide 4: Chaves & Vouchers"></span>
+        </div>
+      </div>
+
+      <!-- 2. GRADE COM 2 WIDGETS SUB-HERO -->
+      <div class="rw-subhero-grid">
+        <!-- WIDGET 1: COMO ENTRAR, VERSÃO E IP -->
+        <div class="rw-connect-card">
+          <div style="position:relative; z-index:2;">
+            <div class="rw-connect-top">
+              <span class="rw-version-badge">Java 1.20 - 1.21.x • Bedrock</span>
+              <a href="#como-funciona" class="rw-how-to-join">Como entrar?</a>
+            </div>
+            <h3 class="rw-connect-title" style="margin-bottom:10px;">Comece sua jornada agora mesmo!</h3>
             
-            <!-- Card 1: Como Entrar & IPs -->
-            <div class="rw-connect-card">
-                <div style="position:relative; z-index:2;">
-                    <div class="rw-connect-top">
-                        <span class="rw-version-badge">Java 1.20 - 1.21.x • Bedrock</span>
-                        <a href="#como-funciona" class="rw-how-to-join">Como entrar?</a>
-                    </div>
-                    <h3 class="rw-connect-title">Comece sua jornada agora mesmo!</h3>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              <!-- IP Java -->
+              <div class="rw-ip-row" onclick="copyServerIp('java')" title="Clique para copiar o IP Java" style="padding: 6px 12px; font-size: 11.5px;">
+                <span style="font-weight: 800; font-size: 10px; background: rgba(255, 193, 7, 0.2); color: var(--amber-gold); padding: 2px 5px; border-radius: 4px;">JAVA</span>
+                <span>jogar.ravok.network</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </div>
 
-                    <div style="display:flex; flex-direction:column; gap:8px;">
-                        <!-- IP Java -->
-                        <div class="rw-ip-row" onclick="copyServerIp('java')" title="Clique para copiar o IP Java">
-                            <span style="font-weight: 800; font-size: 11px; background: rgba(255, 170, 0, 0.2); color: #ffaa00; padding: 2px 6px; border-radius: 4px;">JAVA</span>
-                            <span>jogar.ravok.network</span>
-                            <span style="margin-left:auto; font-size:12px; opacity:0.8;">📋 Copiar</span>
-                        </div>
-
-                        <!-- IP Bedrock + Porta -->
-                        <div class="rw-ip-row" onclick="copyServerIp('bedrock')" title="Clique para copiar o IP e Porta Bedrock">
-                            <span style="font-weight: 800; font-size: 11px; background: rgba(33, 150, 243, 0.2); color: #64B5F6; padding: 2px 6px; border-radius: 4px;">BEDROCK</span>
-                            <span>jogar.ravok.network</span>
-                            <span style="color: #ffaa00; font-weight: 700; margin-left: 2px;">:26575</span>
-                            <span style="margin-left:auto; font-size:12px; opacity:0.8; color:#64B5F6;">📋 Copiar</span>
-                        </div>
-                    </div>
-                </div>
-                <img src="images/kayzel1.png" alt="Personagem Ravok" class="rw-connect-char">
+              <!-- IP Bedrock + Porta -->
+              <div class="rw-ip-row" onclick="copyServerIp('bedrock')" title="Clique para copiar o IP e Porta Bedrock" style="padding: 6px 12px; font-size: 11.5px; border-color: rgba(66, 165, 245, 0.35);">
+                <span style="font-weight: 800; font-size: 10px; background: rgba(33, 150, 243, 0.2); color: #64B5F6; padding: 2px 5px; border-radius: 4px;">BEDROCK</span>
+                <span>jogar.ravok.network</span>
+                <span style="color: var(--amber-gold); font-weight: 700; margin-left: 2px;">:26575</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:auto; color:#64B5F6;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </div>
             </div>
-
-            <!-- Card 2: Meta Mensal da Comunidade -->
-            <div class="rw-goal-card" id="serverGoalCard">
-                <div>
-                    <div class="rw-goal-header">
-                        <div class="rw-goal-title">
-                            <span class="pulse-dot"></span>
-                            <span>Meta de Arrecadação Mensal</span>
-                        </div>
-                        <span class="rw-goal-percent-pill" id="goalPercentPill">0% Atingida</span>
-                    </div>
-                    <div class="rw-goal-subtitle">
-                        Ajude a manter a Ravok Network online, veloz e desbloqueie recompensas coletivas para todo o servidor!
-                    </div>
-
-                    <!-- Barra de Progresso com Brilho Outonal -->
-                    <div class="rw-goal-progress-wrap">
-                        <div class="rw-goal-progress-bar">
-                            <div class="rw-goal-progress-fill" id="goalProgressFill" style="width: 0%;">
-                                <span class="rw-goal-progress-glow" style="display:none;"></span>
-                            </div>
-                        </div>
-                        <div class="rw-goal-milestones">
-                            <span class="milestone-item" id="goalMilestone50"><span>50%</span> 2x XP</span>
-                            <span class="milestone-item" id="goalMilestone75"><span>75%</span> Boss Mundial</span>
-                            <span class="milestone-item" id="goalMilestone100"><span>100%</span> Sorteio VIP Solar 👑</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rw-calc-bottom-row">
-                    <div class="rw-calc-values">
-                        <div class="rw-calc-val-box gold">
-                            <span id="goalPercentDisplay">0%</span>
-                        </div>
-                        <span class="rw-calc-swap-icon">concluída</span>
-                        <div class="rw-calc-val-box">
-                            <span style="color:#aaa; font-size:0.9rem;">Meta Mensal</span>
-                        </div>
-                        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:28px; height:28px;">
-                    </div>
-                    <a href="#loja" class="rw-calc-buy-btn">
-                        <span>Apoiar Servidor 🍂</span>
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</section>
-
-<!-- ====================================================
-     SECTION 4: GALERIA DE CENÁRIOS REAIS DO SERVIDOR
-     ==================================================== -->
-<section class="gallery-section" id="galeria">
-    <div class="container">
-        <div class="row justify-content-center text-center mb-4">
-            <div class="col-12 col-lg-8">
-                <h2 class="mbr-section-subtitle mbr-fonts-style mb-2 display-7" style="color: #ffaa00; letter-spacing: 2px;">
-                    <strong>IMERSÃO &amp; CENÁRIOS ÉPICOS S3</strong>
-                </h2>
-                <h1 class="mbr-section-title mbr-fonts-style mb-3 display-2">
-                    <strong>Galeria da Temporada Outonal</strong>
-                </h1>
-                <p class="mbr-text mbr-fonts-style display-7" style="color: #aaa;">
-                    Conheça os biomas outonais, fortalezas de pedreiras, praças medievais e arenas de duelo construídas para a comunidade do Ravok.
-                </p>
-            </div>
+          </div>
+          <img src="images/kayzel1.png" alt="Personagem Ravok" class="rw-connect-char">
         </div>
 
-        <!-- Slider Principal -->
-        <div class="gallery-main-slide" id="serverSlider">
-            <div class="slider-wrapper" id="sliderWrapper">
-                <div class="slide-item active">
-                    <img src="images/gallery/spawn_ravok_outonal.png" alt="Spawn Ravok Outonal" class="gallery-main-img" id="galleryMainImg">
-                    <div class="gallery-info-overlay">
-                        <span class="gallery-badge">DESTAQUE S3</span>
-                        <h3 class="gallery-title" id="galleryTitle">Spawn &amp; Praça Principal</h3>
-                        <p class="gallery-desc" id="galleryDesc">O ponto de encontro dos aventureiros, com lojas, NPCs e roletas místicas.</p>
-                    </div>
-                </div>
+                <!-- WIDGET 2: META DE ARRECADAÇÃO MENSAL (MANUTENÇÃO DO SERVIDOR) -->
+        <div class="rw-goal-card" id="serverGoalCard">
+          <div>
+            <div class="rw-goal-header">
+              <div class="rw-goal-title">
+                <span class="pulse-dot"></span>
+                <span>Meta de Arrecadação Mensal</span>
+              </div>
+              <span class="rw-goal-percent-pill" id="goalPercentPill">0% Atingida</span>
             </div>
-            <div class="slider-dots" id="sliderDots"></div>
-        </div>
-
-        <!-- Miniaturas Rápidas para Navegar -->
-        <div class="gallery-thumbs-grid">
-            <div class="gallery-thumb-item" onclick="goToSlide(0)">
-                <img src="images/gallery/spawn_ravok_outonal.png" alt="Spawn">
-                <span>🏛️ Spawn &amp; Praça</span>
-            </div>
-            <div class="gallery-thumb-item" onclick="goToSlide(1)">
-                <img src="images/gallery/por_do_sol_canyon.png" alt="Pôr do Sol">
-                <span>🌅 Pôr do Sol Cânion</span>
-            </div>
-            <div class="gallery-thumb-item" onclick="goToSlide(2)">
-                <img src="images/gallery/npc_vip_aurora.png" alt="Ranks VIP">
-                <span>👑 Ranks VIP</span>
-            </div>
-            <div class="gallery-thumb-item" onclick="goToSlide(3)">
-                <img src="images/gallery/canyon_pedreira_fortaleza.png" alt="Fortaleza">
-                <span>⛏️ Mina Subterrânea</span>
-            </div>
-            <div class="gallery-thumb-item" onclick="goToSlide(4)">
-                <img src="images/gallery/mercado_loja_moedas.png" alt="Mercado">
-                <span>🪙 Mercado &amp; Moedas</span>
-            </div>
-            <div class="gallery-thumb-item" onclick="goToSlide(5)">
-                <img src="images/gallery/pedreira_vila_trabalhadores.png" alt="Pedreira">
-                <span>🌾 Pedreira &amp; Vila</span>
-            </div>
-            <div class="gallery-thumb-item" onclick="goToSlide(6)">
-                <img src="images/gallery/vale_outonal_bosque.png" alt="Bosque">
-                <span>🍂 Bosque das Folhas</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ====================================================
-     SECTION 5: ABOUT US & LORE (Sunstone about-us)
-     ==================================================== -->
-<section data-bs-version="5.1" class="header3 cid-uF6Rv5Np74" id="about-us">
-    <div class="container">
-        <div class="row align-left justify-content-center align-content-around">
-            <div class="col-12 col-lg col-md-12 m-auto">
-                <div class="text-wrapper md-pb">
-                    <h2 class="mbr-section-subtitle mbr-fonts-style mb-2 align-left display-7">
-                        <strong>SOBRE O SERVIDOR</strong>
-                    </h2>
-                    <h1 class="mbr-section-title mbr-fonts-style mb-4 align-left display-2"><strong>Construindo Mundos, Criando Memórias</strong></h1>
-                    <p class="mbr-text mbr-fonts-style align-left display-7">
-                        No <strong>Ravok Network</strong>, nossa missão é entregar uma experiência Survival RPG de ponta para a comunidade brasileira. Uma economia calculada e justa com comércio ativo, pedreiras automatizadas para abastecer suas construções, encantamentos arcanos raros, masmorras desafiadoras com chefões e eventos automáticos diários. Junte-se aos seus amigos e comece a forjar seu legado hoje mesmo!
-                    </p>
-                </div>
-            </div>
-            <div class="col-12 col-md-12 col-lg-3 image-wrapper text-center">
-                <img class="w-100" src="assets/images/vzgerender-villager.png-256x256.png" alt="Ravok NPC" style="max-height: 280px; object-fit: contain;">
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ====================================================
-     SECTION 6: SISTEMAS & GAMEMODES (Sunstone clients01-a)
-     ==================================================== -->
-<section data-bs-version="5.1" class="features5 cid-uF710EHG3B" id="clients01-a">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-12 title-col pb-5 text-center">
-                <h2 class="main-title align-center mbr-black mb-4 mbr-fonts-style display-5"><strong>O Que Você Quer Jogar Hoje?</strong></h2>
+            <div class="rw-goal-subtitle">
+              Ajude a manter a Ravok Network online, veloz e desbloqueie recompensas coletivas!
             </div>
             
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card-wrapper" style="background:#0f0f0f; border:1px solid #1f1f1f; border-radius:12px; padding:24px; text-align:center;">
-                    <div style="font-size:2.4rem; margin-bottom:12px;">🍂</div>
-                    <h4 class="mbr-fonts-style display-5" style="font-size:1.25rem; font-weight:700; color:#ffaa00; margin-bottom:8px;">Survival Outonal S3</h4>
-                    <p class="mbr-fonts-style display-4" style="color:#aaa; font-size:0.9rem;">Mundo aberto imenso, proteção segura de terrenos (/terreno), clãs com guerras épicas e árvores de habilidades.</p>
+            <!-- Barra de Progresso com Brilho Outonal (Zerada) -->
+            <div class="rw-goal-progress-wrap">
+              <div class="rw-goal-progress-bar">
+                <div class="rw-goal-progress-fill" id="goalProgressFill" style="width: 0%;">
+                  <span class="rw-goal-progress-glow" style="display:none;"></span>
                 </div>
+              </div>
+              <div class="rw-goal-milestones">
+                <span class="milestone-item" id="goalMilestone50"><span>50%</span> 2x XP</span>
+                <span class="milestone-item" id="goalMilestone75"><span>75%</span> Boss Mundial</span>
+                <span class="milestone-item" id="goalMilestone100"><span>100%</span> Sorteio VIP Solar 👑</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="rw-calc-bottom-row">
+            <div class="rw-calc-values">
+              <div class="rw-calc-val-box gold">
+                <span id="goalPercentDisplay">0%</span>
+              </div>
+              <span class="rw-calc-swap-icon">concluída</span>
+              <div class="rw-calc-val-box">
+                <span>Meta Mensal</span>
+              </div>
+              <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" class="rw-calc-coin-thumb" style="width:28px; height:28px;">
             </div>
 
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card-wrapper" style="background:#0f0f0f; border:1px solid #1f1f1f; border-radius:12px; padding:24px; text-align:center;">
-                    <div style="font-size:2.4rem; margin-bottom:12px;">⛏️</div>
-                    <h4 class="mbr-fonts-style display-5" style="font-size:1.25rem; font-weight:700; color:#ffaa00; margin-bottom:8px;">Mineração &amp; Pedreira</h4>
-                    <p class="mbr-fonts-style display-4" style="color:#aaa; font-size:0.9rem;">Pedreiras automatizadas com combustível, minérios mágicos, picaretas evolutivas e moedas especiais.</p>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card-wrapper" style="background:#0f0f0f; border:1px solid #1f1f1f; border-radius:12px; padding:24px; text-align:center;">
-                    <div style="font-size:2.4rem; margin-bottom:12px;">⚖️</div>
-                    <h4 class="mbr-fonts-style display-5" style="font-size:1.25rem; font-weight:700; color:#ffaa00; margin-bottom:8px;">Mercado dos Mercadores</h4>
-                    <p class="mbr-fonts-style display-4" style="color:#aaa; font-size:0.9rem;">Mercado autônomo entre jogadores (/mercado), leilões ao vivo, lojas de baú físicas e sistema de trocas seguras.</p>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card-wrapper" style="background:#0f0f0f; border:1px solid #1f1f1f; border-radius:12px; padding:24px; text-align:center;">
-                    <div style="font-size:2.4rem; margin-bottom:12px;">🗝️</div>
-                    <h4 class="mbr-fonts-style display-5" style="font-size:1.25rem; font-weight:700; color:#ffaa00; margin-bottom:8px;">Caixas Místicas &amp; Chaves</h4>
-                    <p class="mbr-fonts-style display-4" style="color:#aaa; font-size:0.9rem;">Caixas Comuns, Raras, Épicas e Superiores com animações 3D de roleta e recompensas raras no Spawn!</p>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card-wrapper" style="background:#0f0f0f; border:1px solid #1f1f1f; border-radius:12px; padding:24px; text-align:center;">
-                    <div style="font-size:2.4rem; margin-bottom:12px;">⚔️</div>
-                    <h4 class="mbr-fonts-style display-5" style="font-size:1.25rem; font-weight:700; color:#ffaa00; margin-bottom:8px;">Arena PvP &amp; Eventos</h4>
-                    <p class="mbr-fonts-style display-4" style="color:#aaa; font-size:0.9rem;">Batalhas 1v1 ranqueadas, Gladiator, Mata-Mata, Torneios de Fim de Semana e eventos automáticos diários.</p>
-                </div>
-            </div>
-
-            <div class="col-12 col-md-6 col-lg-4 mb-4">
-                <div class="card-wrapper" style="background:#0f0f0f; border:1px solid #1f1f1f; border-radius:12px; padding:24px; text-align:center;">
-                    <div style="font-size:2.4rem; margin-bottom:12px;">🏰</div>
-                    <h4 class="mbr-fonts-style display-5" style="font-size:1.25rem; font-weight:700; color:#ffaa00; margin-bottom:8px;">Masmorras &amp; Dungeons RPG</h4>
-                    <p class="mbr-fonts-style display-4" style="color:#aaa; font-size:0.9rem;">Dungeons cooperativas contra hordas e chefões customizados, com drops exclusivos de livros arcanos e relíquias!</p>
-                </div>
-            </div>
+            <a href="#produtos" class="rw-calc-buy-btn" style="text-decoration:none;">
+              <span>Apoiar na Loja</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+            </a>
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<!-- ====================================================
-     SECTION 7: STORE SECTION (#loja / #produtos)
-     ==================================================== -->
-<section data-bs-version="5.1" class="features1 py-5" id="loja" style="background-color: #070707; border-top: 1px solid #171717; border-bottom: 1px solid #171717;">
-    <div class="container">
-        
-        <!-- Store Section Header -->
-        <div class="row justify-content-center text-center mb-5">
-            <div class="col-12 col-lg-8">
-                <h2 class="mbr-section-subtitle mbr-fonts-style mb-2 display-7" style="color: #ffaa00; letter-spacing: 2px;">
-                    <strong>LOJA OFICIAL RAVOK</strong>
-                </h2>
-                <h1 class="mbr-section-title mbr-fonts-style mb-3 display-2">
-                    <strong>Adquira <span class="highlight"><b>VIPs</b></span>, <span class="highlight"><b>Chaves</b></span> e <span class="highlight"><b>Vantagens</b></span></strong>
-                </h1>
-                <p class="mbr-text mbr-fonts-style display-7" style="color: #aaa;">
-                    Entrega instantânea e 100% automatizada no servidor. Pague via Pix e digite <code style="color:#ffaa00; background:#1c1c1c; padding:3px 8px; border-radius:4px; font-weight:bold;">/resgatar</code> no servidor para resgatar na mesma hora!
-                </p>
+    <!-- GALERIA DO SERVIDOR COM SLIDE / CARROSSEL -->
+    <section class="gallery-section" id="galeria">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">EXPLORE O MUNDO</p>
+          <h2>Galeria do Servidor</h2>
+        </div>
+        <p>Conheça as construções, masmorras e momentos épicos da comunidade no Ravok Network.</p>
+      </div>
+
+      <div class="slider-container" id="serverSlider">
+        <div class="slider-wrapper" id="sliderWrapper">
+          <div class="slide-item active">
+            <img src="images/gallery/spawn_ravok_outonal.png" alt="Spawn Oficial da Ravok">
+            <div class="slide-caption">
+              <h3>Spawn Oficial da Ravok</h3>
+              <p>A grande praça central da Temporada 3 com tema outonal, decorações acolhedoras e portais de aventura.</p>
             </div>
+          </div>
         </div>
 
-        <!-- 3 Delivery Steps -->
-        <div class="row justify-content-center mb-5 g-4" id="como-funciona">
-            <div class="col-12 col-md-4">
-                <div style="background:#111111; border:1px solid #222; border-radius:12px; padding:20px; text-align:center;">
-                    <div style="font-size:1.8rem; color:#ffaa00; font-weight:800; margin-bottom:6px;">01</div>
-                    <h5 style="color:#fff; font-weight:700; font-size:1rem; margin-bottom:6px;">Escolha &amp; Pague com Pix</h5>
-                    <p style="color:#888; font-size:0.85rem; margin:0;">Selecione seus itens, informe seu nick do Minecraft e conclua em segundos via Pix QR Code.</p>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div style="background:#111111; border:1px solid #222; border-radius:12px; padding:20px; text-align:center;">
-                    <div style="font-size:1.8rem; color:#36e826; font-weight:800; margin-bottom:6px;">02</div>
-                    <h5 style="color:#fff; font-weight:700; font-size:1rem; margin-bottom:6px;">Aprovação Instantânea</h5>
-                    <p style="color:#888; font-size:0.85rem; margin:0;">O Mercado Pago confirma a transação em tempo real, liberando a entrega na hora.</p>
-                </div>
-            </div>
-            <div class="col-12 col-md-4">
-                <div style="background:#111111; border:1px solid #222; border-radius:12px; padding:20px; text-align:center;">
-                    <div style="font-size:1.8rem; color:#ffaa00; font-weight:800; margin-bottom:6px;">03</div>
-                    <h5 style="color:#fff; font-weight:700; font-size:1rem; margin-bottom:6px;">Receba no Jogo</h5>
-                    <p style="color:#888; font-size:0.85rem; margin:0;">Basta entrar no servidor <strong>jogar.ravok.network</strong> e usar o comando <strong style="color:#ffaa00;">/resgatar</strong>!</p>
-                </div>
-            </div>
-        </div>
+        <button class="slider-btn prev" id="sliderPrevBtn" aria-label="Slide anterior">‹</button>
+        <button class="slider-btn next" id="sliderNextBtn" aria-label="Próximo slide">›</button>
 
-        <!-- Category Filters (Populated by app.js) -->
-        <div class="rw-category-bar" id="filters">
-            <!-- Dynamic Category Buttons -->
+        <div class="slider-dots" id="sliderDots">
+          <button class="slider-dot active" data-slide="0" aria-label="Slide 1"></button>
         </div>
+      </div>
 
-        <!-- Product Grid (Populated by app.js) -->
+      <!-- MINIATURAS DA GALERIA EM GRADE -->
+      <div class="gallery-photo-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:24px;">
+        <div class="gallery-thumb-item" onclick="goToSlide(0)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/spawn_ravok_outonal.png" alt="Spawn Oficial" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🏛️ Spawn &amp; Praça</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(1)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/por_do_sol_canyon.png" alt="Pôr do Sol" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🌅 Pôr do Sol Cânion</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(2)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/npc_vip_aurora.png" alt="Ranks VIP" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">👑 Ranks VIP &amp; Pedestal</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(3)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/canyon_pedreira_fortaleza.png" alt="Fortaleza" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">⛏️ Mina Subterrânea</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(4)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/mercado_loja_moedas.png" alt="Mercado de Moedas" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🪙 Mercado &amp; Moedas</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(5)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/pedreira_vila_trabalhadores.png" alt="Pedreira" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🌾 Pedreira &amp; Vila</span>
+        </div>
+        <div class="gallery-thumb-item" onclick="goToSlide(6)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+          <img src="images/gallery/vale_outonal_bosque.png" alt="Bosque Dourado" style="width:100%; height:100%; object-fit:cover;">
+          <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🍁 Bosque das Folhas</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRODUTOS DA LOJA -->
+        <!-- CATÁLOGO DA LOJA (ESTILO REALLYWORLD: SIDEBAR + GRID 4 COLUNAS) -->
+    <section class="rw-store-section" id="produtos">
+      <div class="rw-store-header">
+        <div class="rw-store-title-wrap">
+          <p class="eyebrow" style="color:var(--amber-gold); margin-bottom:6px;"><img src="images/autumn/folha_de_bordo_flutuante.png" alt="" style="width:14px; height:14px; vertical-align:middle; margin-right:4px;"> CATÁLOGO DE BENEFÍCIOS</p>
+          <h2>Loja Ravok</h2>
+          <p>O catálogo oficial reúne todas as vantagens, caixas misteriosas e moedas do servidor. Compare benefícios, preços e adquira com entrega automática via Pix.</p>
+        </div>
+        <div class="rw-store-index-tag">
+          05 / PRODUTOS OFICIAIS S3
+        </div>
+      </div>
+
+      <div class="rw-store-body">
+        <!-- SIDEBAR DE CATEGORIAS À ESQUERDA -->
+        <aside class="rw-cat-sidebar" id="rwCategorySidebar">
+          <!-- Preenchido via app.js -->
+        </aside>
+
+        <!-- GRID DE PRODUTOS EM 4 COLUNAS À DIREITA -->
         <div class="rw-product-grid" id="productGrid">
-            <!-- Dynamic Product Cards -->
+          <!-- Preenchido via app.js -->
         </div>
+      </div>
+    </section>
 
-    </div>
-</section>
+    <!-- COMO FUNCIONA -->
+    <section class="how section" id="como-funciona">
+      <div>
+        <p class="eyebrow">ENTREGA AUTOMÁTICA</p>
+        <h2>Comprou.<br>Recebeu.</h2>
+      </div>
+      <div class="steps">
+        <article>
+          <b>01</b>
+          <h3>Escolha</h3>
+          <p>Escolha seu pacote de Coins, Chave, Pet ou Rank e informe seu nick exato do Minecraft.</p>
+        </article>
+        <article>
+          <b>02</b>
+          <h3>Pague</h3>
+          <p>Pague instantaneamente via Pix ou Cartão no ambiente seguro do Mercado Pago.</p>
+        </article>
+        <article>
+          <b>03</b>
+          <h3>Receba no Jogo</h3>
+          <p>Após a aprovação, entre no servidor e use <code>/resgatar</code> para receber seus itens imediatamente!</p>
+        </article>
+      </div>
+    </section>
 
-<!-- ====================================================
-     SECTION 8: STREAMERS PARCEIROS & CRIADORES
-     ==================================================== -->
-<section class="py-5" id="streamers" style="background-color: #0a0a0a;">
-    <div class="container">
-        <div class="row justify-content-center text-center mb-4">
-            <div class="col-12">
-                <h2 class="mbr-section-subtitle mbr-fonts-style mb-2 display-7" style="color: #ffaa00;">CRIADORES PARCEIROS</h2>
-                <h3 class="mbr-section-title mbr-fonts-style mb-3 display-5"><strong>Nossos Streamers</strong></h3>
-                <p class="mbr-text mbr-fonts-style display-7" style="color:#aaa;">Acompanhe transmissões ao vivo, séries e eventos criados pela comunidade no Ravok!</p>
-            </div>
+    <!-- STREAMERS & CRIADORES DE CONTEÚDO -->
+    <section class="section" id="streamers">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">CRIADORES PARCEIROS</p>
+          <h2>Nossos Streamers</h2>
         </div>
+        <p>Acompanhe transmissões ao vivo, séries de gameplay e eventos especiais criados pela comunidade.</p>
+      </div>
 
-        <!-- Streamers Grid (Injected by app.js) -->
-        <div class="streamers-grid" id="streamersGrid"></div>
-    </div>
-</section>
+      <div class="streamers-grid" id="streamersGrid">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </section>
 
-<!-- ====================================================
-     SECTION 9: DEPOIMENTOS DOS JOGADORES (FEEDBACKS)
-     ==================================================== -->
-<section class="py-5" id="feedbacks" style="background-color: #070707; border-top: 1px solid #171717;">
-    <div class="container">
-        <div class="row justify-content-between align-items-center mb-4">
-            <div class="col-auto">
-                <h2 class="mbr-section-subtitle mbr-fonts-style mb-1 display-7" style="color: #ffaa00;">AVALIAÇÕES DA COMUNIDADE</h2>
-                <h3 class="mbr-section-title mbr-fonts-style mb-0 display-5"><strong>O que dizem sobre nós</strong></h3>
-            </div>
-            <div class="col-auto">
-                <button class="btn btn-sm btn-primary display-4" id="openFeedbackModalBtn" type="button">⭐ Deixar meu Feedback</button>
-            </div>
+    <!-- FEEDBACKS / AVALIAÇÕES DA COMUNIDADE -->
+    <section class="section" id="feedbacks">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">DEPOIMENTOS DOS JOGADORES</p>
+          <h2>O que dizem sobre nós</h2>
         </div>
+        <button class="primary" id="openFeedbackModalBtn" style="padding: 10px 18px; font-size: 13px;">
+          ⭐ Deixar meu Feedback
+        </button>
+      </div>
 
-        <!-- Feedbacks Grid (Injected by app.js) -->
-        <div class="feedbacks-grid" id="feedbacksGrid"></div>
-    </div>
-</section>
+      <div class="feedbacks-grid" id="feedbacksGrid">
+        <!-- Preenchido via JavaScript -->
+      </div>
+    </section>
 
-<!-- ====================================================
-     SECTION 10: DISCORD & ARENA DE VOTOS
-     ==================================================== -->
-<section class="py-5" id="comunidade" style="background-color: #0a0a0a; border-top: 1px solid #171717;">
-    <div class="container">
-        <div class="discord-vote-split">
-            <!-- Card Discord -->
-            <div class="discord-card">
-                <div>
-                    <div class="discord-header">
-                        <div class="discord-icon">💬</div>
-                        <div>
-                            <span style="color: #5865f2; font-weight:800; font-size:0.75rem; letter-spacing:1px;">COMUNIDADE VIP</span>
-                            <h2 style="margin:0;">Discord Oficial</h2>
-                        </div>
-                    </div>
-                    <p>Junte-se a milhares de jogadores para receber anúncios de eventos, novidades da loja, suporte em tempo real e sorteios semanais!</p>
-                </div>
-                <div>
-                    <a class="discord-btn" id="discordLinkBtn" href="https://discord.gg/ravok" target="_blank">
-                        <span>Entrar no Discord</span> <span>↗</span>
-                    </a>
-                </div>
+    <!-- DISCORD & VOTAÇÃO -->
+    <section class="discord-vote-split" id="comunidade">
+      <!-- Card do Discord -->
+      <div class="discord-card">
+        <div>
+          <div class="discord-header">
+            <div class="discord-icon">💬</div>
+            <div>
+              <span class="eyebrow" style="color: var(--ravok-accent-blue); margin:0;">COMUNIDADE VIP</span>
+              <h2 style="margin:0;">Discord Oficial</h2>
             </div>
-
-            <!-- Card Votação -->
-            <div class="vote-card" id="votar">
-                <div>
-                    <div style="margin-bottom:12px;">
-                        <span style="color: #ffaa00; font-weight:800; font-size:0.75rem; letter-spacing:1px;">ARENA DE VOTOS OFICIAL</span>
-                        <h2 style="margin:4px 0 0 0;">Vote e Ganhe Chaves</h2>
-                    </div>
-                    <p>Nosso próprio espaço de votos interativo! Responda perguntas, participe de enquetes da comunidade, vença desafios e complete piadas diretamente no site para receber <strong>1 Chave de Voto</strong> a cada desafio e retirar no <code>/resgatar</code>!</p>
-                </div>
-                <div>
-                    <a class="vote-btn" href="vote.html">
-                        <span>🗳️ Entrar na Arena de Votos</span> <span>→</span>
-                    </a>
-                </div>
-            </div>
+          </div>
+          <p>Junte-se a milhares de jogadores para receber anúncios de eventos, novidades da loja, suporte em tempo real e sorteios semanais!</p>
         </div>
-    </div>
-</section>
-
-<!-- ====================================================
-     SECTION 11: FOOTER (Sunstone footer03-b)
-     ==================================================== -->
-<section data-bs-version="5.1" class="footer3 cid-uFajpH5lyn" once="footer" id="footer03-b">
-    <div class="container">
-        <div class="row align-left justify-content-center mbr-white">
-            <div class="col-md-6 col-lg-3 md-pb">
-                <h2 class="mbr-section-title pb-2 mbr-fonts-style display-7"><strong>Links Rápidos</strong></h2>
-                <h3 class="mbr-section-subtitle mbr-fonts-style mbr-lighter display-4">
-                    <a href="index.html" class="text-primary">Início</a><br>
-                    <a href="#loja" class="text-primary">Loja Oficial</a><br>
-                    <a href="rules.html" class="text-primary">Regras</a><br>
-                    <a href="staff.html" class="text-primary">Equipe</a><br>
-                    <a href="vote.html" class="text-primary">Votar</a>
-                </h3>
-            </div>
-            <div class="col-md-6 col-lg-3 md-pb">
-                <h2 class="mbr-section-title pb-2 mbr-fonts-style display-7"><strong>Extras</strong></h2>
-                <h3 class="mbr-section-subtitle mbr-fonts-style mbr-lighter display-4">
-                    <a href="index.html#about-us" class="text-primary">Sobre Nós</a><br>
-                    <a href="faq.html" class="text-primary">Perguntas Frequentes (FAQ)</a><br>
-                    <a href="texturas.html" class="text-primary">Texturas Oficiais</a><br>
-                    <a href="admin.html" class="text-primary">Painel de Controle</a>
-                </h3>
-            </div>
-            <div class="col-md-6 col-lg-3 md-pb">
-                <h2 class="mbr-section-title pb-2 mbr-fonts-style display-7"><strong>Comunidade</strong></h2>
-                <h3 class="mbr-section-subtitle mbr-fonts-style mbr-lighter display-4">
-                    <a href="https://discord.gg/ravok" class="text-primary" target="_blank">Discord Oficial</a><br>
-                    <a href="https://instagram.com" class="text-primary" target="_blank">Instagram</a><br>
-                    <a href="https://youtube.com" class="text-primary" target="_blank">Canal no YouTube</a><br>
-                    <a href="mailto:contato@ravok.network" class="text-primary">Suporte por E-mail</a>
-                </h3>
-            </div>
-            <div class="col-md-6 col-lg-3 md-pb">
-                <h2 class="mbr-section-title pb-2 mbr-fonts-style display-7"><strong>Servidor</strong></h2>
-                <h3 class="mbr-section-subtitle mbr-fonts-style mbr-lighter display-4">
-                    IP: <strong style="color:#ffaa00;">jogar.ravok.network</strong><br>
-                    Porta Bedrock: <strong style="color:#64B5F6;">26575</strong><br>
-                    Versão: <strong>1.20.x até a mais recente</strong><br>
-                    Explore um mundo Survival RPG vivo, construa seu reino e encare desafios inesquecíveis.
-                </h3>
-            </div>
+        <div>
+          <a class="discord-btn" id="discordLinkBtn" href="https://discord.gg" target="_blank">
+            Entrar no Discord <span>↗</span>
+          </a>
         </div>
-    </div><br>
-    <center><p><strong>© 2026 Ravok Network - Todos os direitos reservados. Não afiliado à Mojang Studios ou Microsoft.</strong></p></center>
-</section>
+      </div>
 
-<!-- ====================================================
-     MODALS & DRAWER
-     ==================================================== -->
-<aside class="drawer" id="drawer" aria-hidden="true">
+      <!-- Card de Votação (Arena de Votos da Ravok) -->
+      <div class="vote-card" id="votar">
+        <div>
+          <p class="eyebrow" style="margin:0 0 10px; color:var(--ravok-accent-cyan);">ARENA DE VOTOS OFICIAL</p>
+          <h2>Vote e ganhe<br>Chaves de Voto.</h2>
+          <p>Nosso próprio espaço de votos interativo! Responda perguntas, participe de enquetes da comunidade, vença pegadinhas e complete piadas diretamente no site para receber <strong>1 Chave de Voto</strong> a cada desafio e retirar no <code>/resgatar</code>!</p>
+        </div>
+        <div>
+          <a href="votar.html" class="primary" style="padding:14px 28px; font-size:15px; font-weight:800; background:linear-gradient(135deg, var(--ravok-accent-cyan), var(--ravok-accent-blue)); color:var(--ravok-text-inverse); text-decoration:none; display:inline-flex; align-items:center; gap:8px;">
+            🗳️ Entrar na Arena de Votos <span>→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <a class="brand" href="#inicio" style="display:flex; align-items:center; gap:8px;">
+      <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:28px; height:28px; object-fit:contain;">
+      RAVOK <span style="color:var(--amber-gold);">OUTONAL S3</span>
+    </a>
+    <span>© 2026 Ravok Network. Não afiliado à Mojang Studios ou Microsoft.</span>
+    <a href="admin.html">Acessar Painel de Controle</a>
+    <a href="#inicio">Voltar ao topo ↑</a>
+  </footer>
+
+  <!-- Drawer da Sacola -->
+  <aside class="drawer" id="drawer" aria-hidden="true">
     <div class="drawer-head">
       <h2>Sua sacola</h2>
       <button class="close" data-close>×</button>
@@ -635,8 +429,47 @@
       <button class="primary full" id="checkout">Finalizar Pedido (Pix) <span>→</span></button>
     </div>
   </aside>
-<div class="overlay" id="overlay"></div>
-<dialog id="checkoutDialog">
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Diálogo: Nick do Jogador -->
+  <dialog id="playerDialog">
+    <button class="close dialog-close" data-close>×</button>
+    <p class="eyebrow">IDENTIFICAÇÃO DO JOGADOR</p>
+    <h2>Qual é o seu Nick?</h2>
+    <p>Digite exatamente o mesmo nome que você utiliza no Minecraft para receber seus produtos.</p>
+    <input id="playerName" maxlength="16" placeholder="Ex.: Guiileu" autocomplete="off">
+    <button class="primary full" id="savePlayer">Salvar Nick <span>→</span></button>
+  </dialog>
+
+  <!-- Diálogo: Enviar Feedback -->
+  <dialog id="feedbackModal">
+    <button class="close dialog-close" data-close>×</button>
+    <p class="eyebrow">AVALIAÇÃO DA COMUNIDADE</p>
+    <h2>Deixe seu Feedback</h2>
+    <p>Sua opinião ajuda o Ravok Network a continuar melhorando cada detalhe!</p>
+    <form id="feedbackForm">
+      <label>Seu Nick no Minecraft:</label>
+      <input type="text" id="fbNick" required placeholder="Ex.: Guiileu" maxlength="16">
+
+      <label>Sua Nota:</label>
+      <select id="fbStars" class="form-select" style="margin-top:8px;">
+        <option value="5">★★★★★ (5 Estrelas - Excelente!)</option>
+        <option value="4">★★★★☆ (4 Estrelas - Muito Bom)</option>
+        <option value="3">★★★☆☆ (3 Estrelas - Regular)</option>
+        <option value="2">★★☆☆☆ (2 Estrelas - Pode Melhorar)</option>
+        <option value="1">★☆☆☆☆ (1 Estrela - Ruim)</option>
+      </select>
+
+      <label style="margin-top:14px;">Seu Comentário:</label>
+      <textarea id="fbComment" rows="3" required placeholder="O que você mais gosta no servidor?"></textarea>
+
+      <button type="submit" class="primary full" style="margin-top: 10px;">Enviar Avaliação <span>→</span></button>
+    </form>
+  </dialog>
+
+  <!-- Diálogo: Checkout Pix / Mercado Pago -->
+  <dialog id="checkoutDialog">
     <button class="close dialog-close" data-close>×</button>
     <p class="eyebrow">CHECKOUT OFICIAL · MERCADO PAGO</p>
     <h2>Pagamento Pix <span id="checkoutOrderId" style="font-size:16px; color:var(--muted); font-weight:normal;"></span></h2>
@@ -666,49 +499,9 @@
     </div>
     <div class="notice">Assim que aprovado, seus itens estarão disponíveis no jogo via <code>/resgatar</code>!</div>
   </dialog>
-<dialog id="vipDetailsModal" class="vip-modal-dialog">
-    <button class="close dialog-close" data-close onclick="document.getElementById('vipDetailsModal').close()">✕</button>
-    
-    <div class="vip-modal-header">
-      <div class="vip-modal-img-wrap">
-        <img id="vipModalImg" src="images/kayzel1.png" alt="VIP" class="vip-modal-img">
-      </div>
-      <div class="vip-modal-title-info">
-        <div id="vipModalTagWrap" style="margin-bottom:6px;"></div>
-        <h2 id="vipModalTitle">VIP VENDAVAL</h2>
-        <div class="vip-modal-price-row">
-          <span class="vip-modal-price" id="vipModalPrice">R$ 14,90</span>
-          <span class="vip-modal-old-price" id="vipModalOldPrice">R$ 19,90</span>
-        </div>
-      </div>
-    </div>
 
-    <div class="vip-modal-sections">
-      <div>
-        <div class="vip-modal-section-title">
-          <span>👑 Benefícios &amp; Privilégios no Servidor:</span>
-        </div>
-        <div class="vip-perks-grid" id="vipModalPerksList">
-          <!-- Preenchido via app.js -->
-        </div>
-      </div>
-
-      <div id="vipModalCmdsWrap" style="margin-top:14px;">
-        <div class="vip-modal-section-title">
-          <span>⚡ Comandos Liberados In-Game:</span>
-        </div>
-        <div class="vip-commands-cloud" id="vipModalCmdsCloud">
-          <!-- Preenchido via app.js -->
-        </div>
-      </div>
-    </div>
-
-    <div class="vip-modal-actions">
-      <button type="button" class="btn-ghost" onclick="document.getElementById('vipDetailsModal').close()" style="border-radius:12px; padding:10px 18px; font-size:13px;">Fechar</button>
-      <button type="button" class="primary" id="vipModalBuyBtn" style="border-radius:12px; padding:11px 22px; font-size:13.5px; font-weight:700;">Adicionar à Sacola 🛍️</button>
-    </div>
-  </dialog>
-<dialog id="authModal" class="auth-dialog">
+  <!-- MODAL: AUTENTICAÇÃO (ENTRAR, CRIAR CONTA E STAFF) -->
+  <dialog id="authModal" class="auth-dialog">
     <button class="close dialog-close" data-close>×</button>
     
     <div class="auth-tabs">
@@ -780,7 +573,9 @@
       </form>
     </div>
   </dialog>
-<dialog id="playerPortalModal" class="portal-dialog">
+
+  <!-- MODAL: PORTAL DO JOGADOR (PROGRESSO NOS RANKINGS, SALDO DE COINS E ENTREGAS) -->
+  <dialog id="playerPortalModal" class="portal-dialog">
     <button class="close dialog-close" data-close>×</button>
     
     <div class="portal-header">
@@ -926,64 +721,53 @@
       <button type="button" class="btn-ghost" id="portalLogoutBtn" style="color:#ef4444; border-color:rgba(239,68,68,0.3); font-size:12px;">Sair da Conta ✕</button>
     </div>
   </dialog>
-<dialog id="feedbackModal">
-    <button class="close dialog-close" data-close>×</button>
-    <p class="eyebrow">AVALIAÇÃO DA COMUNIDADE</p>
-    <h2>Deixe seu Feedback</h2>
-    <p>Sua opinião ajuda o Ravok Network a continuar melhorando cada detalhe!</p>
-    <form id="feedbackForm">
-      <label>Seu Nick no Minecraft:</label>
-      <input type="text" id="fbNick" required placeholder="Ex.: Guiileu" maxlength="16">
 
-      <label>Sua Nota:</label>
-      <select id="fbStars" class="form-select" style="margin-top:8px;">
-        <option value="5">★★★★★ (5 Estrelas - Excelente!)</option>
-        <option value="4">★★★★☆ (4 Estrelas - Muito Bom)</option>
-        <option value="3">★★★☆☆ (3 Estrelas - Regular)</option>
-        <option value="2">★★☆☆☆ (2 Estrelas - Pode Melhorar)</option>
-        <option value="1">★☆☆☆☆ (1 Estrela - Ruim)</option>
-      </select>
+  <div class="toast" id="toast"></div>
 
-      <label style="margin-top:14px;">Seu Comentário:</label>
-      <textarea id="fbComment" rows="3" required placeholder="O que você mais gosta no servidor?"></textarea>
+  <script src="app.js"></script>
+  <!-- MODAL: DETALHES COMPLETOS E VANTAGENS DO VIP / PRODUTO -->
+  <dialog id="vipDetailsModal" class="vip-modal-dialog">
+    <button class="close dialog-close" data-close onclick="document.getElementById('vipDetailsModal').close()">✕</button>
+    
+    <div class="vip-modal-header">
+      <div class="vip-modal-img-wrap">
+        <img id="vipModalImg" src="images/kayzel1.png" alt="VIP" class="vip-modal-img">
+      </div>
+      <div class="vip-modal-title-info">
+        <div id="vipModalTagWrap" style="margin-bottom:6px;"></div>
+        <h2 id="vipModalTitle">VIP VENDAVAL</h2>
+        <div class="vip-modal-price-row">
+          <span class="vip-modal-price" id="vipModalPrice">R$ 14,90</span>
+          <span class="vip-modal-old-price" id="vipModalOldPrice">R$ 19,90</span>
+        </div>
+      </div>
+    </div>
 
-      <button type="submit" class="primary full" style="margin-top: 10px;">Enviar Avaliação <span>→</span></button>
-    </form>
+    <div class="vip-modal-sections">
+      <div>
+        <div class="vip-modal-section-title">
+          <span>👑 Benefícios &amp; Privilégios no Servidor:</span>
+        </div>
+        <div class="vip-perks-grid" id="vipModalPerksList">
+          <!-- Preenchido via app.js -->
+        </div>
+      </div>
+
+      <div id="vipModalCmdsWrap" style="margin-top:14px;">
+        <div class="vip-modal-section-title">
+          <span>⚡ Comandos Liberados In-Game:</span>
+        </div>
+        <div class="vip-commands-cloud" id="vipModalCmdsCloud">
+          <!-- Preenchido via app.js -->
+        </div>
+      </div>
+    </div>
+
+    <div class="vip-modal-actions">
+      <button type="button" class="btn-ghost" onclick="document.getElementById('vipDetailsModal').close()" style="border-radius:12px; padding:10px 18px; font-size:13px;">Fechar</button>
+      <button type="button" class="primary" id="vipModalBuyBtn" style="border-radius:12px; padding:11px 22px; font-size:13.5px; font-weight:700;">Adicionar à Sacola 🛍️</button>
+    </div>
   </dialog>
-<div class="toast" id="toast"></div>
-
-<!-- ====================================================
-     SCRIPTS
-     ==================================================== -->
-<script src="assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="assets/smoothscroll/smooth-scroll.js"></script>
-<script src="assets/ytplayer/index.js"></script>
-<script src="assets/dropdown/js/navbar-dropdown.js"></script>
-<script src="assets/theme/js/script.js"></script>
-<script src="app.js"></script>
-
-<script>
-  // Monitoramento ao vivo de jogadores online
-  async function fetchPlayerCount() {
-    try {
-      const response = await fetch("https://api.mcsrvstat.us/2/jogar.ravok.network");
-      const data = await response.json();
-      const countEl = document.getElementById("player-count");
-      if (countEl) {
-        if (data.online) {
-          countEl.innerHTML = `<b>${data.players.online}</b>`;
-        } else {
-          countEl.innerHTML = "<b>Online</b>";
-        }
-      }
-    } catch (error) {
-      const countEl = document.getElementById("player-count");
-      if (countEl) countEl.innerHTML = "<b>Online</b>";
-    }
-  }
-  fetchPlayerCount();
-  setInterval(fetchPlayerCount, 30000);
-</script>
 
 </body>
 </html>

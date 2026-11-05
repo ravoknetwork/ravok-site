@@ -37,21 +37,57 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Servir arquivos estáticos da pasta raiz e subpastas
+// Servir arquivos estáticos da pasta public, raiz e subpastas
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(__dirname));
+app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/products', express.static(path.join(__dirname, 'public', 'products')));
 app.use('/products', express.static(path.join(__dirname, 'products')));
+app.use('/downloads', express.static(path.join(__dirname, 'public', 'downloads')));
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
+
+// Handler universal de arquivos estáticos (.css, .js, imagens, fontes) com busca multi-caminho
+app.get(/\.(css|js|png|jpg|jpeg|gif|svg|ico|webp|woff|woff2|ttf|map|json)$/i, (req, res, next) => {
+  const relPath = req.path.replace(/^\/+/, '');
+  const candidatePaths = [
+    path.join(__dirname, 'public', relPath),
+    path.join(process.cwd(), 'public', relPath),
+    path.join(__dirname, relPath),
+    path.join(process.cwd(), relPath),
+    path.resolve(__dirname, '..', relPath),
+    path.resolve(process.cwd(), '..', relPath)
+  ];
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      try {
+        if (fs.statSync(p).isFile()) {
+          return res.sendFile(p);
+        }
+      } catch (e) {}
+    }
+  }
+  next();
+});
 
 // Handlers explícitos via Regex para entregar qualquer nível de pasta/subpasta (/images/... ou /products/...)
 app.get(/^\/(images|products|downloads)\/.+/, (req, res) => {
   const relPath = req.path.replace(/^\/+/, '');
-  let absPath = path.join(__dirname, relPath);
-  if (!fs.existsSync(absPath)) {
-    absPath = path.join(process.cwd(), relPath);
-  }
-  if (fs.existsSync(absPath)) {
-    return res.sendFile(absPath);
+  const candidatePaths = [
+    path.join(__dirname, 'public', relPath),
+    path.join(process.cwd(), 'public', relPath),
+    path.join(__dirname, relPath),
+    path.join(process.cwd(), relPath),
+    path.resolve(__dirname, '..', relPath)
+  ];
+  for (const p of candidatePaths) {
+    if (fs.existsSync(p)) {
+      try {
+        if (fs.statSync(p).isFile()) {
+          return res.sendFile(p);
+        }
+      } catch (e) {}
+    }
   }
   res.status(404).send('Asset not found: ' + relPath);
 });

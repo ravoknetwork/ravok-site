@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arena de Votos &amp; Quests · Ravok Temporada 3 (Outono)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Estilos Específicos da Página Inteira de Votação */
+    .vote-page-container {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 30px 20px 80px;
+    }
+
+    /* CARROSSEL DE SLIDES */
+    .vote-carousel {
+      position: relative;
+      background: linear-gradient(135deg, rgba(46, 28, 21, 0.85) 0%, rgba(26, 14, 10, 0.95) 100%);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 40px 45px;
+      margin-bottom: 30px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4), inset 0 0 30px rgba(255, 193, 7, 0.05);
+      overflow: hidden;
+    }
+
+    .vote-slide {
+      display: none;
+      animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .vote-slide.active {
+      display: block;
+    }
+
+    .slide-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 99px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      background: rgba(255, 193, 7, 0.12);
+      border: 1px solid rgba(255, 193, 7, 0.3);
+      color: var(--blue-bright);
+      margin-bottom: 14px;
+    }
+
+    .slide-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(22px, 3.5vw, 32px);
+      color: #fff;
+      margin: 0 0 12px;
+      line-height: 1.25;
+    }
+
+    .slide-desc {
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 0 0 20px;
+    }
+
+    .slide-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      background: rgba(255, 193, 7, 0.15);
+      border: 1px solid #FFC107;
+      color: #FFC107;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .carousel-nav {
+      position: absolute;
+      right: 25px;
+      bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .carousel-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--panel-border);
+      color: #fff;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.2s;
+    }
+
+    .carousel-btn:hover {
+      background: var(--blue);
+      color: #040916;
+      border-color: var(--blue);
+      box-shadow: 0 0 15px var(--blue-glow);
+    }
+
+    .carousel-dots {
+      display: flex;
+      gap: 6px;
+      margin-right: 8px;
+    }
+
+    .carousel-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .carousel-dot.active {
+      width: 24px;
+      border-radius: 99px;
+      background: var(--blue);
+      box-shadow: 0 0 10px var(--blue-glow);
+    }
+
+    /* CARD DA QUEST DO DIA */
+    .daily-quest-card {
+      background: radial-gradient(circle at top right, rgba(255, 193, 7, 0.15), rgba(26, 14, 10, 0.95) 60%);
+      border: 1px solid rgba(255, 193, 7, 0.35);
+      border-radius: 18px;
+      padding: 26px 30px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 30px rgba(255, 193, 7, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .daily-quest-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .quest-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #fbbf24;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .quest-title {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 20px;
+      color: #fff;
+      margin: 0 0 6px;
+    }
+
+    .quest-desc {
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.5;
+      margin: 0;
+      max-width: 650px;
+    }
+
+    .quest-reward-pill {
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid #fbbf24;
+      color: #fde68a;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    /* BARRA DE PROGRESSO DA QUEST */
+    .quest-progress-wrap {
+      margin: 20px 0 15px;
+    }
+
+    .quest-progress-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .quest-progress-track {
+      background: rgba(255, 255, 255, 0.08);
+      height: 14px;
+      border-radius: 99px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .quest-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--ravok-cyan), var(--ravok-neon-aqua));
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.5);
+    }
+
+    .btn-claim-quest {
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 800;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+    }
+
+    .btn-claim-quest.ready {
+      background: linear-gradient(135deg, #FFC107, #0284c7);
+      color: #0a0f1d;
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+      animation: pulseCyan 2s infinite;
+    }
+
+    .btn-claim-quest.ready:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 25px rgba(0, 242, 254, 0.6);
+    }
+
+    .btn-claim-quest.locked {
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--muted);
+      border: 1px solid var(--panel-border);
+      cursor: not-allowed;
+    }
+
+    .btn-claim-quest.claimed {
+      background: rgba(255, 193, 7, 0.15);
+      border: 1px solid #FFC107;
+      color: #FFC107;
+      cursor: default;
+    }
+
+    @keyframes pulseCyan {
+      0%, 100% { box-shadow: 0 0 15px rgba(0, 242, 254, 0.3); }
+      50% { box-shadow: 0 0 25px rgba(0, 242, 254, 0.7); }
+    }
+
+    /* CARD IDENTIFICAÇÃO DO JOGADOR */
+    .player-strip-card {
+      background: rgba(9, 23, 49, 0.75);
+      border: 1px solid var(--panel-border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .player-profile-info {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .player-profile-info img {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid var(--panel-border);
+      image-rendering: pixelated;
+    }
+
+    /* ARENA DE DESAFIOS (FULL PAGE) */
+    .arena-section {
+      background: rgba(9, 23, 49, 0.7);
+      border: 1px solid var(--panel-border);
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .arena-tabs-header {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .arena-tab-nav {
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .arena-tab-nav:hover {
+      border-color: var(--blue);
+      color: #fff;
+    }
+
+    .arena-tab-nav.active {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.2), rgba(216, 67, 21, 0.15));
+      border-color: var(--blue);
+      color: #fff;
+      box-shadow: 0 0 15px rgba(255, 193, 7, 0.2);
+    }
+
+    .arena-pane {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .arena-pane.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .vote-carousel { padding: 25px 20px 70px; }
+      .carousel-nav { right: 20px; bottom: 20px; }
+      .arena-section { padding: 20px 16px; }
+      .arena-tabs-header { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="aurora aurora-one"></div>
+  <div class="aurora aurora-two"></div>
+
+  <!-- TOPBAR OFICIAL -->
+  <header class="topbar">
+    <div class="topbar-brand-wrap">
+      <a class="brand" href="index.html" aria-label="Ravok Network" style="display:flex; align-items:center; gap:10px;">
+        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:38px; height:38px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(255,193,7,0.5));">
+        <div style="display:flex; flex-direction:column; line-height:1.1;">
+          <span style="font-family:'Unbounded', sans-serif; font-size:18px; font-weight:800; color:#fff; text-shadow:0 0 14px var(--blue-glow); letter-spacing:-0.5px;">RAVOK</span>
+          <span style="color:var(--amber-gold); font-size:9px; font-weight:700; letter-spacing:1.5px; font-family:'DM Mono', monospace;">TEMPORADA 3 • OUTONO</span>
+        </div>
+      </a>
+    </div>
+    <nav class="topbar-nav" style="display:flex; align-items:center; gap:18px;">
+      <a href="index.html#produtos" style="color:var(--text-light); text-decoration:none; font-weight:600; font-size:13.5px; transition:color 0.2s;">Loja</a>
+      <a href="index.html#galeria" style="color:var(--text-light); text-decoration:none; font-weight:600; font-size:13.5px; transition:color 0.2s;">Galeria</a>
+      <a href="index.html#streamers" style="color:var(--text-light); text-decoration:none; font-weight:600; font-size:13.5px; transition:color 0.2s;">Streamers</a>
+      <a href="index.html#feedbacks" style="color:var(--text-light); text-decoration:none; font-weight:600; font-size:13.5px; transition:color 0.2s;">Avaliações</a>
+      <a href="rankings.html" style="color:var(--text-light); text-decoration:none; font-weight:600; font-size:13.5px; transition:color 0.2s;">Rankings</a>
+      <a href="votar.html" style="color:var(--amber-gold); text-decoration:none; font-weight:800; font-size:13.5px;">Votar ⭐</a>
+      <a href="https://discord.gg/ravok" target="_blank" rel="noopener" style="color:var(--text-light); text-decoration:none; font-weight:600; font-size:13.5px; transition:color 0.2s;">Discord</a>
+    </nav>
+    <div class="top-actions">
+      <a href="index.html#produtos" class="btn-topbar-ghost" style="text-decoration:none; font-size:12.5px; padding:7px 14px; border-radius:100px; border:1px solid rgba(255,193,7,0.3); color:#fff; display:inline-flex; align-items:center; gap:6px;">
+        <span>🛒</span> Loja Ravok
+      </a>
+      <a class="btn-staff-access" href="admin.html" style="text-decoration:none; font-size:12px; padding:7px 12px; border-radius:8px; background:rgba(216,67,21,0.2); border:1px solid rgba(216,67,21,0.4); color:var(--amber-gold); font-weight:700;">
+        🛡️ Staff
+      </a>
+    </div>
+  </header>
+
+  <main class="vote-page-container">
+    <!-- CARROSSEL DE SLIDES HERO -->
+    <section class="vote-carousel" id="voteCarousel">
+      <!-- SLIDE 1: ARENA DE VOTOS NATIVA -->
+      <div class="vote-slide active" data-slide="0">
+        <span class="slide-badge">✦ ESPAÇO PRÓPRIO DE VOTOS · RAVOK NETWORK ✦</span>
+        <h1 class="slide-title">Vote no Site &amp; Receba<br>Chaves no /resgatar</h1>
+        <p class="slide-desc">Participe dos desafios interativos oficiais: responda ao Quiz de perguntas, vote na Enquete ao vivo da comunidade, vença pegadinhas e complete trocadilhos de Minecraft!</p>
+        <div class="slide-pill">
+          <span>🗝️ Recompensa:</span> <strong>1x Chave de Voto a cada desafio</strong>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: QUEST DO DIA -->
+      <div class="vote-slide" data-slide="1">
+        <span class="slide-badge" style="background:rgba(251,191,36,0.12); border-color:#fbbf24; color:#fde68a;">⭐ RECOMPENSA EXTRA DIÁRIA ⭐</span>
+        <h2 class="slide-title">Quest do Dia: Ganhe<br>Chaves em Dobro!</h2>
+        <p class="slide-desc">Cumpra a meta de desafios diários na Arena para concluir a Quest do Dia e desbloquear 2x Chaves de Voto adicionais entregues automaticamente para o comando /resgatar.</p>
+        <div class="slide-pill" style="background:rgba(251,191,36,0.15); border-color:#fbbf24; color:#fde68a;">
+          <span>⚡ Bônus Diário Garantido:</span> <strong>2x Chaves de Voto (ZERO coins)</strong>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: RANKING & HALL DA FAMA -->
+      <div class="vote-slide" data-slide="2">
+        <span class="slide-badge" style="background:rgba(168,85,247,0.15); border-color:#a855f7; color:#d8b4fe;">🏆 HALL DA FAMA &amp; PRESTÍGIO 🏆</span>
+        <h2 class="slide-title">Suba no Ranking Oficial<br>dos Maiores Votadores</h2>
+        <p class="slide-desc">Cada desafio completado acumula votos e eleva sua posição na lista de líderes do servidor. Conquiste o troféu de Ouro no Top 1 Votos e torne-se uma lenda na comunidade!</p>
+        <div class="slide-pill" style="background:rgba(168,85,247,0.15); border-color:#a855f7; color:#d8b4fe;">
+          <span>🥇 Pódio do Servidor:</span> <strong>Acesse a aba Rankings</strong>
+        </div>
+      </div>
+
+      <!-- NAVEGAÇÃO DO CARROSSEL -->
+      <div class="carousel-nav">
+        <div class="carousel-dots" id="carouselDots">
+          <span class="carousel-dot active" data-index="0"></span>
+          <span class="carousel-dot" data-index="1"></span>
+          <span class="carousel-dot" data-index="2"></span>
+        </div>
+        <button class="carousel-btn" id="prevSlideBtn" aria-label="Slide anterior">‹</button>
+        <button class="carousel-btn" id="nextSlideBtn" aria-label="Próximo slide">›</button>
+      </div>
+    </section>
+
+    <!-- CARD DESTACADO: QUEST DO DIA -->
+    <section class="daily-quest-card" id="dailyQuestCard">
+      <div class="daily-quest-header">
+        <div>
+          <div class="quest-tag">⭐ MISSÃO DIÁRIA DO SERVIDOR</div>
+          <h2 class="quest-title" id="questTitleDisplay">Jornada do Conhecimento</h2>
+          <p class="quest-desc" id="questDescDisplay">Complete pelo menos 2 desafios na Arena de Votos hoje para provar seu valor à comunidade!</p>
+        </div>
+        <div class="quest-reward-pill">
+          <span>🎁 Bônus:</span> <strong id="questRewardDisplay">2x Chaves de Voto</strong>
+        </div>
+      </div>
+
+      <!-- DICA & LORE DA SILVIE IA -->
+      <div id="questSilvieTipBox" class="quest-ai-tip" style="display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 12px 16px; background: rgba(255, 193, 7, 0.07); border: 1px solid rgba(255, 193, 7, 0.25); border-radius: 12px;">
+        <img src="images/silvie-oficial.png" alt="Silvie IA" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--blue-bright); flex-shrink: 0;" onerror="this.outerHTML='<span style=\'font-size:24px;\'>🔮</span>'">
+        <div style="flex: 1; font-size: 13.5px; color: #e0f2fe; line-height: 1.4;">
+          <strong style="color: var(--blue-bright); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 2px;">💡 Dica da Silvie IA</strong>
+          <span id="questSilvieTipText" style="font-style: italic;">Carregando dica da Silvie...</span>
+        </div>
+      </div>
+
+      <!-- BARRA DE PROGRESSO -->
+      <div class="quest-progress-wrap">
+        <div class="quest-progress-labels">
+          <span>Progresso dos Desafios Hoje:</span>
+          <span id="questProgressNumbers">0 / 2 Concluídos</span>
+        </div>
+        <div class="quest-progress-track">
+          <div class="quest-progress-fill" id="questProgressBar" style="width: 0%;"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:flex-end;">
+        <button type="button" class="btn-claim-quest locked" id="claimDailyQuestBtn" disabled>
+          <span>🔒 Complete os desafios para liberar</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- CARD IDENTIFICAÇÃO DO JOGADOR -->
+    <section class="player-strip-card">
+      <div class="player-profile-info">
+        <img id="playerSkinHead" src="https://mc-heads.net/avatar/Steve/44" alt="Skin do Jogador">
+        <div>
+          <span style="font-size:11px; color:var(--muted); display:block; font-weight:700;">JOGADOR BENEFICIADO:</span>
+          <strong id="playerNickText" style="font-size:16px; color:#fff;">Não informado</strong>
+        </div>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span id="challengesDoneBadge" style="font-size:12px; color:var(--blue-bright); font-weight:700;">0 desafios feitos hoje</span>
+        <button type="button" class="btn-ghost" id="openChangeNickModalBtn" style="font-size:12px; padding:7px 14px;">Alterar Nick</button>
+      </div>
+    </section>
+
+    <!-- ARENA DE DESAFIOS (OS 4 MODOS GAMIFICADOS) -->
+    <section class="arena-section">
+      <!-- ABAS DOS DESAFIOS -->
+      <div class="arena-tabs-header">
+        <button type="button" class="arena-tab-nav active" data-target="pane-quiz">
+          <span>❓</span> 1. Pergunta do Quiz
+        </button>
+        <button type="button" class="arena-tab-nav" data-target="pane-poll">
+          <span>📊</span> 2. Enquete ao Vivo
+        </button>
+        <button type="button" class="arena-tab-nav" data-target="pane-prank">
+          <span>🤡</span> 3. Vencer Pegadinha
+        </button>
+        <button type="button" class="arena-tab-nav" data-target="pane-joke">
+          <span>😂</span> 4. Completar Piada
+        </button>
+      </div>
+
+      <!-- CONTEÚDO 1: QUIZ -->
+      <div class="arena-pane active" id="pane-quiz">
+        <div class="challenge-box">
+          <div class="challenge-label">❓ DESAFIO 1: RESPONDA A PERGUNTA DE MINECRAFT</div>
+          <h3 id="quizQuestionTitle" class="challenge-title">Carregando pergunta...</h3>
+          <div id="quizOptionsWrap" class="challenge-options-grid"></div>
+          <div id="quizFeedback" class="challenge-feedback" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- CONTEÚDO 2: ENQUETE -->
+      <div class="arena-pane" id="pane-poll">
+        <div class="challenge-box">
+          <div class="challenge-label">📊 DESAFIO 2: VOTE NA ENQUETE DA COMUNIDADE</div>
+          <h3 id="pollQuestionTitle" class="challenge-title">Carregando enquete...</h3>
+          <div id="pollOptionsWrap" class="challenge-options-grid"></div>
+          <div id="pollResultsWrap" class="poll-results" style="display:none; margin-top:16px;"></div>
+        </div>
+      </div>
+
+      <!-- CONTEÚDO 3: PEGADINHA -->
+      <div class="arena-pane" id="pane-prank">
+        <div class="challenge-box">
+          <div class="challenge-label">🤡 DESAFIO 3: NÃO CAIA NA PEGADINHA TROLL!</div>
+          <h3 id="prankRiddleTitle" class="challenge-title">Carregando pegadinha...</h3>
+          <p class="challenge-desc">Atenção: respostas óbvias costumam ser armadilhas hilárias! Escolha com sabedoria.</p>
+          <div id="prankOptionsWrap" class="challenge-options-grid"></div>
+          <div id="prankFeedback" class="challenge-feedback" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- CONTEÚDO 4: COMPLETAR PIADA -->
+      <div class="arena-pane" id="pane-joke">
+        <div class="challenge-box">
+          <div class="challenge-label">😂 DESAFIO 4: COMPLETE O FINAL DA PIADA</div>
+          <h3 id="jokeSetupTitle" class="challenge-title">Carregando piada...</h3>
+          <p class="challenge-desc">Escolha a punchline / trocadilho correto para arrancar risadas da Silvie e computar seu voto!</p>
+          <div id="jokeOptionsWrap" class="challenge-options-grid"></div>
+          <div id="jokeFeedback" class="challenge-feedback" style="display:none;"></div>
+        </div>
+      </div>
+
+      <!-- CARD DE SUCESSO DO VOTO -->
+      <div id="voteSuccessCard" class="vote-success-card" style="display:none; margin-top:20px;">
+        <div style="font-size:28px;">🎉</div>
+        <div>
+          <strong style="color:var(--ravok-neon-aqua); display:block; font-size:15px; margin-bottom:2px;">Voto Validado com Sucesso!</strong>
+          <span style="font-size:13px; color:#cbd5e1;">Sua <strong>1x Chave de Voto</strong> foi enfileirada no servidor. Entre em <code>jogar.ravok.network</code> e digite <code>/resgatar</code> para pegar seu prêmio!</span>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: INFORMAR NICK -->
+  <dialog id="playerNickModal" style="max-width: 380px; text-align: center; padding: 26px; border-radius:16px; background: #241510; border:1px solid var(--panel-border); color:#fff;">
+    <div style="font-size: 34px; margin-bottom: 8px;">🎮</div>
+    <h3 style="font-family:'Unbounded', sans-serif; font-size: 18px; margin: 0 0 6px;">Identifique seu Nick</h3>
+    <p style="color: var(--muted); font-size: 13px; margin: 0 0 18px;">Digite seu nick exato do Minecraft para direcionar as Chaves de Voto para o seu <code>/resgatar</code>.</p>
+    <form id="playerNickForm">
+      <input type="text" id="playerNickInput" required placeholder="Ex.: Guiileu" style="width: 100%; padding: 12px; margin-bottom: 14px; text-align: center; font-size: 15px; border-radius: 8px; border: 1px solid var(--panel-border); background: #1A0E0A; color: #fff; outline: none;">
+      <button type="submit" class="primary full" style="padding: 12px; justify-content:center;">Salvar Nick <span>→</span></button>
+    </form>
+  </dialog>
+
+  <!-- TOAST DE NOTIFICAÇÃO -->
+  <div class="toast" id="voteToast"></div>
+
+  <!-- RODAPÉ OFICIAL -->
+  <footer>
+    <a class="brand" href="index.html">RAVOK<span>NETWORK</span></a>
+    <span>© 2026 Ravok Network. Todos os direitos reservados. Servidor independente não afiliado à Mojang Studios.</span>
+    <a href="admin.html">Painel de Controle</a>
+    <a href="rankings.html">Hall da Fama</a>
+  </footer>
+
+  <script src="votar.js"></script>
+</body>
+</html>

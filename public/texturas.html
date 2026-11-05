@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Texturas & Modelos Oficiais — Ravok Network (Temporada 3: Outono)</title>
+  <meta name="description" content="Baixe o Resource Pack oficial em HD da Ravok Network com interfaces rústicas de outono, coroas 3D dos VIPs, armas ancestrais e itens exclusivos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="tokens.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .tex-hero {
+      position: relative;
+      border-radius: var(--ravok-radius-card);
+      background: radial-gradient(circle at 75% 20%, rgba(216, 67, 21, 0.25) 0%, rgba(26, 14, 10, 0.98) 75%),
+                  linear-gradient(180deg, #2D1810 0%, #170C08 100%);
+      border: 1px solid var(--ravok-border-subtle);
+      box-shadow: var(--ravok-shadow-card);
+      padding: 50px 40px;
+      margin-bottom: 50px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .tex-hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: linear-gradient(90deg, #8B0000, #D84315, #FFC107, #D84315, #8B0000);
+    }
+    .tex-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      background: rgba(255, 193, 7, 0.12);
+      border: 1px solid rgba(255, 193, 7, 0.35);
+      border-radius: 999px;
+      color: var(--amber-gold);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      margin-bottom: 18px;
+      font-family: 'DM Mono', monospace;
+      text-transform: uppercase;
+    }
+    .tex-hero h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      margin-bottom: 16px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.8);
+    }
+    .tex-hero h1 span {
+      background: linear-gradient(135deg, #FFC107 0%, #FF8F00 50%, #D84315 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .tex-hero p {
+      max-width: 680px;
+      color: var(--ravok-text-secondary);
+      font-size: 15px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    .tex-cta-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .tex-download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, #D84315 0%, #FF8F00 50%, #FFC107 100%);
+      color: #1A0E0A;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 16px 32px;
+      border-radius: 12px;
+      text-decoration: none;
+      box-shadow: 0 8px 30px rgba(216, 67, 21, 0.4), 0 0 20px rgba(255, 193, 7, 0.3);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+    .tex-download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(216, 67, 21, 0.6), 0 0 30px rgba(255, 193, 7, 0.5);
+    }
+    .tex-sec-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--ravok-border-subtle);
+      color: var(--ravok-text-primary);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      padding: 16px 24px;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+    .tex-sec-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--amber-gold);
+      color: var(--amber-gold);
+    }
+    .tex-meta-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      color: var(--ravok-text-muted);
+      font-size: 12px;
+      font-family: 'DM Mono', monospace;
+    }
+    .tex-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* SEÇÕES DE SHOWCASE */
+    .tex-section {
+      margin-bottom: 60px;
+    }
+    .tex-section-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 20px;
+      color: var(--amber-gold);
+      text-shadow: 0 2px 8px rgba(0,0,0,0.6);
+    }
+    .tex-section-title img {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+    }
+
+    /* GRID DE CARDS */
+    .tex-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .tex-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+
+    .tex-card {
+      background: var(--ravok-bg-surface);
+      border: 1px solid var(--ravok-border-subtle);
+      border-radius: var(--ravok-radius-card);
+      padding: 24px;
+      box-shadow: var(--ravok-shadow-card);
+      transition: all 0.25s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    .tex-card:hover {
+      border-color: rgba(255, 193, 7, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 20px rgba(255, 193, 7, 0.15);
+    }
+    .tex-card-img-wrap {
+      width: 100%;
+      height: 180px;
+      background: rgba(15, 8, 5, 0.7);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.04);
+      overflow: hidden;
+    }
+    .tex-card-img-wrap img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      image-rendering: pixelated;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.6));
+      transition: transform 0.3s ease;
+    }
+    .tex-card:hover .tex-card-img-wrap img {
+      transform: scale(1.08);
+    }
+    .tex-card-tag {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      font-family: 'DM Mono', monospace;
+      color: var(--terracotta);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+    .tex-card-name {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .tex-card-desc {
+      font-size: 13px;
+      color: var(--ravok-text-secondary);
+      line-height: 1.5;
+      flex-grow: 1;
+    }
+
+    /* TUTORIAL BOX */
+    .tex-tutorial-card {
+      background: linear-gradient(180deg, rgba(45, 24, 16, 0.8) 0%, rgba(23, 12, 8, 0.95) 100%);
+      border: 1px solid var(--amber-gold);
+      border-radius: var(--ravok-radius-card);
+      padding: 36px;
+      box-shadow: var(--ravok-shadow-card), 0 0 30px rgba(255, 193, 7, 0.1);
+    }
+    .tex-step-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .tex-step-item {
+      background: rgba(15, 8, 5, 0.6);
+      border: 1px solid var(--ravok-border-subtle);
+      border-radius: 12px;
+      padding: 20px;
+      position: relative;
+    }
+    .tex-step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #D84315, #FFC107);
+      color: #1A0E0A;
+      font-family: 'Unbounded', sans-serif;
+      font-size: 12px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+    .tex-step-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 6px;
+    }
+    .tex-step-desc {
+      font-size: 12px;
+      color: var(--ravok-text-secondary);
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body class="ravok-theme">
+  <div class="aurora aurora-one"></div>
+  <div class="aurora aurora-two"></div>
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand-wrap">
+      <a class="brand" href="/" aria-label="Ravok Network" style="display:flex; align-items:center; gap:10px;">
+        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:38px; height:38px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(255,193,7,0.5));">
+        <div style="display:flex; flex-direction:column; line-height:1.1;">
+          <span style="font-family:'Unbounded', sans-serif; font-size:18px; font-weight:800; color:#fff; text-shadow:0 0 14px var(--blue-glow); letter-spacing:-0.5px;">RAVOK</span>
+          <span style="color:var(--amber-gold); font-size:9px; font-weight:700; letter-spacing:1.5px; font-family:'DM Mono', monospace;">TEXTURAS OFICIAIS S3</span>
+        </div>
+      </a>
+    </div>
+
+    <div class="top-actions">
+      <a href="/" class="btn-topbar-ghost" style="text-decoration:none;">
+        <span>🏠</span> Voltar para a Loja
+      </a>
+      <a href="/votar" class="btn-topbar-ghost" style="text-decoration:none;">
+        <span>🗳️</span> Votar
+      </a>
+      <a href="https://discord.gg" target="_blank" rel="noopener" class="btn-topbar-cta" style="text-decoration:none;">
+        <span>💬</span> Discord
+      </a>
+    </div>
+  </header>
+
+  <main style="max-width: 1200px; margin: 0 auto; padding: 30px 20px 80px;">
+
+    <!-- HERO BANNER DE TEXTURAS -->
+    <section class="tex-hero">
+      <div class="tex-badge">
+        <img src="images/autumn/folha_de_bordo_flutuante.png" alt="" style="width:14px; height:14px;">
+        Resource Pack Oficial • Temporada 3 (Outono)
+      </div>
+
+      <h1>
+        VIVA A EXPERIÊNCIA VISUAL COMPLETA<br>
+        <span>COM AS TEXTURAS DA RAVOK</span>
+      </h1>
+
+      <p>
+        O Resource Pack oficial da 3ª Temporada transforma o seu Minecraft com interfaces rústicas em madeira entalhada,
+        as coroas e elmos 3D dos VIPs, itens mágicos exclusivos, relíquias solares e armas personalizadas.
+      </p>
+
+      <div class="tex-cta-group">
+        <a class="tex-download-btn" href="downloads/Ravok-ResourcePack-PTBR.zip" download="Ravok-ResourcePack-PTBR.zip" id="mainDownloadBtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span>BAIXAR TEXTURAS (RESOURCE PACK)</span>
+        </a>
+
+        <a class="tex-sec-btn" href="#tutorial">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          <span>Como Instalar</span>
+        </a>
+      </div>
+
+      <div class="tex-meta-strip">
+        <div class="tex-meta-item">📁 Tamanho: <b>6.49 MB (ZIP)</b></div>
+        <div class="tex-meta-item">•</div>
+        <div class="tex-meta-item">🎮 Versão: <b>Minecraft 1.20 - 1.21.4</b></div>
+        <div class="tex-meta-item">•</div>
+        <div class="tex-meta-item">⚡ Compatibilidade: <b>Vanilla, OptiFine, Iris, Sodium</b></div>
+        <div class="tex-meta-item">•</div>
+        <div class="tex-meta-item">🌐 Servidor: <b>jogar.ravok.network</b></div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 1: RANKS VIP & COROAS 3D -->
+    <section class="tex-section">
+      <div class="tex-section-title">
+        <img src="images/autumn/girassol_radiante.png" alt="">
+        <span>Ranks VIP & Tags Exclusivas no Servidor</span>
+      </div>
+
+      <div class="tex-grid-3">
+        <!-- VENDAVAL -->
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="products/VIPS/membro.png" alt="VIP Vendaval">
+          </div>
+          <div class="tex-card-tag"><img src="images/prefixes/knight.png" alt="[VENDAVAL]" style="height:15px; image-rendering:pixelated; vertical-align:middle; margin-right:6px;">RANK INICIAL</div>
+          <div class="tex-card-name" style="color:#FFFFFF;">VIP Vendaval</div>
+          <div class="tex-card-desc">Sopro ágil dos ventos de outono com armamento refinado, kit periódico e comandos essenciais para iniciar sua jornada.</div>
+        </div>
+
+        <!-- FLAMEJANTE -->
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="products/VIPS/vip_aura.png" alt="VIP Flamejante">
+          </div>
+          <div class="tex-card-tag" style="color:#D84315;"><img src="images/prefixes/lord.png" alt="[FLAMEJANTE]" style="height:15px; image-rendering:pixelated; vertical-align:middle; margin-right:6px;">RANK BRASAS</div>
+          <div class="tex-card-name" style="color:#D84315;">VIP Flamejante</div>
+          <div class="tex-card-desc">Canaliza a energia vibrante das folhas rubras e chamas ancestrais, com bancada portátil /craft e radar /near.</div>
+        </div>
+
+        <!-- CARVALHO -->
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="products/VIPS/aventureiro.png" alt="VIP Carvalho">
+          </div>
+          <div class="tex-card-tag" style="color:#C85A32;"><img src="images/prefixes/paladin.png" alt="[CARVALHO]" style="height:15px; image-rendering:pixelated; vertical-align:middle; margin-right:6px;">RANK ANCESTRAL</div>
+          <div class="tex-card-name" style="color:#C85A32;">VIP Carvalho</div>
+          <div class="tex-card-desc">Representa a firmeza secular dos carvalhos com armadura reforçada, enderchest portátil /ec e reparação ágil.</div>
+        </div>
+
+        <!-- AURORA -->
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="products/VIPS/vip_astro.png" alt="VIP Aurora">
+          </div>
+          <div class="tex-card-tag" style="color:#FFC107;"><img src="images/prefixes/duke.png" alt="[AURORA]" style="height:15px; image-rendering:pixelated; vertical-align:middle; margin-right:6px;">RANK DOURADO</div>
+          <div class="tex-card-name" style="color:#FFC107;">VIP Aurora</div>
+          <div class="tex-card-desc">O fulgor dourado das manhãs da Era de Ouro, kit místico, regeneração /heal e compactador automático.</div>
+        </div>
+
+        <!-- SOLAR -->
+        <div class="tex-card" style="border-color: rgba(255, 193, 7, 0.4);">
+          <div class="tex-card-img-wrap">
+            <img src="products/VIPS/vip_celestial.png" alt="VIP Solar">
+          </div>
+          <div class="tex-card-tag" style="color:#FFD700;"><img src="images/prefixes/king.png" alt="[SOLAR]" style="height:15px; image-rendering:pixelated; vertical-align:middle; margin-right:6px;">VALOR INESTIMÁVEL</div>
+          <div class="tex-card-name" style="color:#FFD700;">VIP Solar (Rei Supremo)</div>
+          <div class="tex-card-desc">O mais alto escalão dos nobres do servidor com voo livre (/fly), invencibilidade (/god) e casas ilimitadas.</div>
+        </div>
+
+        <!-- DEUSA -->
+        <div class="tex-card" style="border-color: rgba(197, 108, 238, 0.5); background: radial-gradient(circle at 50% 0%, rgba(197, 108, 238, 0.1) 0%, var(--ravok-bg-surface) 80%);">
+          <div class="tex-card-img-wrap">
+            <img src="products/VIPS/vip_eclipse.png" alt="VIP Deusa">
+          </div>
+          <div class="tex-card-tag" style="color:#C56CEE;"><img src="images/prefixes/deusa.png" alt="[DEUSA]" style="height:15px; image-rendering:pixelated; vertical-align:middle; margin-right:6px;">DIGNIDADE DIVINA</div>
+          <div class="tex-card-name" style="color:#C56CEE;">VIP Deusa (Supremo)</div>
+          <div class="tex-card-desc">A dignidade suprema e celestial da Ravok Network com aura iridescente, acesso a todos os kits e privilégios divinos.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 2: MENUS E INTERFACES RÚSTICAS -->
+    <section class="tex-section">
+      <div class="tex-section-title">
+        <img src="images/autumn/bussola_de_latao_dourado.png" alt="">
+        <span>Menus &amp; Interfaces Rústicas de Outono</span>
+      </div>
+
+      <div class="tex-grid-3">
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="images/autumn/menu_1_linha_5_slots.png" alt="Menu 5 Slots">
+          </div>
+          <div class="tex-card-tag">INTERFACE RÚSTICA</div>
+          <div class="tex-card-name">Menu de Ações Rápidas</div>
+          <div class="tex-card-desc">Menu de 1 linha e 5 slots centrais utilizado para confirmações rápidas, teleportes e seleções de kits.</div>
+        </div>
+
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="images/autumn/menu_2_linhas_10_slots.png" alt="Menu 10 Slots">
+          </div>
+          <div class="tex-card-tag">INTERFACE COMPACTA</div>
+          <div class="tex-card-name">Menu de Recompensas</div>
+          <div class="tex-card-desc">Menu duplo com 10 slots decorados em madeira nobre e entalhes solares para resgate diário e recompensas.</div>
+        </div>
+
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="images/autumn/menu_4_linhas_28_slots.png" alt="Menu 28 Slots">
+          </div>
+          <div class="tex-card-tag">INTERFACE EXPANDIDA</div>
+          <div class="tex-card-name">Mercado &amp; Loja de Moedas</div>
+          <div class="tex-card-desc">Grande vitrine com 28 slots com textura rústica para exibição do catálogo completo do /coinshop e mercado dos jogadores.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 3: RELÍQUIAS E ITENS ESPECIAIS -->
+    <section class="tex-section">
+      <div class="tex-section-title">
+        <img src="images/autumn/pedra_do_sol_ancestral.png" alt="">
+        <span>Relíquias, Chaves &amp; Glifos Oficiais</span>
+      </div>
+
+      <div class="tex-grid-4">
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="images/autumn/pedra_do_sol_ancestral.png" alt="Pedra do Sol Ancestral" style="transform: scale(2);">
+          </div>
+          <div class="tex-card-tag">RELÍQUIA RARA</div>
+          <div class="tex-card-name">Pedra do Sol Ancestral</div>
+          <div class="tex-card-desc">Gema solar multifacetada em âmbar dourado com reflexos e raios de luz utilizada em rituais do reino.</div>
+        </div>
+
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="images/autumn/bussola_de_latao_dourado.png" alt="Bússola de Latão" style="transform: scale(2);">
+          </div>
+          <div class="tex-card-tag">UTILITÁRIO</div>
+          <div class="tex-card-name">Bússola de Latão Dourado</div>
+          <div class="tex-card-desc">Bússola náutica de latão com agulha solar e mostrador rúnico para localização de masmorras e pontos de interesse.</div>
+        </div>
+
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="images/chave_lendaria.png" alt="Chave Lendária S3">
+          </div>
+          <div class="tex-card-tag">CAIXAS MISTERIOSAS</div>
+          <div class="tex-card-name">Chaves Forjadas S3</div>
+          <div class="tex-card-desc">Chaves em 3D para as Caixas Mística, Épica, Rara e Vote da praça central do spawn outonal.</div>
+        </div>
+
+        <div class="tex-card">
+          <div class="tex-card-img-wrap">
+            <img src="images/autumn/fogueira_acolhedora.png" alt="Fogueira Acolhedora" style="transform: scale(2);">
+          </div>
+          <div class="tex-card-tag">DECORAÇÃO</div>
+          <div class="tex-card-name">Fogueira Acolhedora</div>
+          <div class="tex-card-desc">Fogueira com brasas douradas e fumaça perfumada de pinho para acampamentos e vilas dos jogadores.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SEÇÃO 4: TUTORIAL DE INSTALAÇÃO -->
+    <section class="tex-section" id="tutorial">
+      <div class="tex-tutorial-card">
+        <div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+          <span style="font-size:24px;">📖</span>
+          <h2 style="font-family:'Unbounded', sans-serif; font-size:22px; color:var(--amber-gold);">Guia de Instalação Passo a Passo</h2>
+        </div>
+        <p style="color:var(--ravok-text-secondary); font-size:14px;">
+          Siga estas etapas simples para instalar o pacote de recursos no seu cliente Minecraft Java Edition.
+        </p>
+
+        <div class="tex-step-list">
+          <div class="tex-step-item">
+            <div class="tex-step-num">1</div>
+            <div class="tex-step-title">Baixar o Pacote</div>
+            <div class="tex-step-desc">Clique no botão "Baixar Texturas" no topo desta página para obter o arquivo <code>Ravok-ResourcePack-PTBR.zip</code>.</div>
+          </div>
+
+          <div class="tex-step-item">
+            <div class="tex-step-num">2</div>
+            <div class="tex-step-title">Abrir Opções</div>
+            <div class="tex-step-desc">Abra o Minecraft, vá em <b>Opções</b> ➔ <b>Pacotes de Recursos</b> (Resource Packs).</div>
+          </div>
+
+          <div class="tex-step-item">
+            <div class="tex-step-num">3</div>
+            <div class="tex-step-title">Mover o Arquivo</div>
+            <div class="tex-step-desc">Clique em <b>"Abrir Pasta de Pacotes"</b> e arraste o arquivo baixado para dentro da pasta que abrir.</div>
+          </div>
+
+          <div class="tex-step-item">
+            <div class="tex-step-num">4</div>
+            <div class="tex-step-title">Ativar &amp; Jogar</div>
+            <div class="tex-step-desc">Volte ao jogo, clique na setinha sobre o pacote Ravok para ativá-lo à direita e conecte em <b>jogar.ravok.network</b>!</div>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:30px;">
+          <a class="tex-download-btn" href="downloads/Ravok-ResourcePack-PTBR.zip" download="Ravok-ResourcePack-PTBR.zip">
+            <span>⬇ Baixar Ravok-ResourcePack-PTBR.zip (6.5 MB)</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer-wrap">
+      <div class="footer-brand">
+        <span class="footer-logo">RAVOK NETWORK</span>
+        <p>Temporada 3 • A Era Dourada do Outono. Minecraft Survival Customizado.</p>
+      </div>
+      <div class="footer-links">
+        <a href="/">Loja Oficial</a>
+        <a href="/votar">Votar</a>
+        <a href="/texturas">Texturas HD</a>
+        <a href="/admin">Painel Staff</a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

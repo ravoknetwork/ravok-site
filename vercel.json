@@ -3,7 +3,15 @@
   "cleanUrls": true,
   "functions": {
     "api/index.js": {
-      "includeFiles": "{index.html,admin.html,votar.html,texturas.html,rankings.html,styles.css,tokens.css,admin.css,app.js,admin.js,downloads/**,data/**,images/**,products/**}"
+      "includeFiles": [
+        "*.html",
+        "*.css",
+        "*.js",
+        "images/**",
+        "products/**",
+        "downloads/**",
+        "data/**"
+      ]
     }
   },
   "rewrites": [

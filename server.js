@@ -37,8 +37,30 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Servir arquivos estáticos da pasta raiz
+// Servir arquivos estáticos da pasta raiz e subpastas
 app.use(express.static(__dirname));
+app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/products', express.static(path.join(__dirname, 'products')));
+app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
+
+// Handlers explícitos para garantir entrega de imagens e assets mesmo no preset Express da Vercel
+app.get('/images/*', (req, res) => {
+  const relPath = req.path.replace(/^\/+/, '');
+  const absPath = path.join(__dirname, relPath);
+  if (fs.existsSync(absPath)) {
+    return res.sendFile(absPath);
+  }
+  res.status(404).send('Image not found');
+});
+
+app.get('/products/*', (req, res) => {
+  const relPath = req.path.replace(/^\/+/, '');
+  const absPath = path.join(__dirname, relPath);
+  if (fs.existsSync(absPath)) {
+    return res.sendFile(absPath);
+  }
+  res.status(404).send('Product image not found');
+});
 
 // Rotas explícitas para garantir exibição das páginas principais
 app.get('/', (req, res) => {

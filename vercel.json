@@ -1,10 +1,9 @@
 {
   "version": 2,
-  "framework": null,
   "cleanUrls": true,
   "functions": {
     "api/index.js": {
-      "includeFiles": "downloads/**"
+      "includeFiles": "{index.html,admin.html,votar.html,texturas.html,rankings.html,styles.css,tokens.css,admin.css,app.js,admin.js,downloads/**,data/**,images/**,products/**}"
     }
   },
   "rewrites": [

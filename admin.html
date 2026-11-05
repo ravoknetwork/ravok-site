@@ -88,6 +88,9 @@
         <button class="nav-item" data-tab="orders">
           <span class="icon">▣</span> Pedidos & MP
         </button>
+        <button class="nav-item" type="button" onclick="switchTab('dashboard'); setTimeout(() => document.querySelector('#adminGoalPreviewPill')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);">
+          <span class="icon">🎯</span> Meta Mensal (%)
+        </button>
         <button class="nav-item" data-tab="vote-arena">
           <span class="icon">🗳️</span> Arena de Votos & Quests
         </button>
@@ -116,6 +119,8 @@
           <h1 id="sectionTitle">Visão Geral</h1>
         </div>
         <div class="header-actions">
+          <button class="btn-ghost" type="button" onclick="switchTab('dashboard'); setTimeout(() => document.querySelector('#adminGoalPreviewPill')?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);" style="color:#ffc107; border-color:rgba(255,193,7,0.45); font-weight:700;">🎯 Meta Mensal (%)</button>
+          <button class="btn-primary" type="button" onclick="openManualSaleShortcut()" style="background:#00d4ff; border-color:#00d4ff; color:#031326; font-weight:800;">+ Venda Manual</button>
           <a class="btn-ghost" href="index.html" target="_blank">Ver Loja ↗</a>
           <button class="btn-primary" id="quickAddProductBtn">+ Novo Produto</button>
         </div>
@@ -1627,7 +1632,9 @@
           <select id="prodCategory" class="form-select">
             <option value="VIPs">VIPs</option>
             <option value="Coins">Coins</option>
-            <option value="Chaves">Chaves</option>
+            <option value="Chaves">Chaves &amp; Caixas</option>
+            <option value="Encantamentos">Livros de Encantamento</option>
+            <option value="Comandos">Comandos &amp; Permissões</option>
             <option value="Vouchers">Vouchers &amp; Skins</option>
             <option value="Pets">Pets</option>
             <option value="Cosméticos">Cosméticos</option>
@@ -1650,8 +1657,13 @@
       </div>
       <div class="form-group">
         <label>Imagem do Produto na Loja (URL, caminho ou Upload):</label>
-        <input type="text" id="prodImageUrl" placeholder="Ex.: images/products/moedas_2500.png ou URL">
-        <input type="file" id="prodImageFile" accept="image/*" style="margin-top: 6px; font-size: 12px;">
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 6px;">
+          <img id="prodImagePreview" src="images/emblema_ravok_outonal.png" alt="Prévia" style="width: 46px; height: 46px; object-fit: contain; border-radius: 8px; border: 1px solid rgba(255,255,255,0.14); background: rgba(0,0,0,0.35); padding: 3px; flex-shrink: 0;">
+          <div style="flex: 1;">
+            <input type="text" id="prodImageUrl" placeholder="Ex.: images/products/key_comum_hd.png ou URL">
+            <input type="file" id="prodImageFile" accept="image/*" style="margin-top: 6px; font-size: 12px; width: 100%;">
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label>Comando no Servidor (use {player} para o nick):</label>

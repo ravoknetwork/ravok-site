@@ -249,7 +249,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'VOTO',
     badgeColor: 'orange',
     icon: '🗝️',
-    image: 'images/products/chave_voto_hd.png',
+    image: 'images/products/key_voto_3x_hd.png',
     name: '3x Chave de Voto',
     description: 'Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.',
     price: 4.90,
@@ -261,7 +261,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'COMUM',
     badgeColor: 'orange',
     icon: '🗝️',
-    image: 'images/chave_comum.png',
+    image: 'images/products/key_comum_hd.png',
     name: 'Chave Comum S3',
     description: 'Chave inicial da Caixa Comum de Outono com suprimentos úteis e minérios.',
     price: 7.90,
@@ -273,7 +273,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'RARA',
     badgeColor: 'gold',
     icon: '🗝️',
-    image: 'images/chave_rara.png',
+    image: 'images/products/key_rara_hd.png',
     name: 'Chave Rara S3',
     description: 'Recompensas raras, minérios nobres e recursos valorizados da temporada.',
     price: 14.90,
@@ -285,7 +285,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'ÉPICA',
     badgeColor: 'gold',
     icon: '🗝️',
-    image: 'images/chave_epica.png',
+    image: 'images/products/key_epica_hd.png',
     name: 'Chave Épica S3',
     description: 'Caixa épica com alta chance de itens lendários e encantamentos superiores.',
     price: 24.90,
@@ -298,7 +298,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'MÍTICA',
     badgeColor: 'red',
     icon: '🗝️',
-    image: 'images/chave_lendaria.png',
+    image: 'images/products/key_superior_hd.png',
     name: 'Chave Superior S3',
     description: 'A mais poderosa chave da temporada com prêmios exclusivos e itens ancestrais.',
     price: 39.90,
@@ -311,12 +311,154 @@ const DEFAULT_PRODUCTS = [
     badge: 'COMBO',
     badgeColor: 'gold',
     icon: '🗝️',
-    image: 'images/chave_epic_dragon.png',
+    image: 'images/products/key_combo_4x_hd.png',
     name: 'Combo 4x Chaves Místicas',
     description: 'Pacote especial contendo 1x Comum, 1x Rara, 1x Épica e 1x Superior com super desconto!',
     price: 69.90,
     oldPrice: 87.60,
     command: 'crate key give {player} common 1; crate key give {player} rare 1; crate key give {player} epic 1; crate key give {player} superior 1'
+  },
+
+  // --- LIVROS DE ENCANTAMENTO ---
+  {
+    id: 'enchant-fortuna-4',
+    cat: 'Encantamentos',
+    badge: 'LIVRO',
+    badgeColor: 'gold',
+    icon: '📖',
+    image: 'images/products/livro_fortuna_4.png',
+    name: 'Livro: Fortuna IV',
+    description: 'Livro de Encantamento Fortuna IV. Multiplica os minérios e recursos minerados muito além do limite padrão do jogo.',
+    price: 14.90,
+    oldPrice: 19.90,
+    command: 'excellentenchants:ee book fortune 4 {player}'
+  },
+  {
+    id: 'enchant-eficiencia-6',
+    cat: 'Encantamentos',
+    badge: 'LIVRO',
+    badgeColor: 'orange',
+    icon: '📖',
+    image: 'images/products/livro_eficiencia_6.png',
+    name: 'Livro: Eficiência VI',
+    description: 'Livro de Encantamento Eficiência VI. Velocidade de mineração ultrarrápida superando o limite máximo do Minecraft tradicional.',
+    price: 16.90,
+    oldPrice: 22.90,
+    command: 'excellentenchants:ee book efficiency 6 {player}'
+  },
+  {
+    id: 'enchant-inquebravel-4',
+    cat: 'Encantamentos',
+    badge: 'LIVRO',
+    badgeColor: 'gold',
+    icon: '📖',
+    image: 'images/products/livro_inquebravel_4.png',
+    name: 'Livro: Inquebrável IV',
+    description: 'Livro de Encantamento Inquebrável IV. Quadruplica a durabilidade de suas ferramentas, armas e armaduras.',
+    price: 14.90,
+    oldPrice: 19.90,
+    command: 'excellentenchants:ee book unbreaking 4 {player}'
+  },
+  {
+    id: 'enchant-remendo',
+    cat: 'Encantamentos',
+    badge: 'ESSENCIAL',
+    badgeColor: 'orange',
+    icon: '📖',
+    image: 'images/products/livro_remendo.png',
+    name: 'Livro: Remendo (Mending)',
+    description: 'Livro de Encantamento Remendo. Repara seus itens e ferramentas automaticamente através da coleta de esferas de XP.',
+    price: 12.90,
+    oldPrice: 16.90,
+    command: 'excellentenchants:ee book mending 1 {player}'
+  },
+  {
+    id: 'enchant-soulbound',
+    cat: 'Encantamentos',
+    badge: 'PROTEÇÃO',
+    badgeColor: 'red',
+    icon: '📖',
+    image: 'images/products/livro_soulbound.png',
+    name: 'Livro: Vínculo da Alma',
+    description: 'Livro de Encantamento Vínculo da Alma (Soulbound). Impede que o item seja derrubado ou perdido caso você morra no jogo!',
+    price: 19.90,
+    oldPrice: 26.90,
+    command: 'excellentenchants:ee book soulbound 1 {player}'
+  },
+  {
+    id: 'enchant-telecinese',
+    cat: 'Encantamentos',
+    badge: 'UTILIDADE',
+    badgeColor: 'gold',
+    icon: '📖',
+    image: 'images/products/livro_telecinese.png',
+    name: 'Livro: Telecinese',
+    description: 'Livro de Encantamento Telecinese. Move todos os blocos quebrados e itens dropados instantaneamente para seu inventário.',
+    price: 17.90,
+    oldPrice: 24.90,
+    command: 'excellentenchants:ee book telekinesis 1 {player}'
+  },
+
+  // --- PERMISSÕES & COMANDOS (CHAVES DE BOCA) ---
+  {
+    id: 'cmd-back',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'orange',
+    icon: '🔧',
+    image: 'images/products/cmd_back_hd.png',
+    name: 'Comando /back',
+    description: 'Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou morte.',
+    price: 9.90,
+    command: 'crazyvouchers:voucher give Back_Command 1 {player}'
+  },
+  {
+    id: 'cmd-feed',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'orange',
+    icon: '🔧',
+    image: 'images/products/cmd_feed_hd.png',
+    name: 'Comando /feed',
+    description: 'Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver.',
+    price: 12.90,
+    command: 'crazyvouchers:voucher give Feed_Command 1 {player}'
+  },
+  {
+    id: 'cmd-heal',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'red',
+    icon: '🔧',
+    image: 'images/products/cmd_heal_hd.png',
+    name: 'Comando /heal',
+    description: 'Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique.',
+    price: 19.90,
+    command: 'crazyvouchers:voucher give Heal_Command 1 {player}'
+  },
+  {
+    id: 'cmd-repair',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'gold',
+    icon: '🔧',
+    image: 'images/products/cmd_repair_hd.png',
+    name: 'Comando /repair',
+    description: 'Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis na bigorna.',
+    price: 24.90,
+    command: 'crazyvouchers:voucher give Repair_Command 1 {player}'
+  },
+  {
+    id: 'cmd-fly',
+    cat: 'Comandos',
+    badge: 'VIP',
+    badgeColor: 'gold',
+    icon: '🔧',
+    image: 'images/products/cmd_fly_hd.png',
+    name: 'Comando /fly',
+    description: 'Voucher de liberação permanente do comando /fly. Voe livremente pelo mundo survival da Ravok.',
+    price: 39.90,
+    command: 'crazyvouchers:voucher give Fly_Command 1 {player}'
   },
 
   // --- VOUCHERS (SKINS DE FERRAMENTAS & ARMAS) ---
@@ -326,7 +468,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'NOVIDADE',
     badgeColor: 'gold',
     icon: '📜',
-    image: 'images/products/voucher_toolskin_hd.png',
+    image: 'images/products/voucher_skin_pixel_hd.png',
     name: 'Voucher Skin Aleatória',
     description: 'Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!',
     price: 14.90,
@@ -408,17 +550,28 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'coins-8000': 'images/products/moedas_8000.png',
   'coins-10000': 'images/products/moedas_10000.png',
   'coins-20000': 'images/products/moedas_20000.png',
-  'key-voto': 'images/products/chave_voto_hd.png',
-  'key-vote': 'images/products/chave_voto_hd.png',
-  'key-comum': 'images/chave_comum.png',
-  'key-common': 'images/chave_comum.png',
-  'key-rara': 'images/chave_rara.png',
-  'key-rare': 'images/chave_rara.png',
-  'key-epica': 'images/chave_epica.png',
-  'key-epic': 'images/chave_epica.png',
-  'key-superior': 'images/chave_lendaria.png',
-  'key-combo': 'images/chave_epic_dragon.png',
-  'voucher-skin-aleatoria': 'images/products/voucher_toolskin_hd.png',
+  'key-voto': 'images/products/key_voto_3x_hd.png',
+  'key-vote': 'images/products/key_voto_3x_hd.png',
+  'key-comum': 'images/products/key_comum_hd.png',
+  'key-common': 'images/products/key_comum_hd.png',
+  'key-rara': 'images/products/key_rara_hd.png',
+  'key-rare': 'images/products/key_rara_hd.png',
+  'key-epica': 'images/products/key_epica_hd.png',
+  'key-epic': 'images/products/key_epica_hd.png',
+  'key-superior': 'images/products/key_superior_hd.png',
+  'key-combo': 'images/products/key_combo_4x_hd.png',
+  'voucher-skin-aleatoria': 'images/products/voucher_skin_pixel_hd.png',
+  'enchant-fortuna-4': 'images/products/livro_fortuna_4.png',
+  'enchant-eficiencia-6': 'images/products/livro_eficiencia_6.png',
+  'enchant-inquebravel-4': 'images/products/livro_inquebravel_4.png',
+  'enchant-remendo': 'images/products/livro_remendo.png',
+  'enchant-soulbound': 'images/products/livro_soulbound.png',
+  'enchant-telecinese': 'images/products/livro_telecinese.png',
+  'cmd-back': 'images/products/cmd_back_hd.png',
+  'cmd-feed': 'images/products/cmd_feed_hd.png',
+  'cmd-heal': 'images/products/cmd_heal_hd.png',
+  'cmd-repair': 'images/products/cmd_repair_hd.png',
+  'cmd-fly': 'images/products/cmd_fly_hd.png',
   'pet-dino': 'images/products/pet_dino_hd.png',
   'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
@@ -443,12 +596,19 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/gallery/npc_vip_aurora.png',
   'images/prefixes/deusa.png',
   'images/chave_voto_s3.png',
-  'images/toolskins.png'
+  'images/toolskins.png',
+  'images/chave_comum.png',
+  'images/chave_rara.png',
+  'images/chave_epica.png',
+  'images/chave_lendaria.png',
+  'images/chave_epic_dragon.png',
+  'images/products/chave_voto_hd.png',
+  'images/products/voucher_toolskin_hd.png'
 ];
 
 function upgradeClientProducts(list) {
   if (!Array.isArray(list)) return DEFAULT_PRODUCTS;
-  return list.map(raw => {
+  const mapped = list.map(raw => {
     if (!raw || typeof raw !== 'object') return null;
     const p = { ...raw };
     if (p.id === 'vip-outono') {
@@ -462,6 +622,15 @@ function upgradeClientProducts(list) {
       p.tag = '[FLAMEJANTE]';
       p.tagClass = 'flamejante';
     }
+
+    // Se o item foi editado manualmente pelo administrador, NÃO altera a imagem nem o conteúdo!
+    if (p.customEdited) {
+      if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
+        p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+      }
+      return p;
+    }
+
     const img = String(p.image || '').trim();
     const isLegacyBroken = !img
       || LEGACY_BROKEN_PRODUCT_IMAGES.some(b => img.includes(b))
@@ -475,9 +644,13 @@ function upgradeClientProducts(list) {
       } else if (p.cat === 'VIPs') {
         p.image = 'products/VIPS/membro.png';
       } else if (p.cat === 'Chaves') {
-        p.image = 'images/chave_comum.png';
+        p.image = 'images/products/key_comum_hd.png';
       } else if (p.cat === 'Vouchers') {
-        p.image = 'images/products/voucher_toolskin_hd.png';
+        p.image = 'images/products/voucher_skin_pixel_hd.png';
+      } else if (p.cat === 'Encantamentos') {
+        p.image = 'images/products/livro_fortuna_4.png';
+      } else if (p.cat === 'Comandos') {
+        p.image = 'images/products/cmd_repair_hd.png';
       } else if (p.cat === 'Pets') {
         p.image = 'images/products/pet_dino_hd.png';
       } else if (p.cat === 'Cosméticos') {
@@ -489,6 +662,17 @@ function upgradeClientProducts(list) {
     }
     return p;
   }).filter(Boolean);
+
+  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) caso ainda não existam no catálogo
+  const existingIds = new Set(mapped.map(p => p.id));
+  DEFAULT_PRODUCTS.forEach(def => {
+    if (!existingIds.has(def.id)) {
+      mapped.push({ ...def });
+      existingIds.add(def.id);
+    }
+  });
+
+  return mapped;
 }
 
 const DEFAULT_SLIDES = [
@@ -739,30 +923,44 @@ async function syncAdminFromBackend() {
             body: JSON.stringify(localSnap)
           });
           if (restoreRes.ok) {
-            const refreshed = await fetch('/api/sync-state');
-            if (refreshed.ok) state = await refreshed.json();
+            const restoredData = await restoreRes.json();
+            if (restoredData && Array.isArray(restoredData.products)) {
+              state = restoredData;
+            }
           }
         } catch (reErr) {}
       }
 
-      if (Array.isArray(state.products)) {
+      // Se o estado do servidor for mais recente ou igual ao snapshot local, atualiza o cache local
+      const canApplyServerProducts = !localSnap || Number(state.updatedAt || 0) >= Number(localSnap.updatedAt || 0);
+      if (canApplyServerProducts && Array.isArray(state.products)) {
         const cleanProds = upgradeClientProducts(state.products);
-        localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
-        localStorage.setItem('ravok_products_synced', '1');
+        try {
+          localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
+          localStorage.setItem('ravok_products_synced', '1');
+        } catch (e) {}
       }
-      if (Array.isArray(state.slides)) {
-        localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(state.slides));
+      if (canApplyServerProducts && Array.isArray(state.slides)) {
+        try {
+          localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(state.slides));
+        } catch (e) {}
       }
-      if (Array.isArray(state.streamers)) {
-        localStorage.setItem('ravok_streamers', JSON.stringify(state.streamers));
-        localStorage.setItem('ravok_streamers_synced', '1');
+      if (canApplyServerProducts && Array.isArray(state.streamers)) {
+        try {
+          localStorage.setItem('ravok_streamers', JSON.stringify(state.streamers));
+          localStorage.setItem('ravok_streamers_synced', '1');
+        } catch (e) {}
       }
-      if (Array.isArray(state.feedbacks)) {
-        localStorage.setItem('ravok_feedbacks', JSON.stringify(state.feedbacks));
-        localStorage.setItem('ravok_feedbacks_synced', '1');
+      if (canApplyServerProducts && Array.isArray(state.feedbacks)) {
+        try {
+          localStorage.setItem('ravok_feedbacks', JSON.stringify(state.feedbacks));
+          localStorage.setItem('ravok_feedbacks_synced', '1');
+        } catch (e) {}
       }
       if (state.goal) {
-        localStorage.setItem('ravok_goal_v1', JSON.stringify(state.goal));
+        try {
+          localStorage.setItem('ravok_goal_v1', JSON.stringify(state.goal));
+        } catch (e) {}
       }
     }
 
@@ -1057,11 +1255,57 @@ function getStoredProducts() {
   return [];
 }
 
+function compressImageFile(file, maxDimension = 512) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onerror = () => resolve('');
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onerror = () => resolve('');
+      img.onload = () => {
+        let { width, height } = img;
+        const canvas = document.createElement('canvas');
+        if (width <= 64 && height <= 64) {
+          canvas.width = 256;
+          canvas.height = 256;
+          const ctx = canvas.getContext('2d');
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(img, 0, 0, 256, 256);
+          resolve(canvas.toDataURL('image/png'));
+          return;
+        }
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = Math.round((height * maxDimension) / width);
+            width = maxDimension;
+          } else {
+            width = Math.round((width * maxDimension) / height);
+            height = maxDimension;
+          }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = 'high';
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/png', 0.92));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function saveStoredProducts(prods, updatedAt) {
   const clean = upgradeClientProducts(prods);
-  localStorage.setItem('ravok_products_v6', JSON.stringify(clean));
-  localStorage.removeItem('ravok_products_v5');
-  localStorage.setItem('ravok_products_synced', '1');
+  try {
+    localStorage.setItem('ravok_products_v6', JSON.stringify(clean));
+    localStorage.removeItem('ravok_products_v5');
+    localStorage.setItem('ravok_products_synced', '1');
+  } catch (err) {
+    console.warn('[Admin] Aviso ao salvar produtos no localStorage:', err);
+  }
   saveAdminSnapshot(updatedAt);
   notifyPublicSite('products');
   renderProductsTable();
@@ -1108,7 +1352,17 @@ function openProductModal(prod = null) {
   by('#prodCategory').value = prod ? prod.cat : 'Coins';
   by('#prodPrice').value = prod ? prod.price : '';
   by('#prodIcon').value = prod ? prod.icon : '✦';
-  if (by('#prodImageUrl')) by('#prodImageUrl').value = prod ? (prod.image || '') : '';
+  const initialImg = prod ? (prod.image || '') : '';
+  if (by('#prodImageUrl')) {
+    by('#prodImageUrl').value = initialImg;
+    by('#prodImageUrl').oninput = () => {
+      const cur = by('#prodImageUrl').value.trim();
+      if (by('#prodImagePreview')) by('#prodImagePreview').src = cur || 'images/emblema_ravok_outonal.png';
+    };
+  }
+  if (by('#prodImagePreview')) {
+    by('#prodImagePreview').src = initialImg || 'images/emblema_ravok_outonal.png';
+  }
   if (by('#prodImageFile')) by('#prodImageFile').value = '';
   by('#prodGuiIcon').value = prod ? (prod.guiIcon || 'CHEST') : 'CHEST';
   by('#prodCommand').value = prod ? (prod.command || '') : '';
@@ -1118,14 +1372,14 @@ function openProductModal(prod = null) {
 
 const prodImageFileEl = by('#prodImageFile');
 if (prodImageFileEl) {
-  prodImageFileEl.onchange = () => {
+  prodImageFileEl.onchange = async () => {
     const file = prodImageFileEl.files && prodImageFileEl.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      if (by('#prodImageUrl')) by('#prodImageUrl').value = ev.target.result;
-    };
-    reader.readAsDataURL(file);
+    const compressed = await compressImageFile(file);
+    if (compressed) {
+      if (by('#prodImageUrl')) by('#prodImageUrl').value = compressed;
+      if (by('#prodImagePreview')) by('#prodImagePreview').src = compressed;
+    }
   };
 }
 
@@ -1150,8 +1404,10 @@ by('#productForm').onsubmit = async (e) => {
   const categoryDefaultImg = {
     'VIPs': 'products/VIPS/membro.png',
     'Coins': 'images/products/moedas_2500.png',
-    'Chaves': 'images/chave_comum.png',
-    'Vouchers': 'images/products/voucher_toolskin_hd.png',
+    'Chaves': 'images/products/key_comum_hd.png',
+    'Encantamentos': 'images/products/livro_fortuna_4.png',
+    'Comandos': 'images/products/cmd_repair_hd.png',
+    'Vouchers': 'images/products/voucher_skin_pixel_hd.png',
     'Pets': 'images/products/pet_dino_hd.png',
     'Cosméticos': 'images/products/espada_solar_hd.png'
   }[cat] || 'images/emblema_ravok_outonal.png';
@@ -1162,8 +1418,8 @@ by('#productForm').onsubmit = async (e) => {
     || categoryDefaultImg;
 
   const productData = existingIdx >= 0
-    ? { ...prods[existingIdx], id, name, cat, price, icon, image: resolvedImg, guiIcon, command, description }
-    : { id, name, cat, price, icon, image: resolvedImg, guiIcon, command, description };
+    ? { ...prods[existingIdx], id, name, cat, price, icon, image: resolvedImg, guiIcon, command, description, customEdited: true }
+    : { id, name, cat, price, icon, image: resolvedImg, guiIcon, command, description, customEdited: true };
 
   if (existingIdx >= 0) {
     prods[existingIdx] = productData;
@@ -1177,18 +1433,21 @@ by('#productForm').onsubmit = async (e) => {
       const res = await fetch('/api/admin/products', {
         method: 'POST',
         headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
-        body: JSON.stringify(productData)
+        body: JSON.stringify({ product: productData, products: prods })
       });
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data.products)) prods = data.products;
+        if (Array.isArray(data.products)) {
+          const match = data.products.find(p => String(p.id) === String(id));
+          if (match) prods = data.products;
+        }
         if (data.updatedAt) serverUpdatedAt = data.updatedAt;
       }
     } catch (err) {}
   }
 
   saveStoredProducts(prods, serverUpdatedAt);
-  toast(existingIdx >= 0 ? `✓ Produto "${name}" atualizado e sincronizado!` : `✓ Produto "${name}" adicionado na loja!`);
+  toast(existingIdx >= 0 ? `✓ Produto "${name}" atualizado e salvo!` : `✓ Produto "${name}" adicionado na loja!`);
   by('#productModal').close();
 };
 

@@ -251,7 +251,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'VOTO',
     badgeColor: 'orange',
     icon: '🗝️',
-    image: 'images/products/chave_voto_hd.png',
+    image: 'images/products/key_voto_3x_hd.png',
     name: '3x Chave de Voto',
     description: 'Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.',
     price: 4.90,
@@ -263,7 +263,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'COMUM',
     badgeColor: 'orange',
     icon: '🗝️',
-    image: 'images/chave_comum.png',
+    image: 'images/products/key_comum_hd.png',
     name: 'Chave Comum S3',
     description: 'Chave inicial da Caixa Comum de Outono com suprimentos úteis e minérios.',
     price: 7.90,
@@ -275,7 +275,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'RARA',
     badgeColor: 'gold',
     icon: '🗝️',
-    image: 'images/chave_rara.png',
+    image: 'images/products/key_rara_hd.png',
     name: 'Chave Rara S3',
     description: 'Recompensas raras, minérios nobres e recursos valorizados da temporada.',
     price: 14.90,
@@ -287,7 +287,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'ÉPICA',
     badgeColor: 'gold',
     icon: '🗝️',
-    image: 'images/chave_epica.png',
+    image: 'images/products/key_epica_hd.png',
     name: 'Chave Épica S3',
     description: 'Caixa épica com alta chance de itens lendários e encantamentos superiores.',
     price: 24.90,
@@ -300,7 +300,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'MÍTICA',
     badgeColor: 'red',
     icon: '🗝️',
-    image: 'images/chave_lendaria.png',
+    image: 'images/products/key_superior_hd.png',
     name: 'Chave Superior S3',
     description: 'A mais poderosa chave da temporada com prêmios exclusivos e itens ancestrais.',
     price: 39.90,
@@ -313,12 +313,154 @@ const DEFAULT_PRODUCTS = [
     badge: 'COMBO',
     badgeColor: 'gold',
     icon: '🗝️',
-    image: 'images/chave_epic_dragon.png',
+    image: 'images/products/key_combo_4x_hd.png',
     name: 'Combo 4x Chaves Místicas',
     description: 'Pacote especial contendo 1x Comum, 1x Rara, 1x Épica e 1x Superior com super desconto!',
     price: 69.90,
     oldPrice: 87.60,
     command: 'crate key give {player} common 1; crate key give {player} rare 1; crate key give {player} epic 1; crate key give {player} superior 1'
+  },
+
+  // --- LIVROS DE ENCANTAMENTO ---
+  {
+    id: 'enchant-fortuna-4',
+    cat: 'Encantamentos',
+    badge: 'LIVRO',
+    badgeColor: 'gold',
+    icon: '📖',
+    image: 'images/products/livro_fortuna_4.png',
+    name: 'Livro: Fortuna IV',
+    description: 'Livro de Encantamento Fortuna IV. Multiplica os minérios e recursos minerados muito além do limite padrão do jogo.',
+    price: 14.90,
+    oldPrice: 19.90,
+    command: 'excellentenchants:ee book fortune 4 {player}'
+  },
+  {
+    id: 'enchant-eficiencia-6',
+    cat: 'Encantamentos',
+    badge: 'LIVRO',
+    badgeColor: 'orange',
+    icon: '📖',
+    image: 'images/products/livro_eficiencia_6.png',
+    name: 'Livro: Eficiência VI',
+    description: 'Livro de Encantamento Eficiência VI. Velocidade de mineração ultrarrápida superando o limite máximo do Minecraft tradicional.',
+    price: 16.90,
+    oldPrice: 22.90,
+    command: 'excellentenchants:ee book efficiency 6 {player}'
+  },
+  {
+    id: 'enchant-inquebravel-4',
+    cat: 'Encantamentos',
+    badge: 'LIVRO',
+    badgeColor: 'gold',
+    icon: '📖',
+    image: 'images/products/livro_inquebravel_4.png',
+    name: 'Livro: Inquebrável IV',
+    description: 'Livro de Encantamento Inquebrável IV. Quadruplica a durabilidade de suas ferramentas, armas e armaduras.',
+    price: 14.90,
+    oldPrice: 19.90,
+    command: 'excellentenchants:ee book unbreaking 4 {player}'
+  },
+  {
+    id: 'enchant-remendo',
+    cat: 'Encantamentos',
+    badge: 'ESSENCIAL',
+    badgeColor: 'orange',
+    icon: '📖',
+    image: 'images/products/livro_remendo.png',
+    name: 'Livro: Remendo (Mending)',
+    description: 'Livro de Encantamento Remendo. Repara seus itens e ferramentas automaticamente através da coleta de esferas de XP.',
+    price: 12.90,
+    oldPrice: 16.90,
+    command: 'excellentenchants:ee book mending 1 {player}'
+  },
+  {
+    id: 'enchant-soulbound',
+    cat: 'Encantamentos',
+    badge: 'PROTEÇÃO',
+    badgeColor: 'red',
+    icon: '📖',
+    image: 'images/products/livro_soulbound.png',
+    name: 'Livro: Vínculo da Alma',
+    description: 'Livro de Encantamento Vínculo da Alma (Soulbound). Impede que o item seja derrubado ou perdido caso você morra no jogo!',
+    price: 19.90,
+    oldPrice: 26.90,
+    command: 'excellentenchants:ee book soulbound 1 {player}'
+  },
+  {
+    id: 'enchant-telecinese',
+    cat: 'Encantamentos',
+    badge: 'UTILIDADE',
+    badgeColor: 'gold',
+    icon: '📖',
+    image: 'images/products/livro_telecinese.png',
+    name: 'Livro: Telecinese',
+    description: 'Livro de Encantamento Telecinese. Move todos os blocos quebrados e itens dropados instantaneamente para seu inventário.',
+    price: 17.90,
+    oldPrice: 24.90,
+    command: 'excellentenchants:ee book telekinesis 1 {player}'
+  },
+
+  // --- PERMISSÕES & COMANDOS (CHAVES DE BOCA) ---
+  {
+    id: 'cmd-back',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'orange',
+    icon: '🔧',
+    image: 'images/products/cmd_back_hd.png',
+    name: 'Comando /back',
+    description: 'Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou morte.',
+    price: 9.90,
+    command: 'crazyvouchers:voucher give Back_Command 1 {player}'
+  },
+  {
+    id: 'cmd-feed',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'orange',
+    icon: '🔧',
+    image: 'images/products/cmd_feed_hd.png',
+    name: 'Comando /feed',
+    description: 'Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver.',
+    price: 12.90,
+    command: 'crazyvouchers:voucher give Feed_Command 1 {player}'
+  },
+  {
+    id: 'cmd-heal',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'red',
+    icon: '🔧',
+    image: 'images/products/cmd_heal_hd.png',
+    name: 'Comando /heal',
+    description: 'Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique.',
+    price: 19.90,
+    command: 'crazyvouchers:voucher give Heal_Command 1 {player}'
+  },
+  {
+    id: 'cmd-repair',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'gold',
+    icon: '🔧',
+    image: 'images/products/cmd_repair_hd.png',
+    name: 'Comando /repair',
+    description: 'Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis na bigorna.',
+    price: 24.90,
+    command: 'crazyvouchers:voucher give Repair_Command 1 {player}'
+  },
+  {
+    id: 'cmd-fly',
+    cat: 'Comandos',
+    badge: 'VIP',
+    badgeColor: 'gold',
+    icon: '🔧',
+    image: 'images/products/cmd_fly_hd.png',
+    name: 'Comando /fly',
+    description: 'Voucher de liberação permanente do comando /fly. Voe livremente pelo mundo survival da Ravok.',
+    price: 39.90,
+    command: 'crazyvouchers:voucher give Fly_Command 1 {player}'
   },
 
   // --- VOUCHERS (SKINS DE FERRAMENTAS & ARMAS) ---
@@ -328,7 +470,7 @@ const DEFAULT_PRODUCTS = [
     badge: 'NOVIDADE',
     badgeColor: 'gold',
     icon: '📜',
-    image: 'images/products/voucher_toolskin_hd.png',
+    image: 'images/products/voucher_skin_pixel_hd.png',
     name: 'Voucher Skin Aleatória',
     description: 'Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!',
     price: 14.90,
@@ -531,17 +673,28 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'coins-8000': 'images/products/moedas_8000.png',
   'coins-10000': 'images/products/moedas_10000.png',
   'coins-20000': 'images/products/moedas_20000.png',
-  'key-voto': 'images/products/chave_voto_hd.png',
-  'key-vote': 'images/products/chave_voto_hd.png',
-  'key-comum': 'images/chave_comum.png',
-  'key-common': 'images/chave_comum.png',
-  'key-rara': 'images/chave_rara.png',
-  'key-rare': 'images/chave_rara.png',
-  'key-epica': 'images/chave_epica.png',
-  'key-epic': 'images/chave_epica.png',
-  'key-superior': 'images/chave_lendaria.png',
-  'key-combo': 'images/chave_epic_dragon.png',
-  'voucher-skin-aleatoria': 'images/products/voucher_toolskin_hd.png',
+  'key-voto': 'images/products/key_voto_3x_hd.png',
+  'key-vote': 'images/products/key_voto_3x_hd.png',
+  'key-comum': 'images/products/key_comum_hd.png',
+  'key-common': 'images/products/key_comum_hd.png',
+  'key-rara': 'images/products/key_rara_hd.png',
+  'key-rare': 'images/products/key_rara_hd.png',
+  'key-epica': 'images/products/key_epica_hd.png',
+  'key-epic': 'images/products/key_epica_hd.png',
+  'key-superior': 'images/products/key_superior_hd.png',
+  'key-combo': 'images/products/key_combo_4x_hd.png',
+  'voucher-skin-aleatoria': 'images/products/voucher_skin_pixel_hd.png',
+  'enchant-fortuna-4': 'images/products/livro_fortuna_4.png',
+  'enchant-eficiencia-6': 'images/products/livro_eficiencia_6.png',
+  'enchant-inquebravel-4': 'images/products/livro_inquebravel_4.png',
+  'enchant-remendo': 'images/products/livro_remendo.png',
+  'enchant-soulbound': 'images/products/livro_soulbound.png',
+  'enchant-telecinese': 'images/products/livro_telecinese.png',
+  'cmd-back': 'images/products/cmd_back_hd.png',
+  'cmd-feed': 'images/products/cmd_feed_hd.png',
+  'cmd-heal': 'images/products/cmd_heal_hd.png',
+  'cmd-repair': 'images/products/cmd_repair_hd.png',
+  'cmd-fly': 'images/products/cmd_fly_hd.png',
   'pet-dino': 'images/products/pet_dino_hd.png',
   'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
@@ -566,12 +719,19 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/gallery/npc_vip_aurora.png',
   'images/prefixes/deusa.png',
   'images/chave_voto_s3.png',
-  'images/toolskins.png'
+  'images/toolskins.png',
+  'images/chave_comum.png',
+  'images/chave_rara.png',
+  'images/chave_epica.png',
+  'images/chave_lendaria.png',
+  'images/chave_epic_dragon.png',
+  'images/products/chave_voto_hd.png',
+  'images/products/voucher_toolskin_hd.png'
 ];
 
 function upgradeClientProducts(list) {
   if (!Array.isArray(list)) return DEFAULT_PRODUCTS;
-  return list.map(raw => {
+  const mapped = list.map(raw => {
     if (!raw || typeof raw !== 'object') return null;
     const p = { ...raw };
     if (p.id === 'vip-outono') {
@@ -585,6 +745,15 @@ function upgradeClientProducts(list) {
       p.tag = '[FLAMEJANTE]';
       p.tagClass = 'flamejante';
     }
+
+    // Se o item foi editado manualmente pelo administrador, NÃO altera a imagem nem o conteúdo!
+    if (p.customEdited) {
+      if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
+        p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+      }
+      return p;
+    }
+
     const img = String(p.image || '').trim();
     const isLegacyBroken = !img
       || LEGACY_BROKEN_PRODUCT_IMAGES.some(b => img.includes(b))
@@ -598,9 +767,13 @@ function upgradeClientProducts(list) {
       } else if (p.cat === 'VIPs') {
         p.image = 'products/VIPS/membro.png';
       } else if (p.cat === 'Chaves') {
-        p.image = 'images/chave_comum.png';
+        p.image = 'images/products/key_comum_hd.png';
       } else if (p.cat === 'Vouchers') {
-        p.image = 'images/products/voucher_toolskin_hd.png';
+        p.image = 'images/products/voucher_skin_pixel_hd.png';
+      } else if (p.cat === 'Encantamentos') {
+        p.image = 'images/products/livro_fortuna_4.png';
+      } else if (p.cat === 'Comandos') {
+        p.image = 'images/products/cmd_repair_hd.png';
       } else if (p.cat === 'Pets') {
         p.image = 'images/products/pet_dino_hd.png';
       } else if (p.cat === 'Cosméticos') {
@@ -612,6 +785,17 @@ function upgradeClientProducts(list) {
     }
     return p;
   }).filter(Boolean);
+
+  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) caso ainda não existam no catálogo
+  const existingIds = new Set(mapped.map(p => p.id));
+  DEFAULT_PRODUCTS.forEach(def => {
+    if (!existingIds.has(def.id)) {
+      mapped.push({ ...def });
+      existingIds.add(def.id);
+    }
+  });
+
+  return mapped;
 }
 
 function getProducts() {
@@ -644,13 +828,6 @@ function getSlides() {
 
 window.goToSlide = function(idx) {
   stepSlider(idx);
-  const sliderBox = by('#serverSlider');
-  if (sliderBox) {
-    const rect = sliderBox.getBoundingClientRect();
-    if (rect.top < 0 || rect.bottom > window.innerHeight) {
-      sliderBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    }
-  }
 };
 
 function getStreamers() {
@@ -741,6 +918,8 @@ const CATEGORY_META = {
   'VIPs': { icon: '👑', label: 'Privilégios & VIPs' },
   'Coins': { icon: '🪙', label: 'Moedas & Coins' },
   'Chaves': { icon: '🗝️', label: 'Caixas & Chaves' },
+  'Encantamentos': { icon: '📖', label: 'Encantamentos' },
+  'Comandos': { icon: '🔧', label: 'Comandos & Permissões' },
   'Vouchers': { icon: '📜', label: 'Vouchers & Skins' },
   'Pets': { icon: '🐾', label: 'Mascotes 3D' },
   'Cosméticos': { icon: '⚔️', label: 'Cosméticos & Armas' }
@@ -759,7 +938,7 @@ window.filterCategoryAndScroll = filterCategoryAndScroll;
 
 function renderProducts() {
   products = getProducts();
-  const CATEGORY_ORDER = ['Todos', 'VIPs', 'Coins', 'Chaves', 'Vouchers', 'Pets', 'Cosméticos'];
+  const CATEGORY_ORDER = ['Todos', 'VIPs', 'Coins', 'Chaves', 'Encantamentos', 'Comandos', 'Vouchers', 'Pets', 'Cosméticos'];
   const availableCats = new Set(products.map(p => p.cat));
   const rawCategories = ['Todos', ...CATEGORY_ORDER.filter(c => c !== 'Todos' && availableCats.has(c))];
   availableCats.forEach(c => {
@@ -1876,9 +2055,22 @@ async function syncWithBackend() {
       }
 
       if (Array.isArray(state.products)) {
-        const cleanProds = upgradeClientProducts(state.products);
-        localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
-        localStorage.setItem('ravok_products_synced', '1');
+        let mergedProds = state.products;
+        if (localSnap && Array.isArray(localSnap.products)) {
+          const localMap = new Map(localSnap.products.map(p => [p.id, p]));
+          mergedProds = mergedProds.map(p => {
+            const loc = localMap.get(p.id);
+            if (loc && loc.customEdited && (!p.customEdited || Number(localSnap.updatedAt || 0) >= Number(state.updatedAt || 0))) {
+              return loc;
+            }
+            return p;
+          });
+        }
+        const cleanProds = upgradeClientProducts(mergedProds);
+        try {
+          localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
+          localStorage.setItem('ravok_products_synced', '1');
+        } catch (e) {}
         products = cleanProds;
         renderProducts();
       }

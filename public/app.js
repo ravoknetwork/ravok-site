@@ -779,20 +779,17 @@ function upgradeClientProducts(list) {
 
 function getProducts() {
   const saved = localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
+  const delSet = new Set(getDeletedProductIds().map(String));
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const upgraded = upgradeClientProducts(parsed);
-        if (upgraded.length > 0) {
-          localStorage.setItem('ravok_products_v6', JSON.stringify(upgraded));
-          return upgraded;
-        }
+      if (Array.isArray(parsed)) {
+        const upgraded = upgradeClientProducts(parsed).filter(p => !delSet.has(String(p.id)));
+        if (upgraded.length > 0) return upgraded;
       }
     } catch (e) {}
   }
-  const fallback = upgradeClientProducts(DEFAULT_PRODUCTS);
-  localStorage.setItem('ravok_products_v6', JSON.stringify(fallback));
+  const fallback = upgradeClientProducts(DEFAULT_PRODUCTS).filter(p => !delSet.has(String(p.id)));
   return fallback;
 }
 

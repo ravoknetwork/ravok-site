@@ -1256,21 +1256,18 @@ function refreshDashboard() {
 // ----------------------------------------------------
 function getStoredProducts() {
   const data = localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
+  const delSet = new Set(getDeletedProductIds().map(String));
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        const upgraded = upgradeClientProducts(parsed);
-        if (upgraded.length > 0) {
-          localStorage.setItem('ravok_products_v6', JSON.stringify(upgraded));
-          return upgraded;
-        }
+      if (Array.isArray(parsed)) {
+        const upgraded = upgradeClientProducts(parsed).filter(p => !delSet.has(String(p.id)));
+        return upgraded;
       }
     } catch (e) {}
   }
   if (typeof DEFAULT_PRODUCTS !== 'undefined') {
-    const fallback = upgradeClientProducts(DEFAULT_PRODUCTS);
-    localStorage.setItem('ravok_products_v6', JSON.stringify(fallback));
+    const fallback = upgradeClientProducts(DEFAULT_PRODUCTS).filter(p => !delSet.has(String(p.id)));
     return fallback;
   }
   return [];
@@ -1480,26 +1477,40 @@ window.editProduct = (id) => {
 };
 
 window.deleteProduct = async (id) => {
+  if (!id) return;
   if (confirm('Tem certeza de que deseja excluir este produto?')) {
-    markProductAsDeleted(id);
-    let prods = getStoredProducts().filter(p => String(p.id) !== String(id));
+    const strId = String(id).trim();
+    markProductAsDeleted(strId);
+    
+    // Obtém lista cumulativa de deletados
+    let allDel = getDeletedProductIds().map(String);
+    if (!allDel.includes(strId)) allDel.push(strId);
+    localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(allDel));
+    const delSet = new Set(allDel);
+
+    // Remove do array local
+    let prods = getStoredProducts().filter(p => !delSet.has(String(p.id)));
     let serverUpdatedAt = Date.now();
 
     if (window.location.protocol.startsWith('http')) {
       try {
-        const res = await fetch(`/api/admin/products/${encodeURIComponent(id)}`, {
+        const res = await fetch(`/api/admin/products/${encodeURIComponent(strId)}`, {
           method: 'DELETE',
-          headers: getAdminAuthHeaders()
+          headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ deletedProductIds: allDel })
         });
         if (res.ok) {
           const data = await res.json();
-          if (Array.isArray(data.products)) prods = data.products;
-          if (Array.isArray(data.deletedProductIds)) {
-            localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(data.deletedProductIds));
-          }
+          const srvDel = Array.isArray(data.deletedProductIds) ? data.deletedProductIds.map(String) : [];
+          const mergedDel = Array.from(new Set([...allDel, ...srvDel, strId]));
+          localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(mergedDel));
+          const finalDelSet = new Set(mergedDel);
+          prods = prods.filter(p => !finalDelSet.has(String(p.id)));
           if (data.updatedAt) serverUpdatedAt = data.updatedAt;
         }
-      } catch (err) {}
+      } catch (err) {
+        console.warn('[Admin] Erro ao deletar produto no backend:', err);
+      }
     }
 
     saveStoredProducts(prods, serverUpdatedAt);

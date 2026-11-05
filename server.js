@@ -1294,9 +1294,15 @@ app.post('/api/admin/restore-snapshot', (req, res) => {
   }
 
   if (Array.isArray(snap.deletedProductIds)) {
-    db.deletedProductIds = snap.deletedProductIds.map(String);
+    db.deletedProductIds = Array.from(new Set([
+      ...(db.deletedProductIds || []),
+      ...snap.deletedProductIds.map(String)
+    ]));
   }
-  if (Array.isArray(snap.products)) db.products = upgradeProductCatalog(snap.products, db.deletedProductIds);
+  const delSet = new Set((db.deletedProductIds || []).map(String));
+  if (Array.isArray(snap.products)) {
+    db.products = upgradeProductCatalog(snap.products.filter(p => !delSet.has(String(p.id))), db.deletedProductIds);
+  }
   if (Array.isArray(snap.slides)) db.slides = sanitizeSlides(snap.slides);
   if (Array.isArray(snap.streamers)) db.streamers = snap.streamers.map(normalizeStreamer).filter(Boolean);
   if (Array.isArray(snap.feedbacks)) db.feedbacks = snap.feedbacks;
@@ -1400,11 +1406,17 @@ app.post('/api/admin/products/reset', (req, res) => {
 app.delete('/api/admin/products/:id', (req, res) => {
   const { id } = req.params;
   const strId = decodeURIComponent(String(id)).trim();
-  db.deletedProductIds = db.deletedProductIds || [];
-  if (!db.deletedProductIds.includes(strId)) {
-    db.deletedProductIds.push(strId);
-  }
-  db.products = (db.products || []).filter(p => String(p.id).trim() !== strId && String(p.id).trim() !== String(id).trim());
+  const incomingDel = req.body && Array.isArray(req.body.deletedProductIds) ? req.body.deletedProductIds.map(String) : [];
+
+  db.deletedProductIds = Array.from(new Set([
+    ...(db.deletedProductIds || []),
+    ...incomingDel,
+    strId
+  ]));
+
+  const delSet = new Set(db.deletedProductIds);
+  db.products = (db.products || []).filter(p => !delSet.has(String(p.id).trim()));
+
   saveDb(db);
   res.json({
     success: true,

@@ -729,9 +729,18 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/products/voucher_toolskin_hd.png'
 ];
 
+function getDeletedProductIds() {
+  try {
+    const raw = localStorage.getItem('ravok_deleted_products_v1');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+
 function upgradeClientProducts(list) {
-  if (!Array.isArray(list)) return DEFAULT_PRODUCTS;
-  const mapped = list.map(raw => {
+  const delSet = new Set(getDeletedProductIds().map(String));
+  if (!Array.isArray(list)) return DEFAULT_PRODUCTS.filter(p => !delSet.has(String(p.id)));
+  const mapped = list.filter(p => p && !delSet.has(String(p.id))).map(raw => {
     if (!raw || typeof raw !== 'object') return null;
     const p = { ...raw };
     if (p.id === 'vip-outono') {
@@ -786,16 +795,17 @@ function upgradeClientProducts(list) {
     return p;
   }).filter(Boolean);
 
-  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) caso ainda não existam no catálogo
-  const existingIds = new Set(mapped.map(p => p.id));
+  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) SOMENTE se não foram deletados pelo admin
+  const existingIds = new Set(mapped.map(p => String(p.id)));
   DEFAULT_PRODUCTS.forEach(def => {
-    if (!existingIds.has(def.id)) {
+    const defId = String(def.id);
+    if (!existingIds.has(defId) && !delSet.has(defId)) {
       mapped.push({ ...def });
-      existingIds.add(def.id);
+      existingIds.add(defId);
     }
   });
 
-  return mapped;
+  return mapped.filter(p => !delSet.has(String(p.id)));
 }
 
 function getProducts() {
@@ -810,8 +820,9 @@ function getProducts() {
       }
     } catch (e) {}
   }
-  localStorage.setItem('ravok_products_v6', JSON.stringify(DEFAULT_PRODUCTS));
-  return DEFAULT_PRODUCTS;
+  const fallback = upgradeClientProducts(DEFAULT_PRODUCTS);
+  localStorage.setItem('ravok_products_v6', JSON.stringify(fallback));
+  return fallback;
 }
 
 function getSlides() {
@@ -2052,6 +2063,12 @@ async function syncWithBackend() {
             if (refreshed.ok) state = await refreshed.json();
           }
         } catch (reErr) {}
+      }
+
+      if (Array.isArray(state.deletedProductIds)) {
+        try {
+          localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(state.deletedProductIds));
+        } catch (e) {}
       }
 
       if (Array.isArray(state.products)) {

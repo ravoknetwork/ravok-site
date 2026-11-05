@@ -606,9 +606,38 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/products/voucher_toolskin_hd.png'
 ];
 
+function getDeletedProductIds() {
+  try {
+    const raw = localStorage.getItem('ravok_deleted_products_v1');
+    if (raw) return JSON.parse(raw);
+  } catch (e) {}
+  return [];
+}
+
+function markProductAsDeleted(id) {
+  const list = getDeletedProductIds().map(String);
+  const strId = String(id);
+  if (!list.includes(strId)) {
+    list.push(strId);
+    localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(list));
+  }
+}
+
+function unmarkProductAsDeleted(id) {
+  try {
+    const list = getDeletedProductIds().map(String).filter(item => item !== String(id));
+    localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(list));
+  } catch (e) {}
+}
+
+function clearDeletedProductIds() {
+  localStorage.removeItem('ravok_deleted_products_v1');
+}
+
 function upgradeClientProducts(list) {
-  if (!Array.isArray(list)) return DEFAULT_PRODUCTS;
-  const mapped = list.map(raw => {
+  const delSet = new Set(getDeletedProductIds().map(String));
+  if (!Array.isArray(list)) return DEFAULT_PRODUCTS.filter(p => !delSet.has(String(p.id)));
+  const mapped = list.filter(p => p && !delSet.has(String(p.id))).map(raw => {
     if (!raw || typeof raw !== 'object') return null;
     const p = { ...raw };
     if (p.id === 'vip-outono') {
@@ -663,16 +692,17 @@ function upgradeClientProducts(list) {
     return p;
   }).filter(Boolean);
 
-  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) caso ainda não existam no catálogo
-  const existingIds = new Set(mapped.map(p => p.id));
+  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) SOMENTE se não foram deletados pelo admin
+  const existingIds = new Set(mapped.map(p => String(p.id)));
   DEFAULT_PRODUCTS.forEach(def => {
-    if (!existingIds.has(def.id)) {
+    const defId = String(def.id);
+    if (!existingIds.has(defId) && !delSet.has(defId)) {
       mapped.push({ ...def });
-      existingIds.add(def.id);
+      existingIds.add(defId);
     }
   });
 
-  return mapped;
+  return mapped.filter(p => !delSet.has(String(p.id)));
 }
 
 const DEFAULT_SLIDES = [
@@ -741,6 +771,7 @@ function saveAdminSnapshot(serverUpdatedAt) {
     const discRaw = JSON.parse(localStorage.getItem('ravok_discord_settings') || '{}');
     const snap = {
       updatedAt: Number(serverUpdatedAt) || Date.now(),
+      deletedProductIds: getDeletedProductIds(),
       products: upgradeClientProducts(getStoredProducts()),
       slides: getStoredSlides(),
       streamers: getStoredStreamers(),
@@ -933,6 +964,11 @@ async function syncAdminFromBackend() {
 
       // Se o estado do servidor for mais recente ou igual ao snapshot local, atualiza o cache local
       const canApplyServerProducts = !localSnap || Number(state.updatedAt || 0) >= Number(localSnap.updatedAt || 0);
+      if (Array.isArray(state.deletedProductIds)) {
+        try {
+          localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(state.deletedProductIds));
+        } catch (e) {}
+      }
       if (canApplyServerProducts && Array.isArray(state.products)) {
         const cleanProds = upgradeClientProducts(state.products);
         try {
@@ -1249,8 +1285,9 @@ function getStoredProducts() {
     } catch (e) {}
   }
   if (typeof DEFAULT_PRODUCTS !== 'undefined') {
-    localStorage.setItem('ravok_products_v6', JSON.stringify(DEFAULT_PRODUCTS));
-    return DEFAULT_PRODUCTS;
+    const fallback = upgradeClientProducts(DEFAULT_PRODUCTS);
+    localStorage.setItem('ravok_products_v6', JSON.stringify(fallback));
+    return fallback;
   }
   return [];
 }
@@ -1336,8 +1373,8 @@ function renderProductsTable() {
         <td><code>${p.guiIcon || 'CHEST'}</code></td>
         <td><code style="max-width:240px; overflow:hidden; text-overflow:ellipsis; display:inline-block;">${p.command || 'Nenhum'}</code></td>
         <td style="text-align:right;">
-          <button class="btn-sm" onclick="editProduct('${p.id}')">Editar</button>
-          <button class="btn-danger" onclick="deleteProduct('${p.id}')" style="margin-left:6px;">Excluir</button>
+          <button class="btn-sm" data-id="${escapeHtml(p.id)}" onclick="editProduct(this.dataset.id)">Editar</button>
+          <button class="btn-danger" data-id="${escapeHtml(p.id)}" onclick="deleteProduct(this.dataset.id)" style="margin-left:6px;">Excluir</button>
         </td>
       </tr>
     `;
@@ -1390,6 +1427,7 @@ by('#cancelProductBtn').onclick = () => by('#productModal').close();
 by('#productForm').onsubmit = async (e) => {
   e.preventDefault();
   const id = by('#editProductId').value || `item-${Date.now()}`;
+  unmarkProductAsDeleted(id);
   const name = by('#prodName').value.trim();
   const cat = by('#prodCategory').value;
   const price = parseFloat(by('#prodPrice').value) || 0;
@@ -1459,6 +1497,7 @@ window.editProduct = (id) => {
 
 window.deleteProduct = async (id) => {
   if (confirm('Tem certeza de que deseja excluir este produto?')) {
+    markProductAsDeleted(id);
     let prods = getStoredProducts().filter(p => String(p.id) !== String(id));
     let serverUpdatedAt = Date.now();
 
@@ -1471,18 +1510,22 @@ window.deleteProduct = async (id) => {
         if (res.ok) {
           const data = await res.json();
           if (Array.isArray(data.products)) prods = data.products;
+          if (Array.isArray(data.deletedProductIds)) {
+            localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(data.deletedProductIds));
+          }
           if (data.updatedAt) serverUpdatedAt = data.updatedAt;
         }
       } catch (err) {}
     }
 
     saveStoredProducts(prods, serverUpdatedAt);
-    toast('✓ Produto excluído e sincronizado.');
+    toast('✓ Produto excluído permanentemente da loja.');
   }
 };
 
 by('#resetProductsBtn').onclick = async () => {
   if (confirm('Deseja restaurar a lista padrão de produtos da loja?')) {
+    clearDeletedProductIds();
     let prods = typeof DEFAULT_PRODUCTS !== 'undefined' ? DEFAULT_PRODUCTS : [];
     let serverUpdatedAt = Date.now();
     if (window.location.protocol.startsWith('http')) {

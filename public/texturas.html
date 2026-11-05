@@ -271,6 +271,54 @@
       color: var(--ravok-text-secondary);
       line-height: 1.5;
     }
+
+    @media (max-width: 680px) {
+      .tex-hero {
+        padding: 30px 16px;
+        margin-bottom: 30px;
+        border-radius: 18px;
+      }
+      .tex-hero h1 {
+        font-size: 24px;
+      }
+      .tex-hero p {
+        font-size: 13px;
+        margin-bottom: 20px;
+      }
+      .tex-download-btn, .tex-sec-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 13px 18px;
+        font-size: 13px;
+      }
+      .tex-meta-strip {
+        justify-content: center;
+        gap: 12px;
+      }
+      .tex-grid-4, .tex-grid-3 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 10px !important;
+      }
+      .tex-card {
+        padding: 12px !important;
+        border-radius: 14px !important;
+      }
+      .tex-card-title {
+        font-size: 13px !important;
+      }
+      .tex-card-desc {
+        font-size: 11px !important;
+      }
+      .tex-steps-grid {
+        grid-template-columns: 1fr !important;
+        gap: 12px !important;
+      }
+    }
+    @media (max-width: 380px) {
+      .tex-grid-4, .tex-grid-3 {
+        grid-template-columns: 1fr !important;
+      }
+    }
   </style>
 </head>
 <body class="ravok-theme">

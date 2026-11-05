@@ -754,9 +754,17 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/products/voucher_toolskin_hd.png'
 ];
 
-function upgradeProductCatalog(list) {
-  if (!Array.isArray(list)) return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
-  const mapped = list.map(raw => {
+function upgradeProductCatalog(list, deletedProductIds = null) {
+  const activeDeleted = Array.isArray(deletedProductIds)
+    ? deletedProductIds
+    : (typeof db !== 'undefined' && Array.isArray(db.deletedProductIds) ? db.deletedProductIds : []);
+  const delSet = new Set(activeDeleted.map(String));
+
+  if (!Array.isArray(list)) {
+    return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)).filter(p => !delSet.has(String(p.id)));
+  }
+
+  const mapped = list.filter(p => p && !delSet.has(String(p.id))).map(raw => {
     if (!raw || typeof raw !== 'object') return null;
     const p = { ...raw };
     if (p.id === 'vip-outono') {
@@ -811,16 +819,17 @@ function upgradeProductCatalog(list) {
     return p;
   }).filter(Boolean);
 
-  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) caso ainda não existam no catálogo
-  const existingIds = new Set(mapped.map(p => p.id));
+  // Injetar novos produtos padrão (ex: Encantamentos e Comandos) SOMENTE se não foram excluídos pelo admin
+  const existingIds = new Set(mapped.map(p => String(p.id)));
   DEFAULT_PRODUCTS.forEach(def => {
-    if (!existingIds.has(def.id)) {
+    const defId = String(def.id);
+    if (!existingIds.has(defId) && !delSet.has(defId)) {
       mapped.push({ ...def });
-      existingIds.add(def.id);
+      existingIds.add(defId);
     }
   });
 
-  return mapped;
+  return mapped.filter(p => !delSet.has(String(p.id)));
 }
 
 const DEFAULT_SLIDES = [
@@ -1193,9 +1202,10 @@ function loadDb() {
       if (!parsed.settings.apiUrl || parsed.settings.apiUrl.includes('localhost') || parsed.settings.apiUrl.includes('198.1.195.214') || parsed.settings.apiUrl.includes('loja.ravok.network')) {
         parsed.settings.apiUrl = process.env.API_URL || 'https://ravok-site.vercel.app';
       }
+      parsed.deletedProductIds = Array.isArray(parsed.deletedProductIds) ? parsed.deletedProductIds : [];
       parsed.products = Array.isArray(parsed.products)
-        ? upgradeProductCatalog(parsed.products)
-        : JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+        ? upgradeProductCatalog(parsed.products, parsed.deletedProductIds)
+        : upgradeProductCatalog(DEFAULT_PRODUCTS, parsed.deletedProductIds);
       parsed.slides = Array.isArray(parsed.slides) ? sanitizeSlides(parsed.slides) : JSON.parse(JSON.stringify(DEFAULT_SLIDES));
       if (!parsed.slides.length && !parsed.updatedAt) {
         parsed.slides = JSON.parse(JSON.stringify(DEFAULT_SLIDES));
@@ -1229,6 +1239,7 @@ function loadDb() {
 
   const initialDb = {
     updatedAt: 0,
+    deletedProductIds: [],
     products: JSON.parse(JSON.stringify(DEFAULT_PRODUCTS)),
     slides: JSON.parse(JSON.stringify(DEFAULT_SLIDES)),
     orders: [],
@@ -1266,11 +1277,12 @@ let db = loadDb();
 
 // Endpoint unificado de sincronização rápida para a Home e Admin
 app.get('/api/sync-state', (req, res) => {
-  db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS);
+  db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS, db.deletedProductIds);
   res.json({
     success: true,
     updatedAt: Number(db.updatedAt || 0),
     products: db.products,
+    deletedProductIds: db.deletedProductIds || [],
     slides: sanitizeSlides(db.slides || DEFAULT_SLIDES),
     streamers: (db.streamers || []).map(normalizeStreamer).filter(Boolean),
     feedbacks: db.feedbacks || [],
@@ -1291,6 +1303,7 @@ app.post('/api/admin/restore-snapshot', (req, res) => {
       restored: false,
       updatedAt: serverUpdatedAt,
       products: db.products,
+      deletedProductIds: db.deletedProductIds || [],
       slides: db.slides,
       streamers: db.streamers,
       feedbacks: db.feedbacks,
@@ -1299,7 +1312,10 @@ app.post('/api/admin/restore-snapshot', (req, res) => {
     });
   }
 
-  if (Array.isArray(snap.products)) db.products = upgradeProductCatalog(snap.products);
+  if (Array.isArray(snap.deletedProductIds)) {
+    db.deletedProductIds = snap.deletedProductIds.map(String);
+  }
+  if (Array.isArray(snap.products)) db.products = upgradeProductCatalog(snap.products, db.deletedProductIds);
   if (Array.isArray(snap.slides)) db.slides = sanitizeSlides(snap.slides);
   if (Array.isArray(snap.streamers)) db.streamers = snap.streamers.map(normalizeStreamer).filter(Boolean);
   if (Array.isArray(snap.feedbacks)) db.feedbacks = snap.feedbacks;
@@ -1322,6 +1338,7 @@ app.post('/api/admin/restore-snapshot', (req, res) => {
     restored: true,
     updatedAt: db.updatedAt,
     products: db.products,
+    deletedProductIds: db.deletedProductIds || [],
     slides: db.slides,
     streamers: db.streamers,
     feedbacks: db.feedbacks,
@@ -1360,7 +1377,7 @@ function sendDiscordWebhook(webhookUrl, payload) {
 // ROTAS DE PRODUTOS
 // ----------------------------------------------------
 app.get('/api/products', (req, res) => {
-  db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS);
+  db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS, db.deletedProductIds);
   res.json(db.products);
 });
 
@@ -1372,6 +1389,9 @@ app.post('/api/admin/products', (req, res) => {
   }
   prod.price = Number(prod.price) || 0;
   prod.customEdited = true;
+
+  const strId = String(prod.id).trim();
+  db.deletedProductIds = (db.deletedProductIds || []).filter(dId => String(dId).trim() !== strId);
 
   if (Array.isArray(body.products)) {
     db.products = body.products.map(p => (String(p.id) === String(prod.id) ? { ...p, ...prod, customEdited: true } : p));
@@ -1386,20 +1406,31 @@ app.post('/api/admin/products', (req, res) => {
   }
 
   saveDb(db);
-  res.json({ success: true, product: prod, products: db.products, updatedAt: db.updatedAt });
+  res.json({ success: true, product: prod, products: db.products, deletedProductIds: db.deletedProductIds, updatedAt: db.updatedAt });
 });
 
 app.post('/api/admin/products/reset', (req, res) => {
+  db.deletedProductIds = [];
   db.products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
   saveDb(db);
-  res.json({ success: true, products: db.products, updatedAt: db.updatedAt });
+  res.json({ success: true, products: db.products, deletedProductIds: [], updatedAt: db.updatedAt });
 });
 
 app.delete('/api/admin/products/:id', (req, res) => {
   const { id } = req.params;
-  db.products = (db.products || []).filter(p => String(p.id) !== String(id));
+  const strId = decodeURIComponent(String(id)).trim();
+  db.deletedProductIds = db.deletedProductIds || [];
+  if (!db.deletedProductIds.includes(strId)) {
+    db.deletedProductIds.push(strId);
+  }
+  db.products = (db.products || []).filter(p => String(p.id).trim() !== strId && String(p.id).trim() !== String(id).trim());
   saveDb(db);
-  res.json({ success: true, products: db.products, updatedAt: db.updatedAt });
+  res.json({
+    success: true,
+    products: db.products,
+    deletedProductIds: db.deletedProductIds,
+    updatedAt: db.updatedAt
+  });
 });
 
 // ----------------------------------------------------

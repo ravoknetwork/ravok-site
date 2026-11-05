@@ -12,6 +12,16 @@ module.exports = (req, res) => {
     pathname === '/admin.html' ||
     pathname === '/votar' ||
     pathname === '/votar.html' ||
+    pathname === '/vote' ||
+    pathname === '/vote.html' ||
+    pathname === '/regras' ||
+    pathname === '/rules' ||
+    pathname === '/rules.html' ||
+    pathname === '/equipe' ||
+    pathname === '/staff' ||
+    pathname === '/staff.html' ||
+    pathname === '/faq' ||
+    pathname === '/faq.html' ||
     pathname === '/texturas' ||
     pathname === '/texturas.html' ||
     pathname === '/rankings' ||
@@ -21,8 +31,9 @@ module.exports = (req, res) => {
     return app(req, res);
   }
 
-  // Se for arquivo estático (estilos, scripts, imagens, downloads)
+  // Se for arquivo estático (estilos, scripts, imagens, downloads, fontes, assets do Sunstone)
   if (
+    pathname.startsWith('/assets') ||
     pathname.startsWith('/images') ||
     pathname.startsWith('/products') ||
     pathname.startsWith('/downloads') ||
@@ -30,8 +41,14 @@ module.exports = (req, res) => {
     pathname.endsWith('.js') ||
     pathname.endsWith('.png') ||
     pathname.endsWith('.jpg') ||
+    pathname.endsWith('.jpeg') ||
     pathname.endsWith('.ico') ||
-    pathname.endsWith('.svg')
+    pathname.endsWith('.svg') ||
+    pathname.endsWith('.woff') ||
+    pathname.endsWith('.woff2') ||
+    pathname.endsWith('.ttf') ||
+    pathname.endsWith('.eot') ||
+    pathname.endsWith('.json')
   ) {
     req.url = pathname + query;
     return app(req, res);

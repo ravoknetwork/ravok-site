@@ -115,8 +115,17 @@ app.get('/api/debug-files', (req, res) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
-app.get('/votar', (req, res) => {
-  res.sendFile(path.join(__dirname, 'votar.html'));
+app.get(['/rules', '/regras'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'rules.html'));
+});
+app.get(['/staff', '/equipe'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'staff.html'));
+});
+app.get(['/vote', '/votar'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'vote.html'));
+});
+app.get('/faq', (req, res) => {
+  res.sendFile(path.join(__dirname, 'faq.html'));
 });
 app.get('/texturas', (req, res) => {
   res.sendFile(path.join(__dirname, 'texturas.html'));

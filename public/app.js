@@ -15,7 +15,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'vendaval',
     prefixImg: 'images/prefixes/knight.png',
     icon: '🌪️',
-    image: 'products/VIPS/membro.png',
+    image: 'images/products/vip_vendaval_hd.png',
     name: 'VIP VENDAVAL',
     description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
     price: 14.90,
@@ -41,7 +41,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'flamejante',
     prefixImg: 'images/prefixes/lord.png',
     icon: '🔥',
-    image: 'products/VIPS/vip_aura.png',
+    image: 'images/products/vip_flamejante_hd.png',
     name: 'VIP FLAMEJANTE',
     description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
     price: 29.90,
@@ -67,7 +67,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'carvalho',
     prefixImg: 'images/prefixes/paladin.png',
     icon: '🛡️',
-    image: 'products/VIPS/aventureiro.png',
+    image: 'images/products/vip_carvalho_hd.png',
     name: 'VIP CARVALHO',
     description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
     price: 44.90,
@@ -94,7 +94,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'aurora',
     prefixImg: 'images/prefixes/duke.png',
     icon: '✨',
-    image: 'products/VIPS/vip_astro.png',
+    image: 'images/products/vip_aurora_hd.png',
     name: 'VIP AURORA',
     description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
     price: 64.90,
@@ -121,7 +121,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'solar',
     prefixImg: 'images/prefixes/king.png',
     icon: '👑',
-    image: 'products/VIPS/vip_celestial.png',
+    image: 'images/products/vip_solar_hd.png',
     name: 'VIP SOLAR',
     description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
     price: 0,
@@ -149,7 +149,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'deusa',
     prefixImg: 'images/prefixes/deusa.png',
     icon: '🔮',
-    image: 'products/VIPS/vip_eclipse.png',
+    image: 'images/products/vip_deusa_hd.png',
     name: 'VIP DEUSA',
     description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
     price: 0,
@@ -698,7 +698,13 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'pet-dino': 'images/products/pet_dino_hd.png',
   'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
-  'cosmetic-sword': 'images/products/espada_solar_hd.png'
+  'cosmetic-sword': 'images/products/espada_solar_hd.png',
+  'vip-vendaval': 'images/products/vip_vendaval_hd.png',
+  'vip-flamejante': 'images/products/vip_flamejante_hd.png',
+  'vip-carvalho': 'images/products/vip_carvalho_hd.png',
+  'vip-aurora': 'images/products/vip_aurora_hd.png',
+  'vip-solar': 'images/products/vip_solar_hd.png',
+  'vip-deusa': 'images/products/vip_deusa_hd.png'
 };
 
 const OFFICIAL_PREFIX_IMGS = {
@@ -726,7 +732,13 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/chave_lendaria.png',
   'images/chave_epic_dragon.png',
   'images/products/chave_voto_hd.png',
-  'images/products/voucher_toolskin_hd.png'
+  'images/products/voucher_toolskin_hd.png',
+  'products/VIPS/membro.png',
+  'products/VIPS/vip_aura.png',
+  'products/VIPS/aventureiro.png',
+  'products/VIPS/vip_astro.png',
+  'products/VIPS/vip_celestial.png',
+  'products/VIPS/vip_eclipse.png'
 ];
 
 function getDeletedProductIds() {
@@ -813,10 +825,12 @@ function getProducts() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && (parsed.length > 0 || localStorage.getItem('ravok_products_synced') === '1')) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         const upgraded = upgradeClientProducts(parsed);
-        localStorage.setItem('ravok_products_v6', JSON.stringify(upgraded));
-        return upgraded;
+        if (upgraded.length > 0) {
+          localStorage.setItem('ravok_products_v6', JSON.stringify(upgraded));
+          return upgraded;
+        }
       }
     } catch (e) {}
   }
@@ -848,7 +862,7 @@ function getStreamers() {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed)) {
         const clean = parsed.map(normalizeClientStreamer).filter(Boolean);
-        if (clean.length > 0 || localStorage.getItem('ravok_streamers_synced') === '1') {
+        if (clean.length > 0) {
           return clean;
         }
       }
@@ -863,7 +877,7 @@ function getFeedbacks() {
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && (parsed.length > 0 || localStorage.getItem('ravok_feedbacks_synced') === '1')) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed;
       }
     } catch (e) {}
@@ -2065,15 +2079,18 @@ async function syncWithBackend() {
         } catch (reErr) {}
       }
 
-      if (Array.isArray(state.deletedProductIds)) {
+      const localDel = getDeletedProductIds().map(String);
+      const serverDel = Array.isArray(state.deletedProductIds) ? state.deletedProductIds.map(String) : [];
+      const combinedDel = Array.from(new Set([...localDel, ...serverDel]));
+      if (combinedDel.length > 0) {
         try {
-          localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(state.deletedProductIds));
+          localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(combinedDel));
         } catch (e) {}
       }
 
-      if (Array.isArray(state.products)) {
+      if (Array.isArray(state.products) && state.products.length > 0) {
         let mergedProds = state.products;
-        if (localSnap && Array.isArray(localSnap.products)) {
+        if (localSnap && Array.isArray(localSnap.products) && localSnap.products.length > 0) {
           const localMap = new Map(localSnap.products.map(p => [p.id, p]));
           mergedProds = mergedProds.map(p => {
             const loc = localMap.get(p.id);
@@ -2084,28 +2101,32 @@ async function syncWithBackend() {
           });
         }
         const cleanProds = upgradeClientProducts(mergedProds);
-        try {
-          localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
-          localStorage.setItem('ravok_products_synced', '1');
-        } catch (e) {}
-        products = cleanProds;
-        renderProducts();
+        if (cleanProds.length > 0) {
+          try {
+            localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
+            localStorage.setItem('ravok_products_synced', '1');
+          } catch (e) {}
+          products = cleanProds;
+          renderProducts();
+        }
       }
 
-      if (Array.isArray(state.slides)) {
+      if (Array.isArray(state.slides) && state.slides.length > 0) {
         const cleanSlides = sanitizeClientSlides(state.slides);
         localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(cleanSlides.length ? cleanSlides : DEFAULT_SLIDES));
         renderSlider();
       }
 
-      if (Array.isArray(state.streamers)) {
+      if (Array.isArray(state.streamers) && state.streamers.length > 0) {
         const cleanStr = state.streamers.map(normalizeClientStreamer).filter(Boolean);
-        localStorage.setItem('ravok_streamers', JSON.stringify(cleanStr));
-        localStorage.setItem('ravok_streamers_synced', '1');
-        renderStreamers();
+        if (cleanStr.length > 0) {
+          localStorage.setItem('ravok_streamers', JSON.stringify(cleanStr));
+          localStorage.setItem('ravok_streamers_synced', '1');
+          renderStreamers();
+        }
       }
 
-      if (Array.isArray(state.feedbacks)) {
+      if (Array.isArray(state.feedbacks) && state.feedbacks.length > 0) {
         localStorage.setItem('ravok_feedbacks', JSON.stringify(state.feedbacks));
         localStorage.setItem('ravok_feedbacks_synced', '1');
         renderFeedbacks();

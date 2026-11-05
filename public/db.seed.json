@@ -1,0 +1,1049 @@
+{
+  "updatedAt": 1793910980189,
+  "deletedProductIds": [],
+  "products": [
+    {
+      "id": "vip-vendaval",
+      "cat": "VIPs",
+      "badge": "INICIAL",
+      "badgeColor": "orange",
+      "tag": "[VENDAVAL]",
+      "tagClass": "vendaval",
+      "prefixImg": "images/prefixes/knight.png",
+      "icon": "🌪️",
+      "image": "images/products/vip_vendaval_hd.png",
+      "name": "VIP VENDAVAL",
+      "description": "Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.",
+      "price": 14.9,
+      "oldPrice": 19.9,
+      "homes": 5,
+      "kit": "Kit Vendaval",
+      "commandsList": [
+        "/nick",
+        "/back",
+        "/recipe",
+        "/feed",
+        "/disposal"
+      ],
+      "perksList": [
+        "Tag [VENDAVAL] no chat e TAB",
+        "Definir até 5 Casas (/sethome)",
+        "Kit Vendaval semanal exclusivo",
+        "Comandos /feed, /back e /recipe",
+        "Lixeira portátil com /disposal"
+      ],
+      "command": "lp user {player} parent settrack rank knight"
+    },
+    {
+      "id": "vip-flamejante",
+      "cat": "VIPs",
+      "badge": "POPULAR",
+      "badgeColor": "gold",
+      "tag": "[FLAMEJANTE]",
+      "tagClass": "flamejante",
+      "prefixImg": "images/prefixes/lord.png",
+      "icon": "🔥",
+      "image": "images/products/vip_flamejante_hd.png",
+      "name": "VIP FLAMEJANTE",
+      "description": "Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.",
+      "price": 29.9,
+      "oldPrice": 39.9,
+      "homes": 10,
+      "kit": "Kit Flamejante",
+      "commandsList": [
+        "/nick",
+        "/back",
+        "/recipe",
+        "/feed",
+        "/disposal",
+        "/near",
+        "/craft"
+      ],
+      "perksList": [
+        "Tag [FLAMEJANTE] em chamas",
+        "Definir até 10 Casas (/sethome)",
+        "Kit Flamejante com armas ígneas",
+        "Bancada virtual com /craft",
+        "Localizar jogadores próximos com /near"
+      ],
+      "command": "lp user {player} parent settrack rank lord"
+    },
+    {
+      "id": "vip-carvalho",
+      "cat": "VIPs",
+      "badge": "AVANÇADO",
+      "badgeColor": "gold",
+      "tag": "[CARVALHO]",
+      "tagClass": "carvalho",
+      "prefixImg": "images/prefixes/paladin.png",
+      "icon": "🛡️",
+      "image": "images/products/vip_carvalho_hd.png",
+      "name": "VIP CARVALHO",
+      "description": "Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.",
+      "price": 44.9,
+      "oldPrice": 59.9,
+      "homes": 15,
+      "kit": "Kit Carvalho",
+      "commandsList": [
+        "/nick",
+        "/back",
+        "/recipe",
+        "/feed",
+        "/disposal",
+        "/near",
+        "/craft",
+        "/ec",
+        "/ptime",
+        "/repair"
+      ],
+      "perksList": [
+        "Tag [CARVALHO] no chat e TAB",
+        "Definir até 15 Casas (/sethome)",
+        "Kit Carvalho com armadura reforçada",
+        "Baú do Fim portátil com /ec",
+        "Reparar itens na mão com /repair",
+        "Ajustar clima e hora individual com /ptime"
+      ],
+      "command": "lp user {player} parent settrack rank paladin"
+    },
+    {
+      "id": "vip-aurora",
+      "cat": "VIPs",
+      "badge": "ELITE",
+      "badgeColor": "gold",
+      "tag": "[AURORA]",
+      "tagClass": "aurora",
+      "prefixImg": "images/prefixes/duke.png",
+      "icon": "✨",
+      "image": "images/products/vip_aurora_hd.png",
+      "name": "VIP AURORA",
+      "description": "Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.",
+      "price": 64.9,
+      "oldPrice": 79.9,
+      "homes": 25,
+      "kit": "Kit Aurora",
+      "commandsList": [
+        "/nick",
+        "/back",
+        "/recipe",
+        "/feed",
+        "/disposal",
+        "/near",
+        "/craft",
+        "/ec",
+        "/ptime",
+        "/repair",
+        "/heal",
+        "/compactar",
+        "/hat"
+      ],
+      "perksList": [
+        "Tag [AURORA] dourada no chat e TAB",
+        "Definir até 25 Casas (/sethome)",
+        "Kit Aurora com armadura e armas místicas",
+        "Regeneração e cura com /heal",
+        "Compactação de minérios rápida com /compactar",
+        "Colocar qualquer bloco na cabeça com /hat"
+      ],
+      "command": "lp user {player} parent settrack rank duke"
+    },
+    {
+      "id": "vip-solar",
+      "cat": "VIPs",
+      "badge": "VALOR INESTIMÁVEL",
+      "badgeColor": "gold",
+      "tag": "[SOLAR]",
+      "tagClass": "solar",
+      "prefixImg": "images/prefixes/king.png",
+      "icon": "👑",
+      "image": "images/products/vip_solar_hd.png",
+      "name": "VIP SOLAR",
+      "description": "O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.",
+      "price": 0,
+      "oldPrice": null,
+      "inestimavel": true,
+      "homes": 999,
+      "kit": "Kit Solar do Rei",
+      "commandsList": [
+        "/nick",
+        "/back",
+        "/recipe",
+        "/feed",
+        "/disposal",
+        "/near",
+        "/craft",
+        "/ec",
+        "/ptime",
+        "/repair",
+        "/heal",
+        "/compactar",
+        "/hat",
+        "/fly",
+        "/god"
+      ],
+      "perksList": [
+        "Tag [SOLAR] com brilho majestoso",
+        "Casas ILIMITADAS (/sethome)",
+        "Kit Solar com armamento do rei solar",
+        "Voar livremente pelo mapa com /fly",
+        "Modo invencível temporário com /god",
+        "Entrada anunciada em broadcast no servidor"
+      ],
+      "command": "lp user {player} parent settrack rank king"
+    },
+    {
+      "id": "vip-deusa",
+      "cat": "VIPs",
+      "badge": "DIGNIDADE DIVINA",
+      "badgeColor": "purple",
+      "tag": "[DEUSA]",
+      "tagClass": "deusa",
+      "prefixImg": "images/prefixes/deusa.png",
+      "icon": "🔮",
+      "image": "images/products/vip_deusa_hd.png",
+      "name": "VIP DEUSA",
+      "description": "A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.",
+      "price": 0,
+      "oldPrice": null,
+      "inestimavel": true,
+      "homes": 999,
+      "kit": "Todos os Kits",
+      "commandsList": [
+        "/nick",
+        "/back",
+        "/recipe",
+        "/feed",
+        "/disposal",
+        "/near",
+        "/craft",
+        "/ec",
+        "/ptime",
+        "/repair",
+        "/repair all",
+        "/heal",
+        "/compactar",
+        "/hat",
+        "/fly",
+        "/god",
+        "prefixo deusa"
+      ],
+      "perksList": [
+        "Tag [DEUSA] iridescente exclusiva",
+        "Casas ILIMITADAS (/sethome)",
+        "Acesso liberado a TODOS os Kits do jogo",
+        "Reparo total e instantâneo com /repair all",
+        "Voar sem limites com /fly",
+        "Aura divina celestial e prioridade máxima na fila"
+      ],
+      "command": "lp user {player} parent add deusa"
+    },
+    {
+      "id": "coins-1000",
+      "cat": "Coins",
+      "badge": "INICIAL",
+      "badgeColor": "orange",
+      "icon": "🪙",
+      "image": "images/products/moedas_1000.png",
+      "name": "1.000 Moedas",
+      "description": "Pacote inicial de moedas para gastar na Loja de Moedas (/coinshop) do servidor.",
+      "price": 9.9,
+      "command": "coins give {player} 1000"
+    },
+    {
+      "id": "coins-2500",
+      "cat": "Coins",
+      "badge": "POPULAR",
+      "badgeColor": "gold",
+      "icon": "🪙",
+      "image": "images/products/moedas_2500.png",
+      "name": "2.500 Moedas",
+      "description": "Mais moedas para desbloquear cosméticos, utilitários e itens exclusivos.",
+      "price": 19.9,
+      "command": "coins give {player} 2500"
+    },
+    {
+      "id": "coins-5000",
+      "cat": "Coins",
+      "badge": "AVANÇADO",
+      "badgeColor": "gold",
+      "icon": "🪙",
+      "image": "images/products/moedas_5000.png",
+      "name": "5.000 Moedas",
+      "description": "Excelente custo-benefício para adquirir visuais raros e itens na Coin Shop.",
+      "price": 34.9,
+      "command": "coins give {player} 5000"
+    },
+    {
+      "id": "coins-8000",
+      "cat": "Coins",
+      "badge": "DESTAQUE",
+      "badgeColor": "red",
+      "icon": "🪙",
+      "image": "images/products/moedas_8000.png",
+      "name": "8.000 Moedas",
+      "description": "Grande pacote de moedas para evoluir com tudo na Temporada 3.",
+      "price": 49.9,
+      "command": "coins give {player} 8000"
+    },
+    {
+      "id": "coins-10000",
+      "cat": "Coins",
+      "badge": "ELITE",
+      "badgeColor": "gold",
+      "icon": "🪙",
+      "image": "images/products/moedas_10000.png",
+      "name": "10.000 Moedas",
+      "description": "Pacote de elite para mercadores e líderes de clã dominarem a economia.",
+      "price": 59.9,
+      "command": "coins give {player} 10000"
+    },
+    {
+      "id": "coins-20000",
+      "cat": "Coins",
+      "badge": "SUPREMO",
+      "badgeColor": "gold",
+      "icon": "🪙",
+      "image": "images/products/moedas_20000.png",
+      "name": "20.000 + 2.000 Bônus",
+      "description": "O maior pacote do servidor! Receba 20.000 moedas + 2.000 moedas extras de brinde (Total: 22.000 Moedas)!",
+      "price": 99.9,
+      "oldPrice": 129.9,
+      "command": "coins give {player} 22000"
+    },
+    {
+      "id": "key-voto",
+      "cat": "Chaves",
+      "badge": "VOTO",
+      "badgeColor": "orange",
+      "icon": "🗝️",
+      "image": "images/products/key_voto_3x_hd.png",
+      "name": "3x Chave de Voto",
+      "description": "Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.",
+      "price": 4.9,
+      "command": "crate key give {player} vote 3"
+    },
+    {
+      "id": "key-comum",
+      "cat": "Chaves",
+      "badge": "COMUM",
+      "badgeColor": "orange",
+      "icon": "🗝️",
+      "image": "images/products/key_comum_hd.png",
+      "name": "Chave Comum S3",
+      "description": "Chave inicial da Caixa Comum de Outono com suprimentos úteis e minérios.",
+      "price": 7.9,
+      "command": "crate key give {player} common 1"
+    },
+    {
+      "id": "key-rara",
+      "cat": "Chaves",
+      "badge": "RARA",
+      "badgeColor": "gold",
+      "icon": "🗝️",
+      "image": "images/products/key_rara_hd.png",
+      "name": "Chave Rara S3",
+      "description": "Recompensas raras, minérios nobres e recursos valorizados da temporada.",
+      "price": 14.9,
+      "command": "crate key give {player} rare 1"
+    },
+    {
+      "id": "key-epica",
+      "cat": "Chaves",
+      "badge": "ÉPICA",
+      "badgeColor": "gold",
+      "icon": "🗝️",
+      "image": "images/products/key_epica_hd.png",
+      "name": "Chave Épica S3",
+      "description": "Caixa épica com alta chance de itens lendários e encantamentos superiores.",
+      "price": 24.9,
+      "oldPrice": 29.9,
+      "command": "crate key give {player} epic 1"
+    },
+    {
+      "id": "key-superior",
+      "cat": "Chaves",
+      "badge": "MÍTICA",
+      "badgeColor": "red",
+      "icon": "🗝️",
+      "image": "images/products/key_superior_hd.png",
+      "name": "Chave Superior S3",
+      "description": "A mais poderosa chave da temporada com prêmios exclusivos e itens ancestrais.",
+      "price": 39.9,
+      "oldPrice": 49.9,
+      "command": "crate key give {player} superior 1"
+    },
+    {
+      "id": "key-combo",
+      "cat": "Chaves",
+      "badge": "COMBO",
+      "badgeColor": "gold",
+      "icon": "🗝️",
+      "image": "images/products/key_combo_4x_hd.png",
+      "name": "Combo 4x Chaves Místicas",
+      "description": "Pacote especial contendo 1x Comum, 1x Rara, 1x Épica e 1x Superior com super desconto!",
+      "price": 69.9,
+      "oldPrice": 87.6,
+      "command": "crate key give {player} common 1; crate key give {player} rare 1; crate key give {player} epic 1; crate key give {player} superior 1"
+    },
+    {
+      "id": "enchant-fortuna-4",
+      "cat": "Encantamentos",
+      "badge": "LIVRO",
+      "badgeColor": "gold",
+      "icon": "📖",
+      "image": "images/products/livro_fortuna_4.png",
+      "name": "Livro: Fortuna IV",
+      "description": "Livro de Encantamento Fortuna IV. Multiplica os minérios e recursos minerados muito além do limite padrão do jogo.",
+      "price": 14.9,
+      "oldPrice": 19.9,
+      "command": "excellentenchants:ee book fortune 4 {player}"
+    },
+    {
+      "id": "enchant-eficiencia-6",
+      "cat": "Encantamentos",
+      "badge": "LIVRO",
+      "badgeColor": "orange",
+      "icon": "📖",
+      "image": "images/products/livro_eficiencia_6.png",
+      "name": "Livro: Eficiência VI",
+      "description": "Livro de Encantamento Eficiência VI. Velocidade de mineração ultrarrápida superando o limite máximo do Minecraft tradicional.",
+      "price": 16.9,
+      "oldPrice": 22.9,
+      "command": "excellentenchants:ee book efficiency 6 {player}"
+    },
+    {
+      "id": "enchant-inquebravel-4",
+      "cat": "Encantamentos",
+      "badge": "LIVRO",
+      "badgeColor": "gold",
+      "icon": "📖",
+      "image": "images/products/livro_inquebravel_4.png",
+      "name": "Livro: Inquebrável IV",
+      "description": "Livro de Encantamento Inquebrável IV. Quadruplica a durabilidade de suas ferramentas, armas e armaduras.",
+      "price": 14.9,
+      "oldPrice": 19.9,
+      "command": "excellentenchants:ee book unbreaking 4 {player}"
+    },
+    {
+      "id": "enchant-remendo",
+      "cat": "Encantamentos",
+      "badge": "ESSENCIAL",
+      "badgeColor": "orange",
+      "icon": "📖",
+      "image": "images/products/livro_remendo.png",
+      "name": "Livro: Remendo (Mending)",
+      "description": "Livro de Encantamento Remendo. Repara seus itens e ferramentas automaticamente através da coleta de esferas de XP.",
+      "price": 12.9,
+      "oldPrice": 16.9,
+      "command": "excellentenchants:ee book mending 1 {player}"
+    },
+    {
+      "id": "enchant-soulbound",
+      "cat": "Encantamentos",
+      "badge": "PROTEÇÃO",
+      "badgeColor": "red",
+      "icon": "📖",
+      "image": "images/products/livro_soulbound.png",
+      "name": "Livro: Vínculo da Alma",
+      "description": "Livro de Encantamento Vínculo da Alma (Soulbound). Impede que o item seja derrubado ou perdido caso você morra no jogo!",
+      "price": 19.9,
+      "oldPrice": 26.9,
+      "command": "excellentenchants:ee book soulbound 1 {player}"
+    },
+    {
+      "id": "enchant-telecinese",
+      "cat": "Encantamentos",
+      "badge": "UTILIDADE",
+      "badgeColor": "gold",
+      "icon": "📖",
+      "image": "images/products/livro_telecinese.png",
+      "name": "Livro: Telecinese",
+      "description": "Livro de Encantamento Telecinese. Move todos os blocos quebrados e itens dropados instantaneamente para seu inventário.",
+      "price": 17.9,
+      "oldPrice": 24.9,
+      "command": "excellentenchants:ee book telekinesis 1 {player}"
+    },
+    {
+      "id": "cmd-back",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "orange",
+      "icon": "🔧",
+      "image": "images/products/cmd_back_hd.png",
+      "name": "Comando /back",
+      "description": "Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou morte.",
+      "price": 9.9,
+      "command": "crazyvouchers:voucher give Back_Command 1 {player}"
+    },
+    {
+      "id": "cmd-feed",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "orange",
+      "icon": "🔧",
+      "image": "images/products/cmd_feed_hd.png",
+      "name": "Comando /feed",
+      "description": "Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver.",
+      "price": 12.9,
+      "command": "crazyvouchers:voucher give Feed_Command 1 {player}"
+    },
+    {
+      "id": "cmd-heal",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "red",
+      "icon": "🔧",
+      "image": "images/products/cmd_heal_hd.png",
+      "name": "Comando /heal",
+      "description": "Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique.",
+      "price": 19.9,
+      "command": "crazyvouchers:voucher give Heal_Command 1 {player}"
+    },
+    {
+      "id": "cmd-repair",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "gold",
+      "icon": "🔧",
+      "image": "images/products/cmd_repair_hd.png",
+      "name": "Comando /repair",
+      "description": "Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis na bigorna.",
+      "price": 24.9,
+      "command": "crazyvouchers:voucher give Repair_Command 1 {player}"
+    },
+    {
+      "id": "cmd-fly",
+      "cat": "Comandos",
+      "badge": "VIP",
+      "badgeColor": "gold",
+      "icon": "🔧",
+      "image": "images/products/cmd_fly_hd.png",
+      "name": "Comando /fly",
+      "description": "Voucher de liberação permanente do comando /fly. Voe livremente pelo mundo survival da Ravok.",
+      "price": 39.9,
+      "command": "crazyvouchers:voucher give Fly_Command 1 {player}"
+    },
+    {
+      "id": "voucher-skin-aleatoria",
+      "cat": "Vouchers",
+      "badge": "NOVIDADE",
+      "badgeColor": "gold",
+      "icon": "📜",
+      "image": "images/products/voucher_skin_pixel_hd.png",
+      "name": "Voucher Skin Aleatória",
+      "description": "Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!",
+      "price": 14.9,
+      "oldPrice": 19.9,
+      "perksList": [
+        "136 Visuais raros possíveis",
+        "Resgate com 1 clique no inventário",
+        "Compatível com espadas, picaretas e machados",
+        "Não perde ao morrer"
+      ],
+      "command": "crazyvouchers:voucher give Random_Toolskin 1 {player}"
+    },
+    {
+      "id": "pet-dino",
+      "cat": "Pets",
+      "badge": "3D",
+      "badgeColor": "orange",
+      "icon": "🦖",
+      "image": "images/products/pet_dino_hd.png",
+      "name": "Pet Dinossauro 3D",
+      "description": "Um companheiro pré-histórico com animações customizadas e efeitos sonoros.",
+      "price": 29.9,
+      "command": "mcpets spawn dino {player} false"
+    },
+    {
+      "id": "pet-cubee",
+      "cat": "Pets",
+      "badge": "MÁGICO",
+      "badgeColor": "gold",
+      "icon": "🧊",
+      "image": "images/products/pet_cubee_hd.png",
+      "name": "Pet Cubee Mágico",
+      "description": "Cubinho flutuante que segue você com partículas de luz e animações suaves.",
+      "price": 34.9,
+      "command": "mcpets spawn cubee_magico {player} false"
+    },
+    {
+      "id": "cosmetic-fire",
+      "cat": "Cosméticos",
+      "badge": "RARO",
+      "badgeColor": "red",
+      "icon": "🪓",
+      "image": "images/products/machado_chamas_hd.png",
+      "name": "Machado das Chamas",
+      "description": "Skin cosmética para machados com partículas de fogo perpétuas.",
+      "price": 14.9,
+      "command": "uc menu effects {player}"
+    },
+    {
+      "id": "cosmetic-sword",
+      "cat": "Cosméticos",
+      "badge": "LENDÁRIO",
+      "badgeColor": "gold",
+      "icon": "⚔️",
+      "image": "images/products/espada_solar_hd.png",
+      "name": "Espada Rúnica Solar",
+      "description": "Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.",
+      "price": 19.9,
+      "command": "uc menu effects {player}"
+    }
+  ],
+  "slides": [
+    {
+      "id": "slide-spawn",
+      "title": "Spawn Oficial da Ravok",
+      "desc": "A grande praça central da Temporada 3 com tema outonal, decorações acolhedoras e portais de aventura.",
+      "img": "images/gallery/spawn_ravok_outonal.png"
+    },
+    {
+      "id": "slide-por-do-sol",
+      "title": "Pôr do Sol Ancestral",
+      "desc": "O fulgor do sol poente iluminando o cânion, guindastes de mineração e as montanhas outonais.",
+      "img": "images/gallery/por_do_sol_canyon.png"
+    },
+    {
+      "id": "slide-vips",
+      "title": "Cargos & Ranks VIP",
+      "desc": "Área exclusiva dos Ranks da Temporada de Outono: Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa.",
+      "img": "images/gallery/npc_vip_aurora.png"
+    },
+    {
+      "id": "slide-canyon",
+      "title": "Mina & Fortaleza Subterrânea",
+      "desc": "Pontes suspensas, trilhos de vagonetas e cavernas profundas nas muralhas de pedra.",
+      "img": "images/gallery/canyon_pedreira_fortaleza.png"
+    },
+    {
+      "id": "slide-mercado",
+      "title": "Mercado & Loja de Moedas",
+      "desc": "Mercado dos mercadores com a Loja de Moedas oficial (/coinshop), carroças rústicas e troca de itens raros.",
+      "img": "images/gallery/mercado_loja_moedas.png"
+    },
+    {
+      "id": "slide-pedreira",
+      "title": "Pedreira & Vila dos Trabalhadores",
+      "desc": "Moinho de vento, cascata natural e sistema de guindastes que abastecem as construções do reino.",
+      "img": "images/gallery/pedreira_vila_trabalhadores.png"
+    },
+    {
+      "id": "slide-bosque-outonal",
+      "title": "Bosque das Folhas Douradas",
+      "desc": "As colinas outonais da Temporada 3 repletas de carvalhos rubros, árvores douradas e cerejeiras.",
+      "img": "images/gallery/vale_outonal_bosque.png"
+    }
+  ],
+  "orders": [],
+  "pendingDeliveries": [],
+  "feedbacks": [
+    {
+      "id": "fb-1",
+      "nick": "DargonLord",
+      "stars": 5,
+      "comment": "O melhor servidor de survival que já joguei! Economia bem balanceada, suporte rápido e a entrega do VIP caiu na hora com o /resgatar.",
+      "date": "02/09/2026"
+    },
+    {
+      "id": "fb-2",
+      "nick": "StellaCraft",
+      "stars": 5,
+      "comment": "Os pets mágicos são incrivelmente fofos e as caixas de voto realmente dão itens que valem a pena. Comunidade nota 10!",
+      "date": "03/09/2026"
+    },
+    {
+      "id": "fb-3",
+      "nick": "Pedro_Gamer99",
+      "stars": 5,
+      "comment": "Zero lag e o sistema de RTP por continentes/mundo normal funciona liso. Parabéns à equipe do Ravok!",
+      "date": "04/09/2026"
+    }
+  ],
+  "streamers": [
+    {
+      "id": "str-1",
+      "name": "RavokPlayerTV",
+      "platform": "Twitch",
+      "avatar": "https://mc-heads.net/avatar/RavokPlayer/64",
+      "url": "https://twitch.tv",
+      "channelUrl": "https://twitch.tv",
+      "isLive": true,
+      "bio": "Transmissões diárias construindo megabases e explorando as dungeons do servidor!"
+    },
+    {
+      "id": "str-2",
+      "name": "CraftMasterBR",
+      "platform": "YouTube",
+      "avatar": "https://mc-heads.net/avatar/CraftMaster/64",
+      "url": "https://youtube.com",
+      "channelUrl": "https://youtube.com",
+      "isLive": false,
+      "bio": "Série completa de Survival RPG, farm de coins e abertura de caixas raras."
+    },
+    {
+      "id": "str-3",
+      "name": "LunaGamer",
+      "platform": "TikTok",
+      "avatar": "https://mc-heads.net/avatar/LunaGamer/64",
+      "url": "https://tiktok.com",
+      "channelUrl": "https://tiktok.com",
+      "isLive": true,
+      "bio": "Clipes diários com os melhores momentos, PvP na arena e sorteios para inscritos!"
+    }
+  ],
+  "settings": {
+    "apiUrl": "https://ravok-site.vercel.app",
+    "apiToken": "ravok_sec_99a8b7c6d5e4",
+    "adminUser": "guiilew",
+    "adminPassword": "000e2ecd4a",
+    "goalMode": "manual",
+    "goalManualPercent": 0,
+    "metaVendasValor": 2000,
+    "metaVendasBase": 0,
+    "mpPublicKey": "",
+    "mpAccessToken": "",
+    "discordInviteUrl": "https://discord.gg",
+    "discordWebhookUrl": "",
+    "discordBotToken": "",
+    "discordBotClientId": "",
+    "discordBotChannelVendas": "",
+    "discordBotChannelFeedbacks": "",
+    "discordBotChannelAnuncios": ""
+  },
+  "playerAccounts": {},
+  "playerSync": {},
+  "verifyCodes": {},
+  "linkedAccounts": [],
+  "voteArena": {
+    "quiz": [
+      {
+        "id": "q1",
+        "question": "Qual é o IP oficial para entrar e jogar no servidor Ravok Network?",
+        "options": [
+          {
+            "id": "a",
+            "text": "jogar.ravok.network",
+            "correct": true
+          },
+          {
+            "id": "b",
+            "text": "mc.ravokcraft.com.br",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "server.ravok.net",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "jogar-ravok.gg",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "id": "q2",
+        "question": "Qual mob clássico do Minecraft tem pavor de gatos e corre desesperado ao avistá-los?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Zumbi",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "Esqueleto",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "Creeper",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "Enderman",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "id": "q3",
+        "question": "Qual comando você deve digitar no chat do jogo para resgatar compras e chaves de voto?",
+        "options": [
+          {
+            "id": "a",
+            "text": "/pegar",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "/resgatar",
+            "correct": true
+          },
+          {
+            "id": "c",
+            "text": "/loja",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "/votos",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "id": "q4",
+        "question": "Em qual camada subterrânea (Y) os Diamantes são gerados com mais abundância no 1.20+?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Y = 12",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "Y = 64",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "Y = -58",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "Y = 0",
+            "correct": false
+          }
+        ]
+      }
+    ],
+    "poll": {
+      "id": "poll-1",
+      "question": "Qual evento especial da comunidade você quer ver neste fim de semana?",
+      "options": [
+        {
+          "id": "opt1",
+          "text": "⚔️ Torneio Gladiador PvP na Arena",
+          "votes": 42
+        },
+        {
+          "id": "opt2",
+          "text": "⛏️ Frenesi da Mineração (Drops em Dobro)",
+          "votes": 78
+        },
+        {
+          "id": "opt3",
+          "text": "👻 Caçada ao Boss Mágico no Spawn",
+          "votes": 56
+        },
+        {
+          "id": "opt4",
+          "text": "🏰 Concurso de Melhores Vilas e Construções",
+          "votes": 34
+        }
+      ]
+    },
+    "pranks": [
+      {
+        "id": "p1",
+        "title": "A Família do Steve",
+        "riddle": "O pai do Steve tem 3 filhos: Chiquinho, Zezinho e... qual é o nome do terceiro filho?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Luizinho",
+            "troll": "Caiu na pegadinha! O pai é do STEVE, então o terceiro filho é o Steve! 😂",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "Steve!",
+            "troll": "BOA! Você é esperto e não caiu na pegadinha! 🧠 Voto garantido!",
+            "correct": true
+          },
+          {
+            "id": "c",
+            "text": "Herobrine",
+            "troll": "Herobrine é lenda urbana, não filho do pai do Steve! 👻",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "Aldeão",
+            "troll": "Hrmmm... Aldeão não é irmão do Steve! 👃",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "id": "p2",
+        "title": "O Desastre na Fronteira",
+        "riddle": "Um Creeper com 64 TNTs explodiu na ponte entre o Nether e o End. Onde os sobreviventes devem ser enterrados?",
+        "options": [
+          {
+            "id": "a",
+            "text": "No Nether",
+            "troll": "Caiu na pegadinha! Sobrevivente não se enterra, tá vivo! 💀",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "No End",
+            "troll": "Caiu na pegadinha! Ninguém enterra gente viva! 💀",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "Sobreviventes NÃO se enterram!",
+            "troll": "GÊNIO! Não caiu na trollagem! Quem sobreviveu continua vivo! 🏆",
+            "correct": true
+          },
+          {
+            "id": "d",
+            "text": "No cemitério do Spawn",
+            "troll": "Caiu na pegadinha! Sobrevivente tá vivinho da silva! 😂",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "id": "p3",
+        "title": "O Mistério da Toalha",
+        "riddle": "O que fica cada vez mais molhado quanto mais você o usa para se secar no Minecraft?",
+        "options": [
+          {
+            "id": "a",
+            "text": "A toalha!",
+            "troll": "Exato! Charada clássica decifrada com sucesso! 🧼",
+            "correct": true
+          },
+          {
+            "id": "b",
+            "text": "O balde d água",
+            "troll": "O balde molha, não seca! Tente de novo! 🪣",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "A esponja molhada",
+            "troll": "A esponja seca o mar, mas a resposta certa é a toalha! 🧽",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "A poção de cura",
+            "troll": "Poção cura vida, não enxuga água! 🧪",
+            "correct": false
+          }
+        ]
+      }
+    ],
+    "jokes": [
+      {
+        "id": "j1",
+        "setup": "Por que os esqueletos do Minecraft não brigam entre si na dungeon?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Porque falta pólvora neles!",
+            "correct": false
+          },
+          {
+            "id": "b",
+            "text": "Porque eles não têm estômago pra violência! 🦴😂",
+            "correct": true
+          },
+          {
+            "id": "c",
+            "text": "Porque o arco deles quebrou no caminho!",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "Porque eles são vegetarianos!",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "id": "j2",
+        "setup": "Por que o Creeper foi expulso da biblioteca da vila?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Porque ele não aguentou o silêncio e EXPLODIU de falar alto! 💥😂",
+            "correct": true
+          },
+          {
+            "id": "b",
+            "text": "Porque ele tentou comer as folhas dos livros!",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "Porque o Bibliotecário cobrou 10 esmeraldas!",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "Porque ele não sabia ler!",
+            "correct": false
+          }
+        ]
+      },
+      {
+        "id": "j3",
+        "setup": "O que o Zumbi foi fazer na agência bancária da Ravok?",
+        "options": [
+          {
+            "id": "a",
+            "text": "Ver se a conta dele estava morta! 🧟😂",
+            "correct": true
+          },
+          {
+            "id": "b",
+            "text": "Pedir empréstimo para comprar carne podre!",
+            "correct": false
+          },
+          {
+            "id": "c",
+            "text": "Assaltar o cofre de barras de ouro!",
+            "correct": false
+          },
+          {
+            "id": "d",
+            "text": "Abrir uma poupança de cérebros!",
+            "correct": false
+          }
+        ]
+      }
+    ],
+    "dailyQuest": {
+      "enabled": true,
+      "id": "quest-today",
+      "title": "Jornada do Conhecimento",
+      "description": "Complete pelo menos 2 desafios na Arena de Votos hoje para provar seu valor à comunidade!",
+      "targetCount": 2,
+      "rewardTitle": "2x Chaves de Voto",
+      "rewardCommand": "crate key give {nick} vote 2",
+      "silvieTip": "Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮"
+    },
+    "dailyQuestClaims": [],
+    "votesHistory": []
+  },
+  "admins": [
+    {
+      "username": "guiilew",
+      "name": "Guiilew",
+      "role": "Fundador / Dono",
+      "passwordHash": "c7017282cb90b7e411516e885b1d5bf5",
+      "createdAt": "2026-11-05T20:36:20.189Z",
+      "lastLogin": null
+    }
+  ]
+}

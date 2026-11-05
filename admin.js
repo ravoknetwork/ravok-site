@@ -13,7 +13,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'vendaval',
     prefixImg: 'images/prefixes/knight.png',
     icon: '🌪️',
-    image: 'products/VIPS/membro.png',
+    image: 'images/products/vip_vendaval_hd.png',
     name: 'VIP VENDAVAL',
     description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
     price: 14.90,
@@ -39,7 +39,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'flamejante',
     prefixImg: 'images/prefixes/lord.png',
     icon: '🔥',
-    image: 'products/VIPS/vip_aura.png',
+    image: 'images/products/vip_flamejante_hd.png',
     name: 'VIP FLAMEJANTE',
     description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
     price: 29.90,
@@ -65,7 +65,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'carvalho',
     prefixImg: 'images/prefixes/paladin.png',
     icon: '🛡️',
-    image: 'products/VIPS/aventureiro.png',
+    image: 'images/products/vip_carvalho_hd.png',
     name: 'VIP CARVALHO',
     description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
     price: 44.90,
@@ -92,7 +92,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'aurora',
     prefixImg: 'images/prefixes/duke.png',
     icon: '✨',
-    image: 'products/VIPS/vip_astro.png',
+    image: 'images/products/vip_aurora_hd.png',
     name: 'VIP AURORA',
     description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
     price: 64.90,
@@ -119,7 +119,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'solar',
     prefixImg: 'images/prefixes/king.png',
     icon: '👑',
-    image: 'products/VIPS/vip_celestial.png',
+    image: 'images/products/vip_solar_hd.png',
     name: 'VIP SOLAR',
     description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
     price: 0,
@@ -147,7 +147,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'deusa',
     prefixImg: 'images/prefixes/deusa.png',
     icon: '🔮',
-    image: 'products/VIPS/vip_eclipse.png',
+    image: 'images/products/vip_deusa_hd.png',
     name: 'VIP DEUSA',
     description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
     price: 0,
@@ -575,7 +575,13 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'pet-dino': 'images/products/pet_dino_hd.png',
   'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
-  'cosmetic-sword': 'images/products/espada_solar_hd.png'
+  'cosmetic-sword': 'images/products/espada_solar_hd.png',
+  'vip-vendaval': 'images/products/vip_vendaval_hd.png',
+  'vip-flamejante': 'images/products/vip_flamejante_hd.png',
+  'vip-carvalho': 'images/products/vip_carvalho_hd.png',
+  'vip-aurora': 'images/products/vip_aurora_hd.png',
+  'vip-solar': 'images/products/vip_solar_hd.png',
+  'vip-deusa': 'images/products/vip_deusa_hd.png'
 };
 
 const OFFICIAL_PREFIX_IMGS = {
@@ -603,7 +609,13 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/chave_lendaria.png',
   'images/chave_epic_dragon.png',
   'images/products/chave_voto_hd.png',
-  'images/products/voucher_toolskin_hd.png'
+  'images/products/voucher_toolskin_hd.png',
+  'products/VIPS/membro.png',
+  'products/VIPS/vip_aura.png',
+  'products/VIPS/aventureiro.png',
+  'products/VIPS/vip_astro.png',
+  'products/VIPS/vip_celestial.png',
+  'products/VIPS/vip_eclipse.png'
 ];
 
 function getDeletedProductIds() {
@@ -790,6 +802,14 @@ function saveAdminSnapshot(serverUpdatedAt) {
     };
     localStorage.setItem('ravok_admin_snapshot_v2', JSON.stringify(snap));
     localStorage.removeItem('ravok_admin_snapshot_v1');
+
+    if (window.location.protocol.startsWith('http')) {
+      fetch('/api/admin/restore-snapshot', {
+        method: 'POST',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify(snap)
+      }).catch(() => {});
+    }
   } catch (e) {}
 }
 
@@ -964,30 +984,35 @@ async function syncAdminFromBackend() {
 
       // Se o estado do servidor for mais recente ou igual ao snapshot local, atualiza o cache local
       const canApplyServerProducts = !localSnap || Number(state.updatedAt || 0) >= Number(localSnap.updatedAt || 0);
-      if (Array.isArray(state.deletedProductIds)) {
+      const localDel = getDeletedProductIds().map(String);
+      const serverDel = Array.isArray(state.deletedProductIds) ? state.deletedProductIds.map(String) : [];
+      const combinedDel = Array.from(new Set([...localDel, ...serverDel]));
+      if (combinedDel.length > 0) {
         try {
-          localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(state.deletedProductIds));
+          localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(combinedDel));
         } catch (e) {}
       }
-      if (canApplyServerProducts && Array.isArray(state.products)) {
+      if (canApplyServerProducts && Array.isArray(state.products) && state.products.length > 0) {
         const cleanProds = upgradeClientProducts(state.products);
-        try {
-          localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
-          localStorage.setItem('ravok_products_synced', '1');
-        } catch (e) {}
+        if (cleanProds.length > 0) {
+          try {
+            localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
+            localStorage.setItem('ravok_products_synced', '1');
+          } catch (e) {}
+        }
       }
-      if (canApplyServerProducts && Array.isArray(state.slides)) {
+      if (canApplyServerProducts && Array.isArray(state.slides) && state.slides.length > 0) {
         try {
           localStorage.setItem('ravok_slider_slides_s3_v4', JSON.stringify(state.slides));
         } catch (e) {}
       }
-      if (canApplyServerProducts && Array.isArray(state.streamers)) {
+      if (canApplyServerProducts && Array.isArray(state.streamers) && state.streamers.length > 0) {
         try {
           localStorage.setItem('ravok_streamers', JSON.stringify(state.streamers));
           localStorage.setItem('ravok_streamers_synced', '1');
         } catch (e) {}
       }
-      if (canApplyServerProducts && Array.isArray(state.feedbacks)) {
+      if (canApplyServerProducts && Array.isArray(state.feedbacks) && state.feedbacks.length > 0) {
         try {
           localStorage.setItem('ravok_feedbacks', JSON.stringify(state.feedbacks));
           localStorage.setItem('ravok_feedbacks_synced', '1');
@@ -1277,10 +1302,12 @@ function getStoredProducts() {
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed) && (parsed.length > 0 || localStorage.getItem('ravok_products_synced') === '1')) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         const upgraded = upgradeClientProducts(parsed);
-        localStorage.setItem('ravok_products_v6', JSON.stringify(upgraded));
-        return upgraded;
+        if (upgraded.length > 0) {
+          localStorage.setItem('ravok_products_v6', JSON.stringify(upgraded));
+          return upgraded;
+        }
       }
     } catch (e) {}
   }
@@ -1830,7 +1857,7 @@ function getStoredStreamers() {
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed.map(s => ({
           ...s,
           channelUrl: s.channelUrl || s.url || 'https://twitch.tv',
@@ -1838,6 +1865,9 @@ function getStoredStreamers() {
         }));
       }
     } catch (e) {}
+  }
+  if (typeof DEFAULT_STREAMERS !== 'undefined') {
+    return DEFAULT_STREAMERS;
   }
   return [];
 }
@@ -1997,8 +2027,11 @@ function getStoredFeedbacks() {
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
     } catch (e) {}
+  }
+  if (typeof DEFAULT_FEEDBACKS !== 'undefined') {
+    return DEFAULT_FEEDBACKS;
   }
   return [];
 }
@@ -3569,12 +3602,26 @@ function renderOrdersTable() {
   if (mpCreds.accessToken && by('#mpAccessToken')) by('#mpAccessToken').value = mpCreds.accessToken;
 
   if (!orders.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:30px;">Nenhum pedido realizado ainda.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; color:var(--muted); padding:30px;">Nenhum pedido realizado ainda.</td></tr>';
     return;
   }
 
+  const deliveries = getStoredPendingDeliveries();
+
   tbody.innerHTML = orders.map(o => {
     const itemsDesc = o.items ? o.items.map(i => i.name).join(', ') : 'Itens da loja';
+    const isApproved = ['aprovado', 'approved', 'paid', 'completed'].includes(String(o.status || 'aprovado').toLowerCase());
+    
+    // Status de Entrega
+    const isExplicitDelivered = o.delivery_status === 'entregue' || o.delivered === true;
+    const relatedDeliveries = deliveries.filter(d => String(d.orderId) === String(o.id));
+    const allQueueDelivered = relatedDeliveries.length > 0 && relatedDeliveries.every(d => d.status === 'delivered');
+    const isDelivered = isExplicitDelivered || allQueueDelivered;
+
+    const deliveryBadge = isDelivered
+      ? `<span class="badge badge-success" style="background:rgba(16,185,129,0.18); color:#10B981; border:1px solid rgba(16,185,129,0.35);">✓ Entregue</span>`
+      : `<span class="badge badge-warning" style="background:rgba(245,158,11,0.18); color:#F59E0B; border:1px solid rgba(245,158,11,0.35);">⏳ Na Fila (/resgatar)</span>`;
+
     return `
       <tr>
         <td><code>#${o.id}</code></td>
@@ -3582,14 +3629,49 @@ function renderOrdersTable() {
         <td>${escapeHtml(itemsDesc)}</td>
         <td><strong style="color:#fff;">${money(o.total)}</strong></td>
         <td>${escapeHtml(o.date)}</td>
-        <td><span class="badge ${o.status === 'aprovado' ? 'badge-success' : 'badge-warning'}">${String(o.status || 'aprovado').toUpperCase()}</span></td>
-        <td style="text-align:right;">
-          <button class="btn-sm btn-danger" onclick="deleteOrder('${o.id}')" title="Excluir este pedido">🗑️ Excluir</button>
+        <td><span class="badge ${isApproved ? 'badge-success' : 'badge-warning'}">${String(o.status || 'aprovado').toUpperCase()}</span></td>
+        <td>${deliveryBadge}</td>
+        <td style="text-align:right; white-space:nowrap;">
+          ${!isDelivered ? `<button class="btn-sm" onclick="markOrderDelivered('${escapeHtml(o.id)}')" style="margin-right:6px; background:rgba(16,185,129,0.18); border-color:#10B981; color:#10B981;" title="Marcar como entregue no jogo">✓ Entregar</button>` : ''}
+          <button class="btn-sm btn-danger" onclick="deleteOrder('${escapeHtml(o.id)}')" title="Excluir este pedido">🗑️ Excluir</button>
         </td>
       </tr>
     `;
   }).join('');
 }
+
+window.markOrderDelivered = async (orderId) => {
+  let orders = getStoredOrders();
+  const o = orders.find(item => String(item.id) === String(orderId));
+  if (o) {
+    o.delivery_status = 'entregue';
+    o.delivered = true;
+    o.delivered_at = new Date().toISOString();
+  }
+  let deliveries = getStoredPendingDeliveries();
+  deliveries.forEach(d => {
+    if (String(d.orderId) === String(orderId)) {
+      d.status = 'delivered';
+      d.delivered_at = new Date().toISOString();
+    }
+  });
+
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}/mark-delivered`, {
+        method: 'POST',
+        headers: getAdminAuthHeaders()
+      });
+    } catch (e) {}
+  }
+
+  localStorage.setItem('ravok_orders', JSON.stringify(orders));
+  localStorage.setItem('ravok_pending_deliveries', JSON.stringify(deliveries));
+  saveAdminSnapshot();
+  renderOrdersTable();
+  refreshDashboard();
+  toast(`✓ Pedido #${orderId} marcado como entregue!`);
+};
 
 window.deleteOrder = async (orderId) => {
   if (!confirm(`Deseja realmente excluir o pedido #${orderId}?`)) return;

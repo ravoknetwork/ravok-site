@@ -161,7 +161,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'vendaval',
     prefixImg: 'images/prefixes/knight.png',
     icon: '🌪️',
-    image: 'products/VIPS/membro.png',
+    image: 'images/products/vip_vendaval_hd.png',
     name: 'VIP VENDAVAL',
     description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
     price: 14.90,
@@ -187,7 +187,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'flamejante',
     prefixImg: 'images/prefixes/lord.png',
     icon: '🔥',
-    image: 'products/VIPS/vip_aura.png',
+    image: 'images/products/vip_flamejante_hd.png',
     name: 'VIP FLAMEJANTE',
     description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
     price: 29.90,
@@ -213,7 +213,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'carvalho',
     prefixImg: 'images/prefixes/paladin.png',
     icon: '🛡️',
-    image: 'products/VIPS/aventureiro.png',
+    image: 'images/products/vip_carvalho_hd.png',
     name: 'VIP CARVALHO',
     description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
     price: 44.90,
@@ -240,7 +240,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'aurora',
     prefixImg: 'images/prefixes/duke.png',
     icon: '✨',
-    image: 'products/VIPS/vip_astro.png',
+    image: 'images/products/vip_aurora_hd.png',
     name: 'VIP AURORA',
     description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
     price: 64.90,
@@ -267,7 +267,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'solar',
     prefixImg: 'images/prefixes/king.png',
     icon: '👑',
-    image: 'products/VIPS/vip_celestial.png',
+    image: 'images/products/vip_solar_hd.png',
     name: 'VIP SOLAR',
     description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
     price: 0,
@@ -295,7 +295,7 @@ const DEFAULT_PRODUCTS = [
     tagClass: 'deusa',
     prefixImg: 'images/prefixes/deusa.png',
     icon: '🔮',
-    image: 'products/VIPS/vip_eclipse.png',
+    image: 'images/products/vip_deusa_hd.png',
     name: 'VIP DEUSA',
     description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
     price: 0,
@@ -723,7 +723,13 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'pet-dino': 'images/products/pet_dino_hd.png',
   'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
-  'cosmetic-sword': 'images/products/espada_solar_hd.png'
+  'cosmetic-sword': 'images/products/espada_solar_hd.png',
+  'vip-vendaval': 'images/products/vip_vendaval_hd.png',
+  'vip-flamejante': 'images/products/vip_flamejante_hd.png',
+  'vip-carvalho': 'images/products/vip_carvalho_hd.png',
+  'vip-aurora': 'images/products/vip_aurora_hd.png',
+  'vip-solar': 'images/products/vip_solar_hd.png',
+  'vip-deusa': 'images/products/vip_deusa_hd.png'
 };
 
 const OFFICIAL_PREFIX_IMGS = {
@@ -751,7 +757,13 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
   'images/chave_lendaria.png',
   'images/chave_epic_dragon.png',
   'images/products/chave_voto_hd.png',
-  'images/products/voucher_toolskin_hd.png'
+  'images/products/voucher_toolskin_hd.png',
+  'products/VIPS/membro.png',
+  'products/VIPS/vip_aura.png',
+  'products/VIPS/aventureiro.png',
+  'products/VIPS/vip_astro.png',
+  'products/VIPS/vip_celestial.png',
+  'products/VIPS/vip_eclipse.png'
 ];
 
 function upgradeProductCatalog(list, deletedProductIds = null) {
@@ -1182,6 +1194,13 @@ app.use(async (req, res, next) => {
 
 function loadDb() {
   try {
+    const seedFile = path.join(__dirname, 'db.seed.json');
+    if (!fs.existsSync(DB_FILE) && fs.existsSync(seedFile)) {
+      try {
+        fs.mkdirSync(DATA_DIR, { recursive: true });
+        fs.copyFileSync(seedFile, DB_FILE);
+      } catch (seedErr) {}
+    }
     if (fs.existsSync(DB_FILE)) {
       const content = fs.readFileSync(DB_FILE, 'utf8');
       const parsed = JSON.parse(content);
@@ -1265,6 +1284,11 @@ function saveDb(data, touchUpdatedAt = true) {
     const tempFile = `${DB_FILE}.tmp.${Date.now()}.${Math.floor(Math.random() * 10000)}`;
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
     fs.renameSync(tempFile, DB_FILE);
+    if (!process.env.VERCEL) {
+      try {
+        fs.writeFileSync(path.join(__dirname, 'db.seed.json'), JSON.stringify(data, null, 2), 'utf8');
+      } catch (seedSaveErr) {}
+    }
     if (touchUpdatedAt) {
       saveDbToCloudKv(data).catch(() => {});
     }
@@ -2964,6 +2988,7 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
 function approveOrderAndEnqueueDelivery(order) {
   if (!order || order.status === 'aprovado') return;
   order.status = 'aprovado';
+  order.delivery_status = order.delivery_status || 'pendente';
   order.approved_at = new Date().toISOString();
 
   db.pendingDeliveries = db.pendingDeliveries || [];
@@ -3487,8 +3512,43 @@ app.post('/api/admin/delivery/:id/redeem', (req, res) => {
 
   item.status = 'delivered';
   item.delivered_at = new Date().toISOString();
+
+  if (item.orderId) {
+    const order = (db.orders || []).find(o => String(o.id) === String(item.orderId));
+    if (order) {
+      const related = (db.pendingDeliveries || []).filter(d => String(d.orderId) === String(item.orderId));
+      if (related.length > 0 && related.every(d => d.status === 'delivered')) {
+        order.delivery_status = 'entregue';
+        order.delivered = true;
+        order.delivered_at = new Date().toISOString();
+      }
+    }
+  }
+
   saveDb(db);
   res.json({ success: true, message: 'Item marcado como entregue.', updatedAt: db.updatedAt });
+});
+
+// Marcar pedido completo como entregue (Admin)
+app.post('/api/admin/orders/:id/mark-delivered', (req, res) => {
+  const { id } = req.params;
+  const targetId = String(id).trim();
+  const order = (db.orders || []).find(o => String(o.id).trim() === targetId);
+  if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
+
+  order.delivery_status = 'entregue';
+  order.delivered = true;
+  order.delivered_at = new Date().toISOString();
+
+  (db.pendingDeliveries || []).forEach(d => {
+    if (String(d.orderId).trim() === targetId) {
+      d.status = 'delivered';
+      d.delivered_at = new Date().toISOString();
+    }
+  });
+
+  saveDb(db);
+  res.json({ success: true, message: `Pedido #${id} marcado como entregue.`, order, updatedAt: db.updatedAt });
 });
 
 app.delete('/api/admin/delivery/clear-delivered', (req, res) => {
@@ -3589,6 +3649,7 @@ app.post('/api/admin/orders/manual', (req, res) => {
     total: finalPrice,
     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
     status: 'aprovado',
+    delivery_status: enqueueDelivery !== false ? 'pendente' : 'entregue',
     paymentMethod: 'Manual (Admin)',
     approved_at: new Date().toISOString()
   };

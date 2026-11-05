@@ -1,6 +1,11 @@
 {
   "updatedAt": 1793910980189,
-  "deletedProductIds": [],
+  "deletedProductIds": [
+    "cmd-back",
+    "cmd-feed",
+    "cmd-heal",
+    "cmd-repair"
+  ],
   "products": [
     {
       "id": "vip-vendaval",
@@ -464,64 +469,21 @@
       "command": "excellentenchants:ee book telekinesis 1 {player}"
     },
     {
-      "id": "cmd-back",
-      "cat": "Comandos",
-      "badge": "COMANDO",
-      "badgeColor": "orange",
-      "icon": "🔧",
-      "image": "images/products/cmd_back_hd.png",
-      "name": "Comando /back",
-      "description": "Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou morte.",
-      "price": 9.9,
-      "command": "crazyvouchers:voucher give Back_Command 1 {player}"
-    },
-    {
-      "id": "cmd-feed",
-      "cat": "Comandos",
-      "badge": "COMANDO",
-      "badgeColor": "orange",
-      "icon": "🔧",
-      "image": "images/products/cmd_feed_hd.png",
-      "name": "Comando /feed",
-      "description": "Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver.",
-      "price": 12.9,
-      "command": "crazyvouchers:voucher give Feed_Command 1 {player}"
-    },
-    {
-      "id": "cmd-heal",
-      "cat": "Comandos",
-      "badge": "COMANDO",
-      "badgeColor": "red",
-      "icon": "🔧",
-      "image": "images/products/cmd_heal_hd.png",
-      "name": "Comando /heal",
-      "description": "Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique.",
-      "price": 19.9,
-      "command": "crazyvouchers:voucher give Heal_Command 1 {player}"
-    },
-    {
-      "id": "cmd-repair",
-      "cat": "Comandos",
-      "badge": "COMANDO",
-      "badgeColor": "gold",
-      "icon": "🔧",
-      "image": "images/products/cmd_repair_hd.png",
-      "name": "Comando /repair",
-      "description": "Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis na bigorna.",
-      "price": 24.9,
-      "command": "crazyvouchers:voucher give Repair_Command 1 {player}"
-    },
-    {
       "id": "cmd-fly",
       "cat": "Comandos",
-      "badge": "VIP",
-      "badgeColor": "gold",
-      "icon": "🔧",
+      "badge": "30 MINUTOS",
+      "badgeColor": "blue",
+      "icon": "🪶",
       "image": "images/products/cmd_fly_hd.png",
-      "name": "Comando /fly",
-      "description": "Voucher de liberação permanente do comando /fly. Voe livremente pelo mundo survival da Ravok.",
-      "price": 39.9,
-      "command": "crazyvouchers:voucher give Fly_Command 1 {player}"
+      "name": "Tempo de Fly (30 Minutos)",
+      "description": "30 minutos de voo livre (/fly). É cumulativo! Se você comprar mais de uma vez ou estocar antes de acabar o tempo, o tempo é somado automaticamente no servidor.",
+      "price": 4.9,
+      "command": "darfly {player} 30m",
+      "perksList": [
+        "30 minutos de voo livre (/fly) no Survival",
+        "100% Acumulativo (estoca tempo comprando mais)",
+        "Ativação imediata via /resgatar usando /darfly"
+      ]
     },
     {
       "id": "voucher-skin-aleatoria",

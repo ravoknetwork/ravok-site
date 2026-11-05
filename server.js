@@ -43,23 +43,36 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 app.use('/products', express.static(path.join(__dirname, 'products')));
 app.use('/downloads', express.static(path.join(__dirname, 'downloads')));
 
-// Handlers explícitos para garantir entrega de imagens e assets mesmo no preset Express da Vercel
-app.get('/images/*', (req, res) => {
+// Handlers explícitos via Regex para entregar qualquer nível de pasta/subpasta (/images/... ou /products/...)
+app.get(/^\/(images|products|downloads)\/.+/, (req, res) => {
   const relPath = req.path.replace(/^\/+/, '');
-  const absPath = path.join(__dirname, relPath);
+  let absPath = path.join(__dirname, relPath);
+  if (!fs.existsSync(absPath)) {
+    absPath = path.join(process.cwd(), relPath);
+  }
   if (fs.existsSync(absPath)) {
     return res.sendFile(absPath);
   }
-  res.status(404).send('Image not found');
+  res.status(404).send('Asset not found: ' + relPath);
 });
 
-app.get('/products/*', (req, res) => {
-  const relPath = req.path.replace(/^\/+/, '');
-  const absPath = path.join(__dirname, relPath);
-  if (fs.existsSync(absPath)) {
-    return res.sendFile(absPath);
+// Endpoint de diagnóstico para validar ambiente Vercel
+app.get('/api/debug-files', (req, res) => {
+  try {
+    const listDir = (dir) => fs.existsSync(dir) ? fs.readdirSync(dir) : null;
+    res.json({
+      dirname: __dirname,
+      cwd: process.cwd(),
+      rootFiles: listDir(__dirname),
+      cwdFiles: listDir(process.cwd()),
+      imagesInDirname: listDir(path.join(__dirname, 'images')),
+      imagesInCwd: listDir(path.join(process.cwd(), 'images')),
+      productsInDirname: listDir(path.join(__dirname, 'images', 'products')),
+      productsInCwd: listDir(path.join(process.cwd(), 'images', 'products'))
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  res.status(404).send('Product image not found');
 });
 
 // Rotas explícitas para garantir exibição das páginas principais

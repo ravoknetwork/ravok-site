@@ -18,6 +18,14 @@
     {
       "source": "/api/(.*)",
       "destination": "/api"
+    },
+    {
+      "source": "/images/(.*)",
+      "destination": "/api"
+    },
+    {
+      "source": "/products/(.*)",
+      "destination": "/api"
     }
   ]
 }

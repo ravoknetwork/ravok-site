@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="stylesheet" href="tokens.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="tokens.css?v=3.3">
+  <link rel="stylesheet" href="styles.css?v=3.3">
 </head>
 <body class="ravok-theme">
   <div class="aurora aurora-one"></div>
@@ -18,12 +18,9 @@
 
     <header class="topbar">
     <div class="topbar-brand-wrap">
-      <a class="brand" href="#inicio" aria-label="Ravok Network" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
-        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:40px; height:40px; object-fit:contain; filter:drop-shadow(0 0 12px rgba(255,193,7,0.55));">
-        <div style="display:flex; flex-direction:column; line-height:1.15;">
-          <span style="font-family:'Unbounded', sans-serif; font-size:20px; font-weight:800; color:#fff; text-shadow:0 0 16px rgba(255,193,7,0.4); letter-spacing:-0.5px;">RAVOK <span style="color:var(--amber-gold);">NETWORK</span></span>
-          <span style="color:var(--amber-gold); font-size:9.5px; font-weight:700; letter-spacing:2px; font-family:'DM Mono', monospace;">TEMPORADA 3 • OUTONO</span>
-        </div>
+      <a class="brand" href="#inicio" aria-label="Ravok Network">
+        <img src="images/emblema_ravok_outonal.png" alt="Ravok Network" class="brand-logo-img">
+        <span class="brand-title">RAVOK NETWORK</span>
       </a>
     </div>
 
@@ -206,6 +203,48 @@
               <p>A grande praça central da Temporada 3 com tema outonal, decorações acolhedoras e portais de aventura.</p>
             </div>
           </div>
+          <div class="slide-item">
+            <img src="images/gallery/por_do_sol_canyon.png" alt="Pôr do Sol Ancestral">
+            <div class="slide-caption">
+              <h3>Pôr do Sol Ancestral</h3>
+              <p>O fulgor do sol poente iluminando o cânion, guindastes de mineração e as montanhas outonais.</p>
+            </div>
+          </div>
+          <div class="slide-item">
+            <img src="images/gallery/npc_vip_aurora.png" alt="Cargos &amp; Ranks VIP">
+            <div class="slide-caption">
+              <h3>Cargos &amp; Ranks VIP</h3>
+              <p>Área exclusiva dos Ranks da Temporada de Outono: Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa.</p>
+            </div>
+          </div>
+          <div class="slide-item">
+            <img src="images/gallery/canyon_pedreira_fortaleza.png" alt="Mina &amp; Fortaleza Subterrânea">
+            <div class="slide-caption">
+              <h3>Mina &amp; Fortaleza Subterrânea</h3>
+              <p>Pontes suspensas, trilhos de vagonetas e cavernas profundas nas muralhas de pedra.</p>
+            </div>
+          </div>
+          <div class="slide-item">
+            <img src="images/gallery/mercado_loja_moedas.png" alt="Mercado &amp; Loja de Moedas">
+            <div class="slide-caption">
+              <h3>Mercado &amp; Loja de Moedas</h3>
+              <p>Mercado dos mercadores com a Loja de Moedas oficial (/coinshop), carroças rústicas e troca de itens raros.</p>
+            </div>
+          </div>
+          <div class="slide-item">
+            <img src="images/gallery/pedreira_vila_trabalhadores.png" alt="Pedreira &amp; Vila dos Trabalhadores">
+            <div class="slide-caption">
+              <h3>Pedreira &amp; Vila dos Trabalhadores</h3>
+              <p>Moinho de vento, cascata natural e sistema de guindastes que abastecem as construções do reino.</p>
+            </div>
+          </div>
+          <div class="slide-item">
+            <img src="images/gallery/vale_outonal_bosque.png" alt="Bosque Dourado do Vale">
+            <div class="slide-caption">
+              <h3>Bosque Dourado do Vale</h3>
+              <p>Floresta de faias alaranjadas, folhagens de bordo e clareiras escondidas para exploração.</p>
+            </div>
+          </div>
         </div>
 
         <button class="slider-btn prev" id="sliderPrevBtn" aria-label="Slide anterior">‹</button>
@@ -213,12 +252,18 @@
 
         <div class="slider-dots" id="sliderDots">
           <button class="slider-dot active" data-slide="0" aria-label="Slide 1"></button>
+          <button class="slider-dot" data-slide="1" aria-label="Slide 2"></button>
+          <button class="slider-dot" data-slide="2" aria-label="Slide 3"></button>
+          <button class="slider-dot" data-slide="3" aria-label="Slide 4"></button>
+          <button class="slider-dot" data-slide="4" aria-label="Slide 5"></button>
+          <button class="slider-dot" data-slide="5" aria-label="Slide 6"></button>
+          <button class="slider-dot" data-slide="6" aria-label="Slide 7"></button>
         </div>
       </div>
 
       <!-- MINIATURAS DA GALERIA EM GRADE -->
       <div class="gallery-photo-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:16px; margin-top:24px;">
-        <div class="gallery-thumb-item" onclick="goToSlide(0)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
+        <div class="gallery-thumb-item active" onclick="goToSlide(0)" style="cursor:pointer; border-radius:10px; overflow:hidden; border:1px solid var(--ravok-border-subtle); position:relative; aspect-ratio:16/9; background:#100805; transition:transform 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'">
           <img src="images/gallery/spawn_ravok_outonal.png" alt="Spawn Oficial" style="width:100%; height:100%; object-fit:cover;">
           <span style="position:absolute; bottom:6px; left:8px; right:8px; background:rgba(0,0,0,0.75); color:#fff; font-size:11px; font-weight:700; padding:4px 8px; border-radius:6px; backdrop-filter:blur(4px);">🏛️ Spawn &amp; Praça</span>
         </div>
@@ -695,7 +740,7 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=3.3"></script>
   <!-- MODAL: DETALHES COMPLETOS E VANTAGENS DO VIP / PRODUTO -->
   <dialog id="vipDetailsModal" class="vip-modal-dialog">
     <button class="close dialog-close" data-close onclick="document.getElementById('vipDetailsModal').close()">✕</button>

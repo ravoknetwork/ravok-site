@@ -1006,19 +1006,19 @@ function upgradeClientProducts(list) {
 }
 
 function getProducts() {
-  const saved = localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
+  const saved = localStorage.getItem('ravok_products_v7') || localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
   const delSet = new Set(getDeletedProductIds().map(String));
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed)) {
         const upgraded = upgradeClientProducts(parsed).filter(p => !delSet.has(String(p.id)));
-        if (upgraded.length > 0) return upgraded;
+        if (upgraded.length >= 10) return upgraded;
       }
     } catch (e) {}
   }
   const fallback = upgradeClientProducts(DEFAULT_PRODUCTS).filter(p => !delSet.has(String(p.id)));
-  return fallback;
+  return (fallback && fallback.length > 0) ? fallback : DEFAULT_PRODUCTS;
 }
 
 function getSlides() {
@@ -1160,7 +1160,7 @@ function renderProducts() {
       const isActive = c === activeCategory;
       const count = c === 'Todos' ? products.length : products.filter(p => p.cat === c).length;
       const iconMarkup = meta.iconImg
-        ? `<img src="${meta.iconImg}" alt="" class="rw-cat-tex-icon" onerror="this.outerHTML='<span class=\'rw-cat-icon\'>${meta.icon || '⭐'}</span>'">`
+        ? `<img src="${meta.iconImg}" alt="" class="rw-cat-tex-icon" onerror="this.style.display='none'">`
         : `<span class="rw-cat-icon">${meta.icon}</span>`;
       return `
         <button type="button" class="rw-cat-btn ${isActive ? 'active' : ''}" data-filter="${c}">
@@ -1528,12 +1528,12 @@ function renderSlider() {
   startSliderAutoPlay();
 
   // Atualizar miniaturas da galeria dinamicamente
-  const thumbsGrid = by('#galleryThumbsGrid') || document.querySelector('.gallery-thumbs-grid');
+  const thumbsGrid = by('#galleryThumbsGrid') || document.querySelector('.gallery-photo-grid') || document.querySelector('.gallery-thumbs-grid');
   if (thumbsGrid && slides.length) {
     thumbsGrid.innerHTML = slides.map((s, idx) => `
       <div class="gallery-thumb-item ${idx === currentSlideIndex ? 'active' : ''}" onclick="goToSlide(${idx})">
         <img src="${s.img}" alt="${s.title || ''}" onerror="this.src='images/gallery/spawn_ravok_outonal.png'">
-        <span>${s.title || ('Foto ' + (idx + 1))}</span>
+        <span class="gallery-thumb-caption">${s.title || ('Foto ' + (idx + 1))}</span>
       </div>
     `).join('');
   }
@@ -1549,6 +1549,9 @@ function stepSlider(index) {
   });
   document.querySelectorAll('.slider-dot').forEach((d, idx) => {
     d.classList.toggle('active', idx === currentSlideIndex);
+  });
+  document.querySelectorAll('.gallery-thumb-item').forEach((t, idx) => {
+    t.classList.toggle('active', idx === currentSlideIndex);
   });
 
   resetSliderTimer();
@@ -2542,6 +2545,17 @@ const HERO_SLIDES = [
 let currentHeroSlide = 0;
 let heroSliderInterval = null;
 
+function getHeroSlides() {
+  const saved = localStorage.getItem('ravok_hero_slides_s3');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {}
+  }
+  return HERO_SLIDES;
+}
+
 function renderHeroSlide(idx) {
   const slides = getHeroSlides();
   if (idx < 0 || idx >= slides.length) idx = 0;
@@ -2597,7 +2611,8 @@ function renderHeroSlide(idx) {
 }
 
 function nextHeroSlide() {
-  const nextIdx = (currentHeroSlide + 1) % HERO_SLIDES.length;
+  const slides = getHeroSlides();
+  const nextIdx = (currentHeroSlide + 1) % (slides.length || 1);
   renderHeroSlide(nextIdx);
 }
 
@@ -2641,20 +2656,27 @@ function initHeroSlider() {
   startHeroSlider();
 }
 
-// Inicialização completa
-loadCustomMascot();
-loadServerStatus();
-loadSalesGoal();
-initHeroSlider();
+// Inicialização completa e segura da aplicação
+function initApp() {
+  try { renderProducts(); } catch (err) { console.error('Erro renderProducts:', err); }
+  try { renderCart(); } catch (err) { console.error('Erro renderCart:', err); }
+  try { renderSlider(); } catch (err) { console.error('Erro renderSlider:', err); }
+  try { renderStreamers(); } catch (err) { console.error('Erro renderStreamers:', err); }
+  try { renderFeedbacks(); } catch (err) { console.error('Erro renderFeedbacks:', err); }
+  try { initHeroSlider(); } catch (err) { console.error('Erro initHeroSlider:', err); }
+  try { loadCustomMascot(); } catch (err) {}
+  try { loadServerStatus(); } catch (err) {}
+  try { loadSalesGoal(); } catch (err) {}
+  try { updateDiscordLink(); } catch (err) {}
+  try { initPlayerAuth(); } catch (err) {}
+  try { syncWithBackend(); } catch (err) {}
+}
+
+initApp();
+if (typeof document !== 'undefined' && document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+}
 setInterval(loadServerStatus, 25000);
-renderProducts();
-renderCart();
-renderSlider();
-renderStreamers();
-renderFeedbacks();
-updateDiscordLink();
-syncWithBackend();
-initPlayerAuth();
 
 // ====================================================
 // SISTEMA DE CONTAS, SALDO DE COINS E PORTAL DO JOGADOR

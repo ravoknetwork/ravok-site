@@ -793,13 +793,13 @@ const DEFAULT_PRODUCTS = [
   {
     "id": "enchant-silkspawner",
     "cat": "Encantamentos",
-    "badge": "EXCELLENT",
-    "badgeColor": "green",
-    "icon": "📖",
+    "badge": "SUPREMO",
+    "badgeColor": "gold",
+    "icon": "📦",
     "image": "images/products/livro_silkspawner.png",
     "name": "Livro: Caçador de Almas (Spawners)",
-    "description": "Encantamento ExcellentEnchants supremo para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
-    "price": 4.9,
+    "description": "Encantamento supremo ExcellentEnchants para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
+    "price": 50.0,
     "command": "excellentenchants:ee book give {player} silk_spawner 1",
     "perksList": [
       "Coleta e transporte de Gaiolas de Monstros (Spawners)",
@@ -961,9 +961,39 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
 ];
 
 function upgradeProductCatalog(list, deletedProductIds = null) {
-  const activeDeleted = Array.isArray(deletedProductIds)
+  const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
+  const CANONICAL_PRICES = {
+    'key-voto': 4.99,
+    'key-comum': 2.90,
+    'key-rara': 5.90,
+    'key-epica': 9.90,
+    'key-superior': 14.90,
+    'key-combo': 24.90,
+    'enchant-silkspawner': 50.00,
+    'voucher-skin': 9.99,
+    'voucher-skin-aleatoria': 9.99,
+    'cmd-fly': 4.90,
+    'cmd-back': 6.90,
+    'cmd-feed': 8.90,
+    'cmd-heal': 12.90,
+    'cmd-repair': 14.90,
+    'enchant-tunnel': 4.50,
+    'enchant-veinminer': 4.50,
+    'enchant-smelter': 3.90,
+    'enchant-vampire': 4.90,
+    'enchant-decapitator': 3.50,
+    'enchant-soulbound': 4.50
+  };
+
+  let activeDeleted = Array.isArray(deletedProductIds)
     ? deletedProductIds
     : (typeof db !== 'undefined' && Array.isArray(db.deletedProductIds) ? db.deletedProductIds : []);
+  
+  // NUNCA permite que comandos padrão fiquem marcados como deletados
+  activeDeleted = activeDeleted.filter(id => !PROTECTED_COMMAND_IDS.includes(String(id)));
+  if (typeof db !== 'undefined' && Array.isArray(db.deletedProductIds)) {
+    db.deletedProductIds = db.deletedProductIds.filter(id => !PROTECTED_COMMAND_IDS.includes(String(id)));
+  }
   const delSet = new Set(activeDeleted.map(String));
 
   if (!Array.isArray(list)) {
@@ -1021,6 +1051,24 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
     }
     if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
       p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+    }
+    // Sincroniza dados e preços canônicos (chaves harmonizadas, comandos e Caçador de Almas R$ 50)
+    const def = (typeof DEFAULT_PRODUCTS !== 'undefined' ? DEFAULT_PRODUCTS : []).find(d => String(d.id) === String(p.id));
+    if (def && !p.customEdited) {
+      p.name = def.name;
+      p.cat = def.cat;
+      p.badge = def.badge;
+      p.badgeColor = def.badgeColor;
+      p.price = (typeof CANONICAL_PRICES !== 'undefined' && CANONICAL_PRICES[p.id] !== undefined)
+        ? CANONICAL_PRICES[p.id]
+        : def.price;
+      if (def.command && !p.command) p.command = def.command;
+      if (def.image && (!p.image || p.image === 'images/emblema_ravok_outonal.png')) p.image = def.image;
+    }
+    if (p.id === 'enchant-silkspawner') {
+      p.price = 50.00;
+      p.badge = 'SUPREMO';
+      p.badgeColor = 'gold';
     }
     return p;
   }).filter(Boolean);
@@ -1472,6 +1520,9 @@ function loadDb() {
         parsed.settings.apiUrl = process.env.API_URL || 'https://ravok-site.vercel.app';
       }
       parsed.deletedProductIds = Array.isArray(parsed.deletedProductIds) ? parsed.deletedProductIds : [];
+      if (Array.isArray(parsed.deletedProductIds)) {
+        parsed.deletedProductIds = parsed.deletedProductIds.filter(id => !['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'].includes(String(id)));
+      }
       parsed.products = Array.isArray(parsed.products)
         ? upgradeProductCatalog(parsed.products, parsed.deletedProductIds)
         : upgradeProductCatalog(DEFAULT_PRODUCTS, parsed.deletedProductIds);

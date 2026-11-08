@@ -1,11 +1,6 @@
 {
-  "updatedAt": 1793910980189,
-  "deletedProductIds": [
-    "cmd-back",
-    "cmd-feed",
-    "cmd-heal",
-    "cmd-repair"
-  ],
+  "updatedAt": 1794152556471,
+  "deletedProductIds": [],
   "products": [
     {
       "id": "vip-vendaval",
@@ -578,7 +573,7 @@
       "image": "images/products/livro_decapitator.png",
       "name": "Livro: Decapitador",
       "description": "Encantamento ExcellentEnchants para machados e espadas. Chance de decepar e dropar as cabeças raras de monstros e jogadores derrotados no PvP e PvE.",
-      "price": 3.9,
+      "price": 3.5,
       "command": "excellentenchants:ee book give {player} decapitator 1",
       "perksList": [
         "Chance de dropar cabeças de monstros e jogadores",
@@ -629,7 +624,7 @@
       "image": "images/products/livro_vampire.png",
       "name": "Livro: Vampirismo",
       "description": "Encantamento ExcellentEnchants para espadas. Drena a vitalidade dos seus inimigos a cada golpe desferido, recuperando sua vida em combates difíceis.",
-      "price": 4.5,
+      "price": 4.9,
       "command": "excellentenchants:ee book give {player} vampire 1",
       "perksList": [
         "Roubo de vida e cura constante a cada golpe",
@@ -640,13 +635,13 @@
     {
       "id": "enchant-silkspawner",
       "cat": "Encantamentos",
-      "badge": "EXCELLENT",
-      "badgeColor": "green",
+      "badge": "SUPREMO",
+      "badgeColor": "gold",
       "icon": "📖",
       "image": "images/products/livro_silkspawner.png",
       "name": "Livro: Caçador de Almas (Spawners)",
       "description": "Encantamento ExcellentEnchants supremo para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
-      "price": 4.9,
+      "price": 50,
       "command": "excellentenchants:ee book give {player} silk_spawner 1",
       "perksList": [
         "Coleta e transporte de Gaiolas de Monstros (Spawners)",

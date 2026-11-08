@@ -638,13 +638,13 @@ const DEFAULT_PRODUCTS = [
   {
     "id": "enchant-silkspawner",
     "cat": "Encantamentos",
-    "badge": "EXCELLENT",
-    "badgeColor": "green",
-    "icon": "📖",
+    "badge": "SUPREMO",
+    "badgeColor": "gold",
+    "icon": "📦",
     "image": "images/products/livro_silkspawner.png",
     "name": "Livro: Caçador de Almas (Spawners)",
-    "description": "Encantamento ExcellentEnchants supremo para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
-    "price": 4.9,
+    "description": "Encantamento supremo ExcellentEnchants para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
+    "price": 50.0,
     "command": "excellentenchants:ee book give {player} silk_spawner 1",
     "perksList": [
       "Coleta e transporte de Gaiolas de Monstros (Spawners)",
@@ -935,7 +935,36 @@ function getDeletedProductIds() {
 }
 
 function upgradeClientProducts(list) {
-  const delSet = new Set(getDeletedProductIds().map(String));
+  const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
+  const CANONICAL_PRICES = {
+    'key-voto': 4.99,
+    'key-comum': 2.90,
+    'key-rara': 5.90,
+    'key-epica': 9.90,
+    'key-superior': 14.90,
+    'key-combo': 24.90,
+    'enchant-silkspawner': 50.00,
+    'voucher-skin': 9.99,
+    'voucher-skin-aleatoria': 9.99,
+    'cmd-fly': 4.90,
+    'cmd-back': 6.90,
+    'cmd-feed': 8.90,
+    'cmd-heal': 12.90,
+    'cmd-repair': 14.90,
+    'enchant-tunnel': 4.50,
+    'enchant-veinminer': 4.50,
+    'enchant-smelter': 3.90,
+    'enchant-vampire': 4.90,
+    'enchant-decapitator': 3.50,
+    'enchant-soulbound': 4.50
+  };
+
+  const rawDel = getDeletedProductIds().map(String);
+  const cleanDel = rawDel.filter(id => !PROTECTED_COMMAND_IDS.includes(id));
+  if (cleanDel.length !== rawDel.length) {
+    try { localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(cleanDel)); } catch(e){}
+  }
+  const delSet = new Set(cleanDel);
   if (!Array.isArray(list)) return DEFAULT_PRODUCTS.filter(p => !delSet.has(String(p.id)));
   const mapped = list.filter(p => p && !delSet.has(String(p.id))).map(raw => {
     if (!raw || typeof raw !== 'object') return null;
@@ -953,6 +982,15 @@ function upgradeClientProducts(list) {
     }
 
     // Se o item foi editado manualmente pelo administrador, NÃO altera a imagem nem o conteúdo!
+    if (!p.customEdited) {
+      if (CANONICAL_PRICES[p.id]) p.price = CANONICAL_PRICES[p.id];
+      if (p.id === 'enchant-silkspawner') {
+        p.price = 50.00;
+        p.badge = 'SUPREMO';
+        p.badgeColor = 'gold';
+      }
+    }
+
     if (p.customEdited) {
       if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
         p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
@@ -989,6 +1027,24 @@ function upgradeClientProducts(list) {
     if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
       p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
     }
+    // Sincroniza dados e preços canônicos (chaves harmonizadas, comandos e Caçador de Almas R$ 50)
+    const def = (typeof DEFAULT_PRODUCTS !== 'undefined' ? DEFAULT_PRODUCTS : []).find(d => String(d.id) === String(p.id));
+    if (def && !p.customEdited) {
+      p.name = def.name;
+      p.cat = def.cat;
+      p.badge = def.badge;
+      p.badgeColor = def.badgeColor;
+      p.price = (typeof CANONICAL_PRICES !== 'undefined' && CANONICAL_PRICES[p.id] !== undefined)
+        ? CANONICAL_PRICES[p.id]
+        : def.price;
+      if (def.command && !p.command) p.command = def.command;
+      if (def.image && (!p.image || p.image === 'images/emblema_ravok_outonal.png')) p.image = def.image;
+    }
+    if (p.id === 'enchant-silkspawner') {
+      p.price = 50.00;
+      p.badge = 'SUPREMO';
+      p.badgeColor = 'gold';
+    }
     return p;
   }).filter(Boolean);
 
@@ -1006,7 +1062,7 @@ function upgradeClientProducts(list) {
 }
 
 function getProducts() {
-  const saved = localStorage.getItem('ravok_products_v7') || localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
+  const saved = localStorage.getItem('ravok_products_v8') || localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
   const delSet = new Set(getDeletedProductIds().map(String));
   if (saved) {
     try {

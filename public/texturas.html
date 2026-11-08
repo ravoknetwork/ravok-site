@@ -9,8 +9,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="stylesheet" href="tokens.css">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="tokens.css?v=3.4">
+  <link rel="stylesheet" href="styles.css?v=3.4">
   <style>
     .tex-hero {
       position: relative;
@@ -328,24 +328,27 @@
   <!-- TOPBAR -->
   <header class="topbar">
     <div class="topbar-brand-wrap">
-      <a class="brand" href="/" aria-label="Ravok Network" style="display:flex; align-items:center; gap:10px;">
-        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:38px; height:38px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(255,193,7,0.5));">
-        <div style="display:flex; flex-direction:column; line-height:1.1;">
-          <span style="font-family:'Unbounded', sans-serif; font-size:18px; font-weight:800; color:#fff; text-shadow:0 0 14px var(--blue-glow); letter-spacing:-0.5px;">RAVOK</span>
-          <span style="color:var(--amber-gold); font-size:9px; font-weight:700; letter-spacing:1.5px; font-family:'DM Mono', monospace;">TEXTURAS OFICIAIS S3</span>
-        </div>
+      <a class="brand" href="index.html" aria-label="Ravok Network">
+        <img src="images/emblema_ravok_outonal.png" alt="Ravok Network" class="brand-logo-img">
+        <span class="brand-title">RAVOK NETWORK</span>
       </a>
     </div>
 
     <div class="top-actions">
-      <a href="/" class="btn-topbar-ghost" style="text-decoration:none;">
-        <span>🏠</span> Voltar para a Loja
+      <a href="index.html#produtos" class="btn-topbar-ghost" style="text-decoration:none;">
+        <img src="images/icons/shop_32.png" alt="" class="cart-btn-tex-icon" style="width:16px; height:16px;">
+        <span>Loja Ravok</span>
       </a>
-      <a href="/votar" class="btn-topbar-ghost" style="text-decoration:none;">
-        <span>🗳️</span> Votar
+      <a href="texturas.html" class="btn-topbar-ghost active" style="text-decoration:none;">
+        <img src="images/icons/cosmetics_32.png" alt="" class="cart-btn-tex-icon" style="width:16px; height:16px;">
+        <span>Texturas HD</span>
+      </a>
+      <a href="votar.html" class="btn-topbar-ghost" style="text-decoration:none;">
+        <img src="images/icons/votes_32.png" alt="" class="cart-btn-tex-icon" style="width:16px; height:16px;">
+        <span>Votar &amp; Ganhar</span>
       </a>
       <a href="https://discord.gg" target="_blank" rel="noopener" class="btn-topbar-cta" style="text-decoration:none;">
-        <span>💬</span> Discord
+        <span>✦</span> Discord
       </a>
     </div>
   </header>
@@ -600,19 +603,14 @@
 
   </main>
 
-  <footer class="footer">
-    <div class="footer-wrap">
-      <div class="footer-brand">
-        <span class="footer-logo">RAVOK NETWORK</span>
-        <p>Temporada 3 • A Era Dourada do Outono. Minecraft Survival Customizado.</p>
-      </div>
-      <div class="footer-links">
-        <a href="/">Loja Oficial</a>
-        <a href="/votar">Votar</a>
-        <a href="/texturas">Texturas HD</a>
-        <a href="/admin">Painel Staff</a>
-      </div>
-    </div>
+    <footer>
+    <a class="brand footer-brand" href="index.html" style="display:inline-flex; align-items:center; gap:8px; text-decoration:none;">
+      <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:28px; height:28px; object-fit:contain;">
+      <span style="font-family:'Unbounded', sans-serif; font-size:14px; font-weight:800; color:#fff;">RAVOK <span style="color:var(--amber-gold);">OUTONAL S3</span></span>
+    </a>
+    <span>© 2026 Ravok Network. Não afiliado à Mojang Studios ou Microsoft.</span>
+    <a href="admin.html">Acessar Painel de Controle</a>
+    <a href="#top">Voltar ao topo ↑</a>
   </footer>
 </body>
 </html>

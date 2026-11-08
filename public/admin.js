@@ -246,13 +246,13 @@ const DEFAULT_PRODUCTS = [
   {
     id: 'key-voto',
     cat: 'Chaves',
-    badge: 'VOTO',
-    badgeColor: 'orange',
+    badge: 'POPULAR',
+    badgeColor: 'blue',
     icon: '🗝️',
     image: 'images/products/key_voto_3x_hd.png',
     name: '3x Chave de Voto',
-    description: 'Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.',
-    price: 4.90,
+    description: 'Pacote com 3 Chaves de Voto oficiais. Resgate no /resgatar e abra a Caixa de Votos no Spawn!',
+    price: 4.99,
     command: 'crate key give {player} vote 3'
   },
   {
@@ -263,58 +263,58 @@ const DEFAULT_PRODUCTS = [
     icon: '🗝️',
     image: 'images/products/key_comum_hd.png',
     name: 'Chave Comum S3',
-    description: 'Chave inicial da Caixa Comum de Outono com suprimentos úteis e minérios.',
-    price: 7.90,
+    description: 'Chave de entrada para a Caixa Comum da Temporada 3.',
+    price: 2.90,
     command: 'crate key give {player} common 1'
   },
   {
     id: 'key-rara',
     cat: 'Chaves',
     badge: 'RARA',
-    badgeColor: 'gold',
+    badgeColor: 'blue',
     icon: '🗝️',
     image: 'images/products/key_rara_hd.png',
     name: 'Chave Rara S3',
-    description: 'Recompensas raras, minérios nobres e recursos valorizados da temporada.',
-    price: 14.90,
+    description: 'Chave rara com recompensas aprimoradas.',
+    price: 5.90,
     command: 'crate key give {player} rare 1'
   },
   {
     id: 'key-epica',
     cat: 'Chaves',
     badge: 'ÉPICA',
-    badgeColor: 'gold',
+    badgeColor: 'purple',
     icon: '🗝️',
     image: 'images/products/key_epica_hd.png',
     name: 'Chave Épica S3',
-    description: 'Caixa épica com alta chance de itens lendários e encantamentos superiores.',
-    price: 24.90,
+    description: 'Chave épica com itens valiosos.',
+    price: 9.90,
     oldPrice: 29.90,
     command: 'crate key give {player} epic 1'
   },
   {
     id: 'key-superior',
     cat: 'Chaves',
-    badge: 'MÍTICA',
-    badgeColor: 'red',
+    badge: 'SUPERIOR',
+    badgeColor: 'gold',
     icon: '🗝️',
     image: 'images/products/key_superior_hd.png',
     name: 'Chave Superior S3',
-    description: 'A mais poderosa chave da temporada com prêmios exclusivos e itens ancestrais.',
-    price: 39.90,
+    description: 'Chave de alto nível com tesouros raros.',
+    price: 14.90,
     oldPrice: 49.90,
     command: 'crate key give {player} superior 1'
   },
   {
     id: 'key-combo',
     cat: 'Chaves',
-    badge: 'COMBO',
+    badge: 'COMBO 4X',
     badgeColor: 'gold',
     icon: '🗝️',
     image: 'images/products/key_combo_4x_hd.png',
     name: 'Combo 4x Chaves Místicas',
-    description: 'Pacote especial contendo 1x Comum, 1x Rara, 1x Épica e 1x Superior com super desconto!',
-    price: 69.90,
+    description: 'Leva 1 Comum, 1 Rara, 1 Épica e 1 Superior.',
+    price: 24.90,
     oldPrice: 87.60,
     command: 'crate key give {player} common 1; crate key give {player} rare 1; crate key give {player} epic 1; crate key give {player} superior 1'
   },
@@ -400,7 +400,7 @@ const DEFAULT_PRODUCTS = [
   },
 
   // --- PERMISSÕES & COMANDOS (/FLY TEMPORÁRIO & ACUMULATIVO) ---
-  {
+    {
     id: 'cmd-fly',
     cat: 'Comandos',
     badge: '30 MINUTOS',
@@ -415,6 +415,92 @@ const DEFAULT_PRODUCTS = [
       '30 minutos de voo livre (/fly) no Survival',
       '100% Acumulativo (estoca tempo comprando mais)',
       'Ativação imediata via /resgatar usando /darfly'
+    ]
+  },
+  {
+    id: 'cmd-back',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'blue',
+    icon: '↩️',
+    image: 'images/products/cmd_repair_hd.png',
+    name: 'Comando /back',
+    description: 'Permissão permanente para usar o comando /back e retornar ao local da sua última morte ou teleporte.',
+    price: 6.90,
+    command: 'lp user {player} permission set essentials.back true',
+    perksList: [
+      'Retorne instantaneamente ao local da morte',
+      'Retorne ao local do último teleporte',
+      'Permissão vitalícia no Survival'
+    ]
+  },
+  {
+    id: 'cmd-feed',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'orange',
+    icon: '🍖',
+    image: 'images/products/cmd_repair_hd.png',
+    name: 'Comando /feed',
+    description: 'Permissão permanente para saciar sua barra de fome a qualquer momento com /feed.',
+    price: 8.90,
+    command: 'lp user {player} permission set essentials.feed true',
+    perksList: [
+      'Restaure toda sua fome a qualquer momento',
+      'Cooldown reduzido para comodidade',
+      'Permissão vitalícia no Survival'
+    ]
+  },
+  {
+    id: 'cmd-heal',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'green',
+    icon: '❤️',
+    image: 'images/products/cmd_repair_hd.png',
+    name: 'Comando /heal',
+    description: 'Permissão permanente para regenerar sua vida e fome instantaneamente com /heal.',
+    price: 12.90,
+    command: 'lp user {player} permission set essentials.heal true',
+    perksList: [
+      'Regenere todos os corações e fome instantaneamente',
+      'Ideal para momentos de emergência ou batalhas',
+      'Permissão vitalícia no Survival'
+    ]
+  },
+  {
+    id: 'cmd-repair',
+    cat: 'Comandos',
+    badge: 'COMANDO',
+    badgeColor: 'gold',
+    icon: '🔨',
+    image: 'images/products/cmd_repair_hd.png',
+    name: 'Comando /repair',
+    description: 'Permissão permanente para reparar a durabilidade do item que você estiver segurando na mão com /repair.',
+    price: 14.90,
+    command: 'lp user {player} permission set essentials.repair.hand true',
+    perksList: [
+      'Repare qualquer arma, armadura ou ferramenta na mão',
+      'Sem gastar níveis de XP nem bigorna',
+      'Permissão vitalícia no Survival'
+    ]
+  },
+
+    {
+    id: 'enchant-silkspawner',
+    cat: 'Encantamentos',
+    badge: 'SUPREMO',
+    badgeColor: 'gold',
+    icon: '📦',
+    image: 'images/products/livro_silkspawner.png',
+    name: 'Livro: Caçador de Almas (Spawners)',
+    description: 'Encantamento supremo ExcellentEnchants para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!',
+    price: 50.00,
+    command: 'excellentenchants:ee book silkspawner 1 {player}',
+    perksList: [
+      'Quebre e colete Spawners com toque suave',
+      'Construa fazendas automáticas no seu terreno',
+      'Compatível com picaretas de diamante e netherite'
     ]
   },
 
@@ -657,6 +743,24 @@ function upgradeClientProducts(list) {
     }
     if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
       p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+    }
+    // Sincroniza dados e preços canônicos (chaves harmonizadas, comandos e Caçador de Almas R$ 50)
+    const def = (typeof DEFAULT_PRODUCTS !== 'undefined' ? DEFAULT_PRODUCTS : []).find(d => String(d.id) === String(p.id));
+    if (def && !p.customEdited) {
+      p.name = def.name;
+      p.cat = def.cat;
+      p.badge = def.badge;
+      p.badgeColor = def.badgeColor;
+      p.price = (typeof CANONICAL_PRICES !== 'undefined' && CANONICAL_PRICES[p.id] !== undefined)
+        ? CANONICAL_PRICES[p.id]
+        : def.price;
+      if (def.command && !p.command) p.command = def.command;
+      if (def.image && (!p.image || p.image === 'images/emblema_ravok_outonal.png')) p.image = def.image;
+    }
+    if (p.id === 'enchant-silkspawner') {
+      p.price = 50.00;
+      p.badge = 'SUPREMO';
+      p.badgeColor = 'gold';
     }
     return p;
   }).filter(Boolean);
@@ -1328,7 +1432,7 @@ function refreshDashboard() {
 // 3. PRODUTOS (CRUD)
 // ----------------------------------------------------
 function getStoredProducts() {
-  const data = localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
+  const data = localStorage.getItem('ravok_products_v8') || localStorage.getItem('ravok_products_v5');
   const delSet = new Set(getDeletedProductIds().map(String));
   if (data) {
     try {

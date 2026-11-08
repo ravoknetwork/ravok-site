@@ -4626,3 +4626,61 @@ input:focus, textarea:focus, select:focus {
     font-size: 8px !important;
   }
 }
+
+/* ==========================================================================
+   ÍCONES OFICIAIS DE TEXTURA MINECRAFT & OTIMIZAÇÃO MOBILE TOPBAR
+   ========================================================================== */
+.cart-btn-tex-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+
+.rw-cat-tex-icon {
+  width: 20px;
+  height: 20px;
+  object-fit: contain;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+  margin-right: 8px;
+  filter: drop-shadow(0 0 5px rgba(255, 193, 7, 0.45));
+}
+
+@media (max-width: 680px) {
+  .topbar {
+    height: 64px !important;
+    padding: 0 12px !important;
+  }
+  .brand img {
+    width: 32px !important;
+    height: 32px !important;
+  }
+  .brand span:first-child {
+    font-size: 16px !important;
+  }
+  .brand span:last-child {
+    font-size: 8px !important;
+  }
+  .cart-button {
+    height: 34px !important;
+    padding: 0 10px !important;
+    font-size: 11.5px !important;
+    gap: 4px !important;
+  }
+  .cart-btn-label {
+    display: none;
+  }
+  .btn-topbar-ghost, .btn-topbar-cta {
+    padding: 6px 10px !important;
+    font-size: 11px !important;
+  }
+  .btn-staff-access {
+    height: 34px !important;
+    padding: 0 8px !important;
+  }
+  .staff-btn-label {
+    display: none;
+  }
+}

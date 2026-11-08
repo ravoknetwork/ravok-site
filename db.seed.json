@@ -324,7 +324,7 @@
       "image": "images/products/key_voto_3x_hd.png",
       "name": "3x Chave de Voto",
       "description": "Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.",
-      "price": 4.9,
+      "price": 4.99,
       "command": "crate key give {player} vote 3"
     },
     {
@@ -336,7 +336,7 @@
       "image": "images/products/key_comum_hd.png",
       "name": "Chave Comum S3",
       "description": "Chave inicial da Caixa Comum de Outono com suprimentos úteis e minérios.",
-      "price": 7.9,
+      "price": 2.9,
       "command": "crate key give {player} common 1"
     },
     {
@@ -348,7 +348,7 @@
       "image": "images/products/key_rara_hd.png",
       "name": "Chave Rara S3",
       "description": "Recompensas raras, minérios nobres e recursos valorizados da temporada.",
-      "price": 14.9,
+      "price": 5.9,
       "command": "crate key give {player} rare 1"
     },
     {
@@ -360,7 +360,7 @@
       "image": "images/products/key_epica_hd.png",
       "name": "Chave Épica S3",
       "description": "Caixa épica com alta chance de itens lendários e encantamentos superiores.",
-      "price": 24.9,
+      "price": 9.9,
       "oldPrice": 29.9,
       "command": "crate key give {player} epic 1"
     },
@@ -373,7 +373,7 @@
       "image": "images/products/key_superior_hd.png",
       "name": "Chave Superior S3",
       "description": "A mais poderosa chave da temporada com prêmios exclusivos e itens ancestrais.",
-      "price": 39.9,
+      "price": 14.9,
       "oldPrice": 49.9,
       "command": "crate key give {player} superior 1"
     },
@@ -386,7 +386,7 @@
       "image": "images/products/key_combo_4x_hd.png",
       "name": "Combo 4x Chaves Místicas",
       "description": "Pacote especial contendo 1x Comum, 1x Rara, 1x Épica e 1x Superior com super desconto!",
-      "price": 69.9,
+      "price": 24.9,
       "oldPrice": 87.6,
       "command": "crate key give {player} common 1; crate key give {player} rare 1; crate key give {player} epic 1; crate key give {player} superior 1"
     },
@@ -399,7 +399,7 @@
       "image": "images/products/livro_fortuna_4.png",
       "name": "Livro: Fortuna IV",
       "description": "Livro de Encantamento Fortuna IV. Multiplica os minérios e recursos minerados muito além do limite padrão do jogo.",
-      "price": 14.9,
+      "price": 3.9,
       "oldPrice": 19.9,
       "command": "excellentenchants:ee book fortune 4 {player}"
     },
@@ -412,7 +412,7 @@
       "image": "images/products/livro_eficiencia_6.png",
       "name": "Livro: Eficiência VI",
       "description": "Livro de Encantamento Eficiência VI. Velocidade de mineração ultrarrápida superando o limite máximo do Minecraft tradicional.",
-      "price": 16.9,
+      "price": 3.9,
       "oldPrice": 22.9,
       "command": "excellentenchants:ee book efficiency 6 {player}"
     },
@@ -425,7 +425,7 @@
       "image": "images/products/livro_inquebravel_4.png",
       "name": "Livro: Inquebrável IV",
       "description": "Livro de Encantamento Inquebrável IV. Quadruplica a durabilidade de suas ferramentas, armas e armaduras.",
-      "price": 14.9,
+      "price": 3.5,
       "oldPrice": 19.9,
       "command": "excellentenchants:ee book unbreaking 4 {player}"
     },
@@ -438,7 +438,7 @@
       "image": "images/products/livro_remendo.png",
       "name": "Livro: Remendo (Mending)",
       "description": "Livro de Encantamento Remendo. Repara seus itens e ferramentas automaticamente através da coleta de esferas de XP.",
-      "price": 12.9,
+      "price": 3.9,
       "oldPrice": 16.9,
       "command": "excellentenchants:ee book mending 1 {player}"
     },
@@ -451,7 +451,7 @@
       "image": "images/products/livro_soulbound.png",
       "name": "Livro: Vínculo da Alma",
       "description": "Livro de Encantamento Vínculo da Alma (Soulbound). Impede que o item seja derrubado ou perdido caso você morra no jogo!",
-      "price": 19.9,
+      "price": 4.5,
       "oldPrice": 26.9,
       "command": "excellentenchants:ee book soulbound 1 {player}"
     },
@@ -464,7 +464,7 @@
       "image": "images/products/livro_telecinese.png",
       "name": "Livro: Telecinese",
       "description": "Livro de Encantamento Telecinese. Move todos os blocos quebrados e itens dropados instantaneamente para seu inventário.",
-      "price": 17.9,
+      "price": 4.5,
       "oldPrice": 24.9,
       "command": "excellentenchants:ee book telekinesis 1 {player}"
     },
@@ -494,7 +494,7 @@
       "image": "images/products/voucher_skin_pixel_hd.png",
       "name": "Voucher Skin Aleatória",
       "description": "Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!",
-      "price": 14.9,
+      "price": 9.99,
       "oldPrice": 19.9,
       "perksList": [
         "136 Visuais raros possíveis",
@@ -551,6 +551,176 @@
       "description": "Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.",
       "price": 19.9,
       "command": "uc menu effects {player}"
+    },
+    {
+      "id": "enchant-smelter",
+      "cat": "Encantamentos",
+      "badge": "EXCELLENT",
+      "badgeColor": "orange",
+      "icon": "📖",
+      "image": "images/products/livro_smelter.png",
+      "name": "Livro: Fundição Instantânea",
+      "description": "Encantamento ExcellentEnchants para ferramentas. Funde automaticamente minérios brutos em barras e areia em vidro diretamente ao quebrar o bloco.",
+      "price": 3.9,
+      "command": "excellentenchants:ee book give {player} smelter 1",
+      "perksList": [
+        "Funde minérios instantaneamente ao quebrar",
+        "Economiza carvão e tempo de fornalhas",
+        "Compatível com picaretas de diamante e netherite"
+      ]
+    },
+    {
+      "id": "enchant-decapitator",
+      "cat": "Encantamentos",
+      "badge": "EXCELLENT",
+      "badgeColor": "gold",
+      "icon": "📖",
+      "image": "images/products/livro_decapitator.png",
+      "name": "Livro: Decapitador",
+      "description": "Encantamento ExcellentEnchants para machados e espadas. Chance de decepar e dropar as cabeças raras de monstros e jogadores derrotados no PvP e PvE.",
+      "price": 3.9,
+      "command": "excellentenchants:ee book give {player} decapitator 1",
+      "perksList": [
+        "Chance de dropar cabeças de monstros e jogadores",
+        "Excelente para troféus e colecionáveis raros",
+        "Aplicável em espadas e machados de combate"
+      ]
+    },
+    {
+      "id": "enchant-tunnel",
+      "cat": "Encantamentos",
+      "badge": "EXCELLENT",
+      "badgeColor": "purple",
+      "icon": "📖",
+      "image": "images/products/livro_tunnel.png",
+      "name": "Livro: Túnel I (Mineração 3x3)",
+      "description": "Encantamento ExcellentEnchants lendário. Escave blocos em uma área cúbica de 3x3 com picaretas e pás com extrema velocidade.",
+      "price": 4.5,
+      "command": "excellentenchants:ee book give {player} tunnel 1",
+      "perksList": [
+        "Escavação e quebra em área de 3x3 blocos",
+        "Acelera aberturas de minas e construção de bases",
+        "Item lendário muito disputado no servidor"
+      ]
+    },
+    {
+      "id": "enchant-veinminer",
+      "cat": "Encantamentos",
+      "badge": "EXCELLENT",
+      "badgeColor": "blue",
+      "icon": "📖",
+      "image": "images/products/livro_veinminer.png",
+      "name": "Livro: Minerador de Veios",
+      "description": "Encantamento ExcellentEnchants para picaretas. Minere instantaneamente todo o veio conectado de diamantes, ouro, ferro ou netherite de uma só vez.",
+      "price": 4.5,
+      "command": "excellentenchants:ee book give {player} veinminer 1",
+      "perksList": [
+        "Quebra toda a veia mineral conectada instantaneamente",
+        "Economiza minutos em cada jazida de minério encontrada",
+        "Ativação segura via /resgatar"
+      ]
+    },
+    {
+      "id": "enchant-vampire",
+      "cat": "Encantamentos",
+      "badge": "EXCELLENT",
+      "badgeColor": "red",
+      "icon": "📖",
+      "image": "images/products/livro_vampire.png",
+      "name": "Livro: Vampirismo",
+      "description": "Encantamento ExcellentEnchants para espadas. Drena a vitalidade dos seus inimigos a cada golpe desferido, recuperando sua vida em combates difíceis.",
+      "price": 4.5,
+      "command": "excellentenchants:ee book give {player} vampire 1",
+      "perksList": [
+        "Roubo de vida e cura constante a cada golpe",
+        "Vantagem indispensável em masmorras e chefões",
+        "Compatível com espadas de diamante e netherite"
+      ]
+    },
+    {
+      "id": "enchant-silkspawner",
+      "cat": "Encantamentos",
+      "badge": "EXCELLENT",
+      "badgeColor": "green",
+      "icon": "📖",
+      "image": "images/products/livro_silkspawner.png",
+      "name": "Livro: Caçador de Almas (Spawners)",
+      "description": "Encantamento ExcellentEnchants supremo para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
+      "price": 4.9,
+      "command": "excellentenchants:ee book give {player} silk_spawner 1",
+      "perksList": [
+        "Coleta e transporte de Gaiolas de Monstros (Spawners)",
+        "Monte suas farms automáticas onde quiser",
+        "Um dos encantamentos mais cobiçados da economia"
+      ]
+    },
+    {
+      "id": "cmd-back",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "orange",
+      "icon": "🔧",
+      "image": "images/products/cmd_back_hd.png",
+      "name": "Comando /back",
+      "description": "Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou ao ponto onde morreu.",
+      "price": 6.9,
+      "command": "crazyvouchers:voucher give Back_Command 1 {player}",
+      "perksList": [
+        "Acesso definitivo ao comando /back no Survival",
+        "Volte ao local exato de mortes ou teleportes",
+        "Ativação imediata via /resgatar"
+      ]
+    },
+    {
+      "id": "cmd-feed",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "orange",
+      "icon": "🔧",
+      "image": "images/products/cmd_feed_hd.png",
+      "name": "Comando /feed",
+      "description": "Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver, sem precisar carregar comida.",
+      "price": 8.9,
+      "command": "crazyvouchers:voucher give Feed_Command 1 {player}",
+      "perksList": [
+        "Acesso definitivo ao comando /feed",
+        "Recupere a saturação e fome com 1 comando",
+        "Ativação imediata via /resgatar"
+      ]
+    },
+    {
+      "id": "cmd-heal",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "red",
+      "icon": "🔧",
+      "image": "images/products/cmd_heal_hd.png",
+      "name": "Comando /heal",
+      "description": "Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique durante suas jornadas.",
+      "price": 12.9,
+      "command": "crazyvouchers:voucher give Heal_Command 1 {player}",
+      "perksList": [
+        "Acesso definitivo ao comando /heal",
+        "Cura instantânea de todos os seus corações",
+        "Ativação imediata via /resgatar"
+      ]
+    },
+    {
+      "id": "cmd-repair",
+      "cat": "Comandos",
+      "badge": "COMANDO",
+      "badgeColor": "gold",
+      "icon": "🔧",
+      "image": "images/products/cmd_repair_hd.png",
+      "name": "Comando /repair",
+      "description": "Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis de XP ou materiais na bigorna.",
+      "price": 14.9,
+      "command": "crazyvouchers:voucher give Repair_Command 1 {player}",
+      "perksList": [
+        "Acesso definitivo ao comando /repair no Survival",
+        "Repara armas, armaduras e ferramentas sem gastar XP",
+        "Ativação imediata via /resgatar"
+      ]
     }
   ],
   "slides": [
@@ -1006,6 +1176,60 @@
       "passwordHash": "c7017282cb90b7e411516e885b1d5bf5",
       "createdAt": "2026-11-05T20:36:20.189Z",
       "lastLogin": null
+    }
+  ],
+  "heroSlides": [
+    {
+      "id": "hero-slide-1",
+      "tagIcon": "images/autumn/folha_de_bordo_flutuante.png",
+      "tagText": "TEMPORADA 3 • OUTONAL",
+      "title": "COLHEITA &amp;<br>GLÓRIA ANCESTRAL",
+      "desc": "A nova era da Ravok Network chegou! Explore a atmosfera outonal, desbloqueie os VIPs Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa, novas Chaves S3 e texturas oficiais exclusivas com entrega automática.",
+      "charImg": "images/fullbody.png",
+      "charAlt": "Guerreiro Ravok 3D",
+      "primaryText": "Jogar agora: jogar.ravok.network",
+      "primaryAction": "copyServerIp()",
+      "secText": "Baixar Texturas Oficiais (v1.2)",
+      "secHref": "texturas.html"
+    },
+    {
+      "id": "hero-slide-2",
+      "tagIcon": "images/autumn/girassol_radiante.png",
+      "tagText": "VIPS &amp; PRIVILÉGIOS EXCLUSIVOS",
+      "title": "FORJE SEU IMPÉRIO<br>COM RANKS LENDÁRIOS",
+      "desc": "Garanta kits diários, fly, comandos de teleporte, multiplicadores de moedas e tags animadas. Do Vendaval ao Solar, domine as temporadas com prestígio!",
+      "charImg": "images/kayzel1.png",
+      "charAlt": "Cavaleiro de Carvalho",
+      "primaryText": "Explorar Ranks VIP",
+      "primaryAction": "filterCategory('VIPs')",
+      "secText": "Ver Tabela Comparativa",
+      "secHref": "#produtos"
+    },
+    {
+      "id": "hero-slide-3",
+      "tagIcon": "images/autumn/bussola_de_latao_dourado.png",
+      "tagText": "ECONOMIA &amp; PEDREIRAS",
+      "title": "COMÉRCIO VIVO &amp;<br>MOEDAS OFICIAIS",
+      "desc": "Construa sua riqueza vendendo colheitas no mercado, ativando pedreiras automáticas e comprando pacotes de moedas com bônus imediatos via Pix.",
+      "charImg": "images/kayzel2.png",
+      "charAlt": "Guardião Ravok",
+      "primaryText": "Pacotes de Moedas",
+      "primaryAction": "filterCategory('Moedas')",
+      "secText": "Conhecer Pedreiras",
+      "secHref": "#como-funciona"
+    },
+    {
+      "id": "hero-slide-4",
+      "tagIcon": "images/autumn/pedra_do_sol_ancestral.png",
+      "tagText": "ARMAS &amp; VISUAIS MÍSTICOS",
+      "title": "CHAVES, LIVROS &amp;<br>COSMÉTICOS S3",
+      "desc": "Abra Caixas Místicas com as Chaves de Voto, Comum, Rara, Épica e Superior. Encante suas ferramentas com Fortuna IV, Eficiência VI, Túnel e Remendo!",
+      "charImg": "images/kayzel3.png",
+      "charAlt": "Guerreiro das Chamas",
+      "primaryText": "Ver Chaves e Livros",
+      "primaryAction": "filterCategory('Chaves')",
+      "secText": "Galeria do Servidor",
+      "secHref": "#galeria"
     }
   ]
 }

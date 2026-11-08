@@ -304,7 +304,40 @@
           </div>
         </div>
 
-        <!-- Slider da Página Inicial -->
+                <!-- Banner Principal (Hero Slider) -->
+        <div class="panel" style="margin-bottom: 24px;">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">PÁGINA INICIAL • HERO BANNER</p>
+              <h2>Slides do Banner Principal (Hero)</h2>
+            </div>
+            <div style="display:flex; gap:10px;">
+              <button class="btn-ghost" id="resetHeroSlidesBtn">Restaurar Padrão</button>
+              <button class="btn-primary" id="openHeroSlideModalBtn">+ Adicionar Slide ao Banner</button>
+            </div>
+          </div>
+          <p class="panel-desc">
+            Edite os slides do carrossel rotativo principal exibidos no topo do site (título, descrição, imagem do personagem e botões de ação).
+          </p>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Personagem</th>
+                  <th>Tag</th>
+                  <th>Título do Slide</th>
+                  <th>Descrição</th>
+                  <th style="text-align: right;">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="heroSlideTableBody">
+                <!-- Preenchido via admin.js -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+<!-- Slider da Página Inicial -->
         <div class="panel" style="margin-bottom: 24px;">
           <div class="panel-header">
             <div>
@@ -1682,7 +1715,65 @@
   </dialog>
 
   <!-- Modal: Slide da Galeria -->
-  <dialog id="slideModal">
+    <!-- Modal: Slide do Banner Principal (Hero) -->
+  <dialog id="heroSlideModal">
+    <div class="modal-header">
+      <h2 id="heroSlideModalTitle">Editar Slide do Banner Principal</h2>
+      <button class="close-modal" id="closeHeroSlideModalBtn">✕</button>
+    </div>
+    <form id="heroSlideForm">
+      <input type="hidden" id="heroSlideEditIndex">
+      <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+        <div class="form-group">
+          <label>Tag do Topo:</label>
+          <input type="text" id="heroSlideTagText" required placeholder="Ex.: TEMPORADA 3 • OUTONAL">
+        </div>
+        <div class="form-group">
+          <label>Ícone da Tag (caminho ou URL):</label>
+          <input type="text" id="heroSlideTagIcon" placeholder="Ex.: images/autumn/folha_de_bordo_flutuante.png">
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Título Principal do Slide:</label>
+        <input type="text" id="heroSlideTitle" required placeholder="Ex.: COLHEITA & GLÓRIA ANCESTRAL (suporta <br>)">
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Descrição Detalhada:</label>
+        <textarea id="heroSlideDesc" rows="3" required placeholder="Texto descritivo exibido no banner principal..."></textarea>
+      </div>
+      <div class="form-group" style="margin-top:10px;">
+        <label>Imagem do Personagem / Skin:</label>
+        <input type="text" id="heroSlideCharImg" placeholder="Ex.: images/fullbody.png ou URL da imagem">
+        <input type="file" id="heroSlideCharFileInput" accept="image/*" style="margin-top:6px; font-size:12px;">
+      </div>
+      <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:10px;">
+        <div class="form-group">
+          <label>Texto Botão Primário:</label>
+          <input type="text" id="heroSlidePrimaryText" placeholder="Ex.: Jogar agora: jogar.ravok.network">
+        </div>
+        <div class="form-group">
+          <label>Ação Botão Primário:</label>
+          <input type="text" id="heroSlidePrimaryAction" placeholder="Ex.: copyServerIp()">
+        </div>
+      </div>
+      <div class="form-row" style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:10px;">
+        <div class="form-group">
+          <label>Texto Botão Secundário:</label>
+          <input type="text" id="heroSlideSecText" placeholder="Ex.: Baixar Texturas Oficiais (v1.2)">
+        </div>
+        <div class="form-group">
+          <label>Link Botão Secundário:</label>
+          <input type="text" id="heroSlideSecHref" placeholder="Ex.: texturas.html ou #produtos">
+        </div>
+      </div>
+      <div style="display:flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+        <button type="button" class="btn-ghost" id="cancelHeroSlideBtn">Cancelar</button>
+        <button type="submit" class="btn-primary">Salvar Slide</button>
+      </div>
+    </form>
+  </dialog>
+
+<dialog id="slideModal">
     <div class="modal-header">
       <h2>Novo Slide para Galeria</h2>
       <button class="close-modal" id="closeSlideModalBtn">×</button>

@@ -674,6 +674,79 @@ function upgradeClientProducts(list) {
   return mapped.filter(p => !delSet.has(String(p.id)));
 }
 
+const DEFAULT_HERO_SLIDES = [
+  {
+    "id": "hero-slide-1",
+    "tagIcon": "images/autumn/folha_de_bordo_flutuante.png",
+    "tagText": "TEMPORADA 3 • OUTONAL",
+    "title": "COLHEITA &amp;<br>GLÓRIA ANCESTRAL",
+    "desc": "A nova era da Ravok Network chegou! Explore a atmosfera outonal, desbloqueie os VIPs Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa, novas Chaves S3 e texturas oficiais exclusivas com entrega automática.",
+    "charImg": "images/fullbody.png",
+    "charAlt": "Guerreiro Ravok 3D",
+    "primaryText": "Jogar agora: jogar.ravok.network",
+    "primaryAction": "copyServerIp()",
+    "secText": "Baixar Texturas Oficiais (v1.2)",
+    "secHref": "texturas.html"
+  },
+  {
+    "id": "hero-slide-2",
+    "tagIcon": "images/autumn/girassol_radiante.png",
+    "tagText": "VIPS &amp; PRIVILÉGIOS EXCLUSIVOS",
+    "title": "FORJE SEU IMPÉRIO<br>COM RANKS LENDÁRIOS",
+    "desc": "Garanta kits diários, fly, comandos de teleporte, multiplicadores de moedas e tags animadas. Do Vendaval ao Solar, domine as temporadas com prestígio!",
+    "charImg": "images/kayzel1.png",
+    "charAlt": "Cavaleiro de Carvalho",
+    "primaryText": "Explorar Ranks VIP",
+    "primaryAction": "filterCategory('VIPs')",
+    "secText": "Ver Tabela Comparativa",
+    "secHref": "#produtos"
+  },
+  {
+    "id": "hero-slide-3",
+    "tagIcon": "images/autumn/bussola_de_latao_dourado.png",
+    "tagText": "ECONOMIA &amp; PEDREIRAS",
+    "title": "COMÉRCIO VIVO &amp;<br>MOEDAS OFICIAIS",
+    "desc": "Construa sua riqueza vendendo colheitas no mercado, ativando pedreiras automáticas e comprando pacotes de moedas com bônus imediatos via Pix.",
+    "charImg": "images/kayzel2.png",
+    "charAlt": "Guardião Ravok",
+    "primaryText": "Pacotes de Moedas",
+    "primaryAction": "filterCategory('Moedas')",
+    "secText": "Conhecer Pedreiras",
+    "secHref": "#como-funciona"
+  },
+  {
+    "id": "hero-slide-4",
+    "tagIcon": "images/autumn/pedra_do_sol_ancestral.png",
+    "tagText": "ARMAS &amp; VISUAIS MÍSTICOS",
+    "title": "CHAVES, LIVROS &amp;<br>COSMÉTICOS S3",
+    "desc": "Abra Caixas Místicas com as Chaves de Voto, Comum, Rara, Épica e Superior. Encante suas ferramentas com Fortuna IV, Eficiência VI, Túnel e Remendo!",
+    "charImg": "images/kayzel3.png",
+    "charAlt": "Guerreiro das Chamas",
+    "primaryText": "Ver Chaves e Livros",
+    "primaryAction": "filterCategory('Chaves')",
+    "secText": "Galeria do Servidor",
+    "secHref": "#galeria"
+  }
+];
+
+function getStoredHeroSlides() {
+  const saved = localStorage.getItem('ravok_hero_slides_s3');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {}
+  }
+  return DEFAULT_HERO_SLIDES;
+}
+
+function saveStoredHeroSlides(slides, updatedAt) {
+  localStorage.setItem('ravok_hero_slides_s3', JSON.stringify(slides));
+  persistLocalSnapshot(updatedAt);
+  notifyPublicSite('hero-slides');
+  renderHeroSlidesTable();
+}
+
 const DEFAULT_SLIDES = [
   {
     id: 'slide-spawn',
@@ -1068,7 +1141,7 @@ function switchTab(tabId) {
   // Ações de refresh específicas
   if (tabId === 'dashboard') refreshDashboard();
   if (tabId === 'products') renderProductsTable();
-  if (tabId === 'images') { renderImageGallery(); renderSliderTable(); }
+  if (tabId === 'images') { renderImageGallery(); renderHeroSlidesTable(); renderSliderTable(); }
   if (tabId === 'streamers') renderStreamersTable();
   if (tabId === 'feedbacks') renderFeedbacksTable();
   if (tabId === 'server') renderServerTab();
@@ -1689,6 +1762,151 @@ function saveStoredSlides(slides, updatedAt) {
   notifyPublicSite('slides');
   renderSliderTable();
 }
+
+
+// ===================================================
+// GERENCIAMENTO DE SLIDES DO BANNER PRINCIPAL (HERO)
+// ===================================================
+function renderHeroSlidesTable() {
+  const slides = getStoredHeroSlides();
+  const tbody = by('#heroSlideTableBody');
+  if (!tbody) return;
+
+  if (!slides.length) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:var(--muted); padding:20px;">Nenhum slide no Banner Principal.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = slides.map((s, idx) => `
+    <tr>
+      <td>
+        <img src="${s.charImg || 'images/fullbody.png'}" style="width:40px; height:48px; object-fit:contain; border-radius:6px; background:rgba(0,0,0,0.3); border:1px solid var(--panel-border);" onerror="this.src='images/fullbody.png'">
+      </td>
+      <td>
+        <span class="badge" style="background:rgba(255,193,7,0.15); color:var(--gold); border:1px solid rgba(255,193,7,0.3); font-size:11px; padding:3px 8px; border-radius:999px;">
+          ${escapeHtml(s.tagText || 'TEMPORADA 3')}
+        </span>
+      </td>
+      <td>
+        <strong style="color:#fff; font-size:13px;">${s.title || 'Sem Título'}</strong>
+      </td>
+      <td>
+        <span style="color:var(--muted); font-size:11.5px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">
+          ${escapeHtml(s.desc || '')}
+        </span>
+      </td>
+      <td style="text-align:right; white-space:nowrap;">
+        <button class="btn-ghost" style="padding:4px 10px; font-size:12px; margin-right:6px;" onclick="openHeroSlideModal(${idx})">✏️ Editar</button>
+        <button class="btn-danger" style="padding:4px 10px; font-size:12px;" onclick="deleteHeroSlide(${idx})">🗑️ Excluir</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function openHeroSlideModal(idx = null) {
+  const modal = by('#heroSlideModal');
+  if (!modal) return;
+  const form = by('#heroSlideForm');
+  if (form) form.reset();
+
+  const slides = getStoredHeroSlides();
+  if (idx !== null && idx >= 0 && slides[idx]) {
+    const s = slides[idx];
+    by('#heroSlideEditIndex').value = String(idx);
+    by('#heroSlideModalTitle').textContent = `Editar Slide #${idx + 1}`;
+    by('#heroSlideTagText').value = s.tagText || '';
+    by('#heroSlideTagIcon').value = s.tagIcon || '';
+    by('#heroSlideTitle').value = s.title || '';
+    by('#heroSlideDesc').value = s.desc || '';
+    by('#heroSlideCharImg').value = s.charImg || '';
+    by('#heroSlidePrimaryText').value = s.primaryText || (s.primaryHtml ? s.primaryHtml.replace(/<[^>]+>/g, '').trim() : '');
+    by('#heroSlidePrimaryAction').value = s.primaryAction || s.primaryOnClick || 'copyServerIp()';
+    by('#heroSlideSecText').value = s.secText || (s.secHtml ? s.secHtml.replace(/<[^>]+>/g, '').trim() : '');
+    by('#heroSlideSecHref').value = s.secHref || '#produtos';
+  } else {
+    by('#heroSlideEditIndex').value = '';
+    by('#heroSlideModalTitle').textContent = 'Novo Slide do Banner Principal';
+    by('#heroSlideTagText').value = 'TEMPORADA 3 • OUTONAL';
+    by('#heroSlideTagIcon').value = 'images/autumn/folha_de_bordo_flutuante.png';
+    by('#heroSlideCharImg').value = 'images/fullbody.png';
+    by('#heroSlidePrimaryText').value = 'Jogar agora: jogar.ravok.network';
+    by('#heroSlidePrimaryAction').value = 'copyServerIp()';
+    by('#heroSlideSecText').value = 'Ver Loja Oficial';
+    by('#heroSlideSecHref').value = '#produtos';
+  }
+
+  modal.showModal();
+}
+
+async function saveHeroSlide(e) {
+  if (e) e.preventDefault();
+  const editIdxStr = by('#heroSlideEditIndex').value;
+  const slides = [...getStoredHeroSlides()];
+
+  const newSlide = {
+    id: editIdxStr !== '' && slides[Number(editIdxStr)] ? slides[Number(editIdxStr)].id : `hero-${Date.now()}`,
+    tagText: by('#heroSlideTagText').value.trim() || 'TEMPORADA 3 • OUTONAL',
+    tagIcon: by('#heroSlideTagIcon').value.trim() || 'images/autumn/folha_de_bordo_flutuante.png',
+    title: by('#heroSlideTitle').value.trim(),
+    desc: by('#heroSlideDesc').value.trim(),
+    charImg: by('#heroSlideCharImg').value.trim() || 'images/fullbody.png',
+    charAlt: 'Guerreiro Ravok 3D',
+    primaryText: by('#heroSlidePrimaryText').value.trim() || 'Jogar agora: jogar.ravok.network',
+    primaryAction: by('#heroSlidePrimaryAction').value.trim() || 'copyServerIp()',
+    secText: by('#heroSlideSecText').value.trim() || 'Ver Loja',
+    secHref: by('#heroSlideSecHref').value.trim() || '#produtos'
+  };
+
+  if (editIdxStr !== '' && !isNaN(Number(editIdxStr)) && Number(editIdxStr) >= 0) {
+    slides[Number(editIdxStr)] = newSlide;
+  } else {
+    slides.push(newSlide);
+  }
+
+  saveStoredHeroSlides(slides);
+  by('#heroSlideModal')?.close();
+  showToast('Slide do Banner salvo com sucesso!');
+
+  try {
+    const res = await adminFetch(`${API_BASE}/api/admin/hero-slides`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ heroSlides: slides })
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.heroSlides) saveStoredHeroSlides(data.heroSlides, data.updatedAt);
+    }
+  } catch (err) {
+    console.warn('Erro ao sincronizar hero slide com servidor:', err);
+  }
+}
+
+async function deleteHeroSlide(idx) {
+  const slides = [...getStoredHeroSlides()];
+  if (idx < 0 || idx >= slides.length) return;
+  if (!confirm(`Deseja realmente excluir o slide "${slides[idx].title || ''}"?`)) return;
+
+  const deletedId = slides[idx].id;
+  slides.splice(idx, 1);
+  saveStoredHeroSlides(slides);
+  showToast('Slide excluído do Banner.');
+
+  try {
+    await adminFetch(`${API_BASE}/api/admin/hero-slides/${deletedId}`, { method: 'DELETE' });
+  } catch (err) {}
+}
+
+async function resetHeroSlides() {
+  if (!confirm('Deseja restaurar todos os slides padrão do Banner Principal?')) return;
+  saveStoredHeroSlides([...DEFAULT_HERO_SLIDES]);
+  showToast('Slides padrão restaurados!');
+
+  try {
+    await adminFetch(`${API_BASE}/api/admin/hero-slides/reset`, { method: 'POST' });
+  } catch (err) {}
+}
+
 
 function renderSliderTable() {
   const slides = getStoredSlides();
@@ -3868,6 +4086,7 @@ setupManualSale();
 refreshDashboard();
 renderProductsTable();
 renderImageGallery();
+renderHeroSlidesTable();
 renderSliderTable();
 renderStreamersTable();
 renderFeedbacksTable();
@@ -4653,3 +4872,27 @@ window.promptChangeAdminPassword = async (username) => {
 };
 
 
+
+  // Hero Slide Listeners
+  const openHeroBtn = by('#openHeroSlideModalBtn');
+  if (openHeroBtn) openHeroBtn.onclick = () => openHeroSlideModal(null);
+  const resetHeroBtn = by('#resetHeroSlidesBtn');
+  if (resetHeroBtn) resetHeroBtn.onclick = resetHeroSlides;
+  const closeHeroBtn = by('#closeHeroSlideModalBtn');
+  if (closeHeroBtn) closeHeroBtn.onclick = () => by('#heroSlideModal')?.close();
+  const cancelHeroBtn = by('#cancelHeroSlideBtn');
+  if (cancelHeroBtn) cancelHeroBtn.onclick = () => by('#heroSlideModal')?.close();
+  const heroForm = by('#heroSlideForm');
+  if (heroForm) heroForm.onsubmit = saveHeroSlide;
+  const heroFileInput = by('#heroSlideCharFileInput');
+  if (heroFileInput) {
+    heroFileInput.onchange = (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        by('#heroSlideCharImg').value = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    };
+  }

@@ -16,51 +16,25 @@
   <div class="aurora aurora-one"></div>
   <div class="aurora aurora-two"></div>
 
-  <header class="topbar">
+    <header class="topbar">
     <div class="topbar-brand-wrap">
-      <!-- BOTÕES SQUIRCLE DE AÇÕES RÁPIDAS (REFERÊNCIA RAVOK RULES) -->
-      <div class="topbar-quick-squircles">
-        <button type="button" class="squircle-btn" onclick="openAuthModal('login')" title="Minha Conta / Acesso">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        </button>
-        <button type="button" class="squircle-btn" id="squircleQuickNick" onclick="document.getElementById('playerDialog').showModal()" title="Informar Nick do Minecraft">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-        </button>
-      </div>
-
-      <a class="brand" href="#inicio" aria-label="Ravok Network" style="display:flex; align-items:center; gap:10px;">
-        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:38px; height:38px; object-fit:contain; filter:drop-shadow(0 0 10px rgba(255,193,7,0.5));">
-        <div style="display:flex; flex-direction:column; line-height:1.1;">
-          <span style="font-family:'Unbounded', sans-serif; font-size:18px; font-weight:800; color:#fff; text-shadow:0 0 14px var(--blue-glow); letter-spacing:-0.5px;">RAVOK</span>
-          <span style="color:var(--amber-gold); font-size:9px; font-weight:700; letter-spacing:1.5px; font-family:'DM Mono', monospace;">TEMPORADA 3 • OUTONO</span>
+      <a class="brand" href="#inicio" aria-label="Ravok Network" style="display:flex; align-items:center; gap:12px; text-decoration:none;">
+        <img src="images/emblema_ravok_outonal.png" alt="Ravok Outonal" style="width:40px; height:40px; object-fit:contain; filter:drop-shadow(0 0 12px rgba(255,193,7,0.55));">
+        <div style="display:flex; flex-direction:column; line-height:1.15;">
+          <span style="font-family:'Unbounded', sans-serif; font-size:20px; font-weight:800; color:#fff; text-shadow:0 0 16px rgba(255,193,7,0.4); letter-spacing:-0.5px;">RAVOK <span style="color:var(--amber-gold);">NETWORK</span></span>
+          <span style="color:var(--amber-gold); font-size:9.5px; font-weight:700; letter-spacing:2px; font-family:'DM Mono', monospace;">TEMPORADA 3 • OUTONO</span>
         </div>
       </a>
-
-      <!-- STATUS DO SERVIDOR (CLIQUE PARA COPIAR IP) -->
-      <button type="button" class="server-status-pill" id="topbarStatusPill" onclick="copyServerIp()" title="Clique para copiar o IP do servidor: jogar.ravok.network">
-        <span class="status-pulse-dot" id="serverPulseDot"></span>
-        <span class="status-badge-text"><b id="onlineCountNum">0</b> online</span>
-        <span class="copy-ip-hint">jogar.ravok.network 📋</span>
-      </button>
     </div>
 
-    <!-- MENU DE NAVEGAÇÃO COMPLETO RAVOK -->
-    <nav class="topbar-nav" id="topbarNav">
-      <a href="#inicio" class="active">Início</a>
-      <a href="#produtos">Loja</a>
-      <a href="#galeria">Galeria</a>
-      <a href="#como-funciona">Como Funciona</a>
-      <a href="#streamers">Streamers</a>
-      <a href="#feedbacks">Avaliações</a>
-      <a href="rules.html">Regras</a>
-      <a href="staff.html">Equipe</a>
-      <a href="vote.html">Votar</a>
-      <a href="faq.html">FAQ</a>
-      <a href="texturas.html">Texturas</a>
-      <a href="#comunidade">Discord</a>
-    </nav>
-
     <div class="top-actions">
+      <!-- SACOLA DE COMPRAS COM ÍCONE DA TEXTURA OFICIAL -->
+      <button class="cart-button" id="cartButton" title="Abrir Sacola">
+        <img src="images/icons/shop_32.png" alt="" class="cart-btn-tex-icon" onerror="this.src='images/icons/shop.png'">
+        <span class="cart-btn-label">Sacola</span>
+        <b id="cartCount">0</b>
+      </button>
+
       <!-- BOTÕES DE AUTENTICAÇÃO DO JOGADOR -->
       <div id="playerAuthWrap">
         <!-- Grupo Deslogado (Ocultado quando logado) -->
@@ -83,9 +57,6 @@
           <span class="player-menu-arrow">▾</span>
         </div>
       </div>
-
-      <!-- SACOLA DE COMPRAS -->
-      <button class="cart-button" id="cartButton" title="Abrir Sacola"><span class="cart-btn-label">Sacola</span> <b id="cartCount">0</b></button>
 
       <!-- BOTÃO ACESSO STAFF / ADMIN -->
       <button type="button" class="btn-staff-access" id="openStaffAuthBtn" onclick="openAuthModal('staff')" title="Área da Staff & Configurações">

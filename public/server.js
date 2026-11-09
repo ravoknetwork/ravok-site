@@ -943,6 +943,8 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
 ];
 
 function upgradeProductCatalog(list, deletedProductIds = null) {
+  const BANNED_LEGACY_IDS = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  list = (Array.isArray(list) ? list : []).filter(p => p && !BANNED_LEGACY_IDS.has(String(p.id)));
   const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
   const CANONICAL_PRICES = {
     'key-voto': 4.99,
@@ -1064,7 +1066,8 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
     }
   });
 
-  return mapped.filter(p => !delSet.has(String(p.id)));
+  const BANNED = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  return mapped.filter(p => p && !delSet.has(String(p.id)) && !BANNED.has(String(p.id)));
 }
 
 
@@ -1584,7 +1587,8 @@ let db = loadDb();
 
 // Endpoint unificado de sincronização rápida para a Home e Admin
 app.get('/api/sync-state', (req, res) => {
-  db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS, db.deletedProductIds);
+  const BANNED_SYNC = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS, db.deletedProductIds).filter(p => p && !BANNED_SYNC.has(String(p.id)));
   res.json({
     success: true,
     updatedAt: Number(db.updatedAt || 0),

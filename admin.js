@@ -2759,12 +2759,9 @@ function saveBotSettingsToStorage(settings) {
   return merged;
 }
 
-const DEFAULT_SILVIE_PROMPT = `Você é Silvie, a assistente oficial da Ravok Network. Sua aparência oficial é uma garota em pixel art/chibi, com cabelo azul vivo, olhos grandes roxos, chapéu de bruxa escuro com laços vermelhos e identidade visual azul, roxa e escura.
-
-Fale sempre em português do Brasil. Use mensagens claras, naturais e curtas quando a dúvida for simples. Você pode usar 💙, ✦ e 🔮 com moderação.
-
-Identidade:
-- Nome: Silvie.
+const DEFAULT_KAYZEL_PROMPT = `Você é Kayzel, o assistente oficial e guardião da Ravok Network. Sua identidade visual é o mago ancestral de outono, com chapéu místico, detalhes em âmbar dourado e laranja queimado, e aura protetora.
+Diretrizes:
+- Nome: Kayzel.
 - Função: ajudar os aventureiros e representar a Ravok Network.
 - Personalidade: acolhedora, curiosa, alegre e responsável.
 - Nunca diga que é Kayzel, dragão ou guardiã da floresta.
@@ -2778,7 +2775,7 @@ Informações importantes:
 
 async function loadAiSettingsToForm() {
   if (by('#aiSystemPrompt') && !by('#aiSystemPrompt').value) {
-    by('#aiSystemPrompt').value = DEFAULT_SILVIE_PROMPT;
+    by('#aiSystemPrompt').value = DEFAULT_KAYZEL_PROMPT;
   }
 
   if (window.location.protocol.startsWith('http')) {
@@ -3114,7 +3111,7 @@ window.publishBotPanel = async function(type) {
 };
 
 // ----------------------------------------------------
-// EVENTOS DE IA (SILVIE AI)
+// EVENTOS DE IA (KAYZEL AI)
 // ----------------------------------------------------
 const toggleAiKeyVis = by('#toggleAiKeyVisibility');
 if (toggleAiKeyVis) {
@@ -3131,8 +3128,8 @@ const resetAiPromptBtn = by('#resetAiPromptBtn');
 if (resetAiPromptBtn) {
   resetAiPromptBtn.onclick = () => {
     if (by('#aiSystemPrompt')) {
-      by('#aiSystemPrompt').value = DEFAULT_SILVIE_PROMPT;
-      toast('Prompt oficial da Silvie restaurado!');
+      by('#aiSystemPrompt').value = DEFAULT_KAYZEL_PROMPT;
+      toast('Prompt oficial do Kayzel restaurado!');
     }
   };
 }
@@ -3145,7 +3142,7 @@ if (saveAiSettingsBtn) {
     const model = by('#aiModelSelect')?.value || 'gemini-1.5-flash';
     const channelId = (by('#aiChannelIdInput')?.value || '').trim();
     const respondMentions = Boolean(by('#aiRespondMentionsCheckbox')?.checked);
-    const prompt = (by('#aiSystemPrompt')?.value || '').trim() || DEFAULT_SILVIE_PROMPT;
+    const prompt = (by('#aiSystemPrompt')?.value || '').trim() || DEFAULT_KAYZEL_PROMPT;
 
     if (window.location.protocol.startsWith('http')) {
       try {
@@ -3173,7 +3170,7 @@ const aiTestSubmitBtn = by('#aiTestSubmitBtn');
 if (aiTestSubmitBtn) {
   aiTestSubmitBtn.onclick = async () => {
     const prompt = (by('#aiTestQuestionInput')?.value || '').trim();
-    if (!prompt) return toast('Digite uma pergunta para testar a Silvie.');
+    if (!prompt) return toast('Digite uma pergunta para testar o Kayzel.');
 
     const box = by('#aiTestResponseBox');
     const text = by('#aiTestResponseText');
@@ -3901,9 +3898,12 @@ function renderOrdersTable() {
         ? '<span class="badge" style="background:rgba(245,158,11,0.15); color:#F59E0B; border:1px dashed rgba(245,158,11,0.4);">Aguardando Admin</span>'
         : '<span class="badge badge-warning" style="background:rgba(245,158,11,0.18); color:#F59E0B; border:1px solid rgba(245,158,11,0.35);">⏳ Na Fila (/resgatar)</span>';
 
+    const methodBadge = o.paymentMethod === 'discord_ticket'
+      ? '<span class="badge" style="background:rgba(88,101,242,0.18); color:#a5b4fc; border:1px solid rgba(88,101,242,0.4); font-size:10px; margin-left:4px;">🎫 TICKET DC</span>'
+      : '';
     const statusBadge = isPendingAdmin
-      ? '<span class="badge" style="background:rgba(245,158,11,0.22); color:#FBBF24; border:1px solid rgba(245,158,11,0.5); font-weight:800;">💬 PENDENTE ADMIN</span>'
-      : '<span class="badge ' + (isApproved ? 'badge-success' : 'badge-warning') + '">' + escapeHtml(String(o.status || 'aprovado').toUpperCase()) + '</span>';
+      ? '<span class="badge" style="background:rgba(245,158,11,0.22); color:#FBBF24; border:1px solid rgba(245,158,11,0.5); font-weight:800;">💬 PENDENTE ADMIN</span>' + methodBadge
+      : '<span class="badge ' + (isApproved ? 'badge-success' : 'badge-warning') + '">' + escapeHtml(String(o.status || 'aprovado').toUpperCase()) + '</span>' + methodBadge;
 
     return '<tr>' +
       '<td><code>#' + escapeHtml(o.id) + '</code></td>' +
@@ -4284,7 +4284,7 @@ function renderDailyQuestConfig() {
   if (by('#questTitleInput')) by('#questTitleInput').value = q.title || 'Jornada do Conhecimento';
   if (by('#questTargetInput')) by('#questTargetInput').value = q.targetCount || 2;
   if (by('#questDescInput')) by('#questDescInput').value = q.description || '';
-  if (by('#questSilvieTipInput')) by('#questSilvieTipInput').value = q.silvieTip || 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮';
+  if (by('#questKayzelTipInput')) by('#questKayzelTipInput').value = q.kayzelTip || 'Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮';
   if (by('#questRewardTitleInput')) by('#questRewardTitleInput').value = q.rewardTitle || '2x Chaves de Voto';
   if (by('#questRewardCmdInput')) by('#questRewardCmdInput').value = q.rewardCommand || 'excellentcrates key give {nick} voto 2';
 }
@@ -4294,7 +4294,7 @@ if (by('#btnSuggestQuestAI')) {
     const btn = by('#btnSuggestQuestAI');
     const originalText = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span>🔮 Silvie criando missão...</span>';
+    btn.innerHTML = '<span>🔮 Kayzel criando missão...</span>';
 
     try {
       const res = await fetch('/api/admin/vote-arena/quest/suggest-ai', { method: 'POST' });
@@ -4305,11 +4305,11 @@ if (by('#btnSuggestQuestAI')) {
         if (by('#questTitleInput')) by('#questTitleInput').value = s.title;
         if (by('#questDescInput')) by('#questDescInput').value = s.description;
         if (by('#questTargetInput')) by('#questTargetInput').value = s.targetCount;
-        if (by('#questSilvieTipInput')) by('#questSilvieTipInput').value = s.silvieTip;
+        if (by('#questKayzelTipInput')) by('#questKayzelTipInput').value = s.kayzelTip;
         if (by('#questRewardTitleInput')) by('#questRewardTitleInput').value = s.rewardTitle;
         if (by('#questRewardCmdInput')) by('#questRewardCmdInput').value = s.rewardCommand;
 
-        toast(`✨ Silvie sugeriu a missão: "${s.title}"! Clique em Salvar.`);
+        toast(`✨ Kayzel sugeriu a missão: "${s.title}"! Clique em Salvar.`);
       } else {
         toast('Não foi possível gerar sugestão no momento.');
       }
@@ -4330,7 +4330,7 @@ if (by('#saveDailyQuestOnlyBtn')) {
       title: by('#questTitleInput').value.trim(),
       targetCount: parseInt(by('#questTargetInput').value, 10) || 2,
       description: by('#questDescInput').value.trim(),
-      silvieTip: by('#questSilvieTipInput') ? by('#questSilvieTipInput').value.trim() : '',
+      kayzelTip: by('#questKayzelTipInput') ? by('#questKayzelTipInput').value.trim() : '',
       rewardTitle: by('#questRewardTitleInput').value.trim(),
       rewardCommand: by('#questRewardCmdInput').value.trim()
     };
@@ -4808,7 +4808,7 @@ if (by('#saveVoteArenaBtn')) {
       title: by('#questTitleInput') ? by('#questTitleInput').value.trim() : 'Jornada do Conhecimento',
       targetCount: by('#questTargetInput') ? parseInt(by('#questTargetInput').value, 10) : 2,
       description: by('#questDescInput') ? by('#questDescInput').value.trim() : '',
-      silvieTip: by('#questSilvieTipInput') ? by('#questSilvieTipInput').value.trim() : '',
+      kayzelTip: by('#questKayzelTipInput') ? by('#questKayzelTipInput').value.trim() : '',
       rewardTitle: by('#questRewardTitleInput') ? by('#questRewardTitleInput').value.trim() : '2x Chaves de Voto',
       rewardCommand: by('#questRewardCmdInput') ? by('#questRewardCmdInput').value.trim() : 'excellentcrates key give {nick} voto 2'
     };

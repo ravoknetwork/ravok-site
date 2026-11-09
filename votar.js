@@ -185,11 +185,11 @@ function renderDailyQuest() {
   if (by('#questDescDisplay')) by('#questDescDisplay').textContent = quest.description || 'Complete os desafios hoje!';
   if (by('#questRewardDisplay')) by('#questRewardDisplay').textContent = quest.rewardTitle || '2x Chaves de Voto';
 
-  const tipBox = by('#questSilvieTipBox');
-  const tipText = by('#questSilvieTipText');
+  const tipBox = by('#questKayzelTipBox');
+  const tipText = by('#questKayzelTipText');
   if (tipBox && tipText) {
-    if (quest.silvieTip && quest.silvieTip.trim()) {
-      tipText.textContent = quest.silvieTip.trim();
+    if ((quest.kayzelTip || quest.silvieTip) && (quest.kayzelTip || quest.silvieTip).trim()) {
+      tipText.textContent = (quest.kayzelTip || quest.silvieTip).trim();
       tipBox.style.display = 'flex';
     } else {
       tipBox.style.display = 'none';

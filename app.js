@@ -484,49 +484,14 @@ const DEFAULT_PRODUCTS = [
     ]
   },
   {
-    "id": "voucher-skin-aleatoria",
+    "id": "mystery-skins",
     "cat": "Vouchers",
-    "badge": "NOVIDADE",
-    "badgeColor": "gold",
-    "icon": "📜",
-    "image": "images/products/voucher_skin_pixel_hd.png",
-    "name": "Voucher Skin Aleatória",
-    "description": "Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!",
-    "price": 9.99,
-    "oldPrice": 19.9,
-    "perksList": [
-      "136 Visuais raros possíveis",
-      "Resgate com 1 clique no inventário",
-      "Compatível com espadas, picaretas e machados",
-      "Não perde ao morrer"
-    ],
-    "command": "crazyvouchers give Random_Toolskin 1 {player}"
+    "isMystery": true
   },
   {
-    "id": "pet-dino",
+    "id": "mystery-pets",
     "cat": "Pets",
-    "badge": "EM BREVE",
-    "badgeColor": "purple",
-    "icon": "🦖",
-    "image": "images/products/pet_dino_hd.png",
-    "name": "Pet Dinossauro 3D",
-    "description": "Um companheiro pré-histórico com animações customizadas e efeitos sonoros.",
-    "price": 29.9,
-    "command": "mcpets spawn dino {player} false",
-    "isComingSoon": true
-  },
-  {
-    "id": "pet-cubee",
-    "cat": "Pets",
-    "badge": "EM BREVE",
-    "badgeColor": "purple",
-    "icon": "🧊",
-    "image": "images/products/pet_cubee_hd.png",
-    "name": "Pet Cubee Mágico",
-    "description": "Cubinho flutuante que segue você com partículas de luz e animações suaves.",
-    "price": 34.9,
-    "command": "mcpets spawn cubee_magico {player} false",
-    "isComingSoon": true
+    "isMystery": true
   },
   {
     "id": "cosmetic-fire",
@@ -949,7 +914,13 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
 function getDeletedProductIds() {
   try {
     const raw = localStorage.getItem('ravok_deleted_products_v1');
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const canonicalIds = new Set(DEFAULT_PRODUCTS.map(p => String(p.id)));
+        return parsed.filter(id => !canonicalIds.has(String(id)));
+      }
+    }
   } catch (e) {}
   return [];
 }
@@ -1083,19 +1054,24 @@ function upgradeClientProducts(list) {
 }
 
 function getProducts() {
-  const saved = localStorage.getItem('ravok_products_v8') || localStorage.getItem('ravok_products_v6') || localStorage.getItem('ravok_products_v5');
+  const STORAGE_KEY = 'ravok_products_v15';
   const delSet = new Set(getDeletedProductIds().map(String));
+  const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('ravok_products_v8');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed)) {
+      if (Array.isArray(parsed) && parsed.length >= DEFAULT_PRODUCTS.length - 2) {
         const upgraded = upgradeClientProducts(parsed).filter(p => !delSet.has(String(p.id)));
-        if (upgraded.length >= 10) return upgraded;
+        if (upgraded.length >= DEFAULT_PRODUCTS.length - 2) return upgraded;
       }
     } catch (e) {}
   }
   const fallback = upgradeClientProducts(DEFAULT_PRODUCTS).filter(p => !delSet.has(String(p.id)));
-  return (fallback && fallback.length > 0) ? fallback : DEFAULT_PRODUCTS;
+  const finalProds = (fallback && fallback.length > 0) ? fallback : DEFAULT_PRODUCTS;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(finalProds));
+  } catch (e) {}
+  return finalProds;
 }
 
 function getSlides() {
@@ -1204,8 +1180,8 @@ const CATEGORY_META = {
   'Chaves': { iconImg: 'images/icons/deliveries_32.png', icon: '🗝️', label: 'Caixas & Chaves' },
   'Encantamentos': { iconImg: 'images/icons/enchantedbook_32.png', icon: '📖', label: 'Encantamentos' },
   'Comandos': { iconImg: 'images/icons/feather_32.png', icon: '🔧', label: 'Comandos & Permissões' },
-  'Vouchers': { iconImg: 'images/icons/toolskins_32.png', icon: '📜', label: 'Vouchers & Skins' },
-  'Pets': { iconImg: 'images/icons/sword_32.png', icon: '🐾', label: 'Pets (Em Breve)' },
+  'Vouchers': { iconImg: 'images/icons/toolskins_32.png', icon: '🎨', label: 'Visuais de Ferramenta' },
+  'Pets': { iconImg: 'images/icons/sword_32.png', icon: '🐾', label: 'Pets' },
   'Cosméticos': { iconImg: 'images/icons/cosmetics_32.png', icon: '⚔️', label: 'Cosméticos & Armas' }
 };
 
@@ -2198,7 +2174,7 @@ function stopOrderPolling() {
 // ====================================================
 // CHECKOUT MANUAL COM ADMINISTRADOR (WHATSAPP / PIX DIRETO)
 // ====================================================
-if (by('#checkoutAdmin')) by('#checkoutAdmin').onclick = async () => {
+async function handleDiscordCheckout() {
   if (!cart.length) {
     return toast('Adicione pelo menos um produto à sacola.');
   }
@@ -2215,7 +2191,7 @@ if (by('#checkoutAdmin')) by('#checkoutAdmin').onclick = async () => {
   const itemsText = cart.map(i => '• ' + i.name + ' (x' + (i.quantity || 1) + ') - ' + money(i.price * (i.quantity || 1))).join('\n');
   const pixKey = 'contato@ravok.network';
 
-  // Registrar pedido manual no backend
+  // Registrar pedido no backend como discord_ticket
   if (window.location.protocol.startsWith('http')) {
     try {
       await fetch('/api/orders/manual', {
@@ -2226,6 +2202,7 @@ if (by('#checkoutAdmin')) by('#checkoutAdmin').onclick = async () => {
           nick: player,
           items: cart,
           total: total,
+          paymentMethod: 'discord_ticket',
           coupon: appliedCoupon ? appliedCoupon.code : ''
         })
       });
@@ -2234,54 +2211,72 @@ if (by('#checkoutAdmin')) by('#checkoutAdmin').onclick = async () => {
     }
   }
 
-  // Prepara mensagem formatada para WhatsApp
-  const msg = [
-    '🏰 *NOVO PEDIDO - RAVOK NETWORK*',
-    '📋 *Pedido:* #' + orderId,
-    '👤 *Nick no Servidor:* ' + player,
-    '🛍️ *Itens:*',
+  // Mensagem formatada para o Ticket na Categoria de Compras do Discord
+  const discordMsg = [
+    '🛒 **NOVO PEDIDO - RAVOK NETWORK (LOJA OFICIAL)**',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '• **Código do Pedido:** #' + orderId,
+    '• **Nick Minecraft:** ' + player,
+    '• **Itens:**',
     itemsText,
-    '💰 *Total a Pagar:* ' + money(total),
-    '🔑 *Chave Pix:* ' + pixKey,
-    '',
-    'Segue o comprovante do pagamento para liberação no comando */resgatar* dentro do servidor!'
+    '• **Total a Pagar:** ' + money(total),
+    '• **Chave Pix Oficial:** `' + pixKey + '` (Ravok Network)',
+    '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━',
+    '📝 *Comprovante Pix anexado para liberação no `/resgatar`!*'
   ].join('\n');
 
-  // Preenche dados no modal informativo do Admin
-  if (by('#adminOrderNick')) by('#adminOrderNick').textContent = player;
-  if (by('#adminOrderTotal')) by('#adminOrderTotal').textContent = money(total);
-  if (by('#adminOrderId')) by('#adminOrderId').textContent = '#' + orderId;
-  if (by('#adminOrderItems')) {
-    by('#adminOrderItems').innerHTML = cart.map(i => '<div style="display:flex; justify-content:space-between; font-size:13px; padding:4px 0;"><span>' + escapeHtml(i.name) + ' x' + (i.quantity||1) + '</span><strong style="color:var(--amber-gold);">' + money(i.price * (i.quantity||1)) + '</strong></div>').join('');
+  // Preenche dados no modal do Discord
+  if (by('#dcOrderNick')) by('#dcOrderNick').textContent = player;
+  if (by('#dcOrderTotal')) by('#dcOrderTotal').textContent = money(total);
+  if (by('#dcOrderId')) by('#dcOrderId').textContent = '#' + orderId;
+  if (by('#dcOrderItems')) {
+    by('#dcOrderItems').innerHTML = cart.map(i => 
+      '<div style="display:flex; justify-content:space-between; font-size:12.5px; padding:3px 0;">' +
+      '<span>' + escapeHtml(i.name) + ' x' + (i.quantity || 1) + '</span>' +
+      '<strong style="color:var(--amber-gold);">' + money(i.price * (i.quantity || 1)) + '</strong>' +
+      '</div>'
+    ).join('');
   }
-  if (by('#adminOrderPixKey')) by('#adminOrderPixKey').value = pixKey;
+  if (by('#dcOrderPixKey')) by('#dcOrderPixKey').value = pixKey;
 
-  const waBtn = by('#adminOrderWaBtn');
-  if (waBtn) {
-    const encoded = encodeURIComponent(msg);
-    waBtn.href = 'https://api.whatsapp.com/send?phone=5511999999999&text=' + encoded;
-    waBtn.target = '_blank';
+  // Botão copiar dados
+  const copyBtn = by('#btnCopyDcOrder');
+  if (copyBtn) {
+    copyBtn.onclick = async () => {
+      try {
+        await navigator.clipboard.writeText(discordMsg);
+        toast('✓ Dados do pedido copiados! Cole no Ticket de Compras do Discord.');
+      } catch (e) {
+        toast('Selecione e copie os dados manualmente.');
+      }
+    };
   }
 
-  // Copia chave Pix
+  // Auto-copia para agilizar para o jogador
   try {
-    await navigator.clipboard.writeText(pixKey);
-    toast('✓ Chave Pix copiada para a área de transferência!');
+    await navigator.clipboard.writeText(discordMsg);
+    toast('✓ Dados do pedido copiados para o seu Discord!');
   } catch (err) {}
 
   closeAll();
-  const modal = by('#adminOrderModal');
+  const modal = by('#discordOrderModal') || by('#adminOrderModal');
   if (modal) {
     modal.showModal();
   } else {
-    window.open('https://api.whatsapp.com/send?phone=5511999999999&text=' + encodeURIComponent(msg), '_blank');
+    window.open('https://discord.gg/ravok', '_blank');
   }
 
   // Limpa sacola após envio do pedido
   cart = [];
+  appliedCoupon = null;
+  const couponBadge = by('#couponAppliedBadge');
+  if (couponBadge) couponBadge.style.display = 'none';
   saveCart();
   renderCart();
-};
+}
+
+if (by('#checkoutDiscord')) by('#checkoutDiscord').onclick = handleDiscordCheckout;
+if (by('#checkoutAdmin')) by('#checkoutAdmin').onclick = handleDiscordCheckout;
 
 if (by('#checkout')) by('#checkout').onclick = async () => {
   if (!cart.length) {

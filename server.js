@@ -1395,7 +1395,7 @@ const DEFAULT_VOTE_ARENA = {
     targetCount: 2,
     rewardTitle: '2x Chaves de Voto',
     rewardCommand: 'crate key give {nick} vote 2',
-    silvieTip: 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮'
+    silvieTip: 'Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮'
   },
   dailyQuestClaims: [],
   votesHistory: []
@@ -1531,7 +1531,7 @@ function loadDb() {
         parsed.voteArena.dailyQuest = JSON.parse(JSON.stringify(DEFAULT_VOTE_ARENA.dailyQuest));
       }
       if (!parsed.voteArena.dailyQuest.silvieTip) {
-        parsed.voteArena.dailyQuest.silvieTip = 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮';
+        parsed.voteArena.dailyQuest.silvieTip = 'Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮';
       }
       if (!Array.isArray(parsed.voteArena.dailyQuestClaims)) {
         parsed.voteArena.dailyQuestClaims = [];
@@ -2734,7 +2734,7 @@ app.post('/api/admin/bot/ai', (req, res) => {
   if (prompt !== undefined) db.settings.aiPrompt = prompt;
 
   saveDb(db);
-  res.json({ success: true, message: 'Configurações de IA da Silvie salvas com sucesso!' });
+  res.json({ success: true, message: 'Configurações de IA do Kayzel salvas com sucesso!' });
 });
 
 app.post('/api/admin/bot/ai/test', async (req, res) => {
@@ -2743,9 +2743,9 @@ app.post('/api/admin/bot/ai/test', async (req, res) => {
     return res.status(400).json({ error: 'Digite uma mensagem ou pergunta de teste.' });
   }
 
-  if (bot && typeof bot.askSilvieAI === 'function') {
+  if (bot && typeof bot.askKayzelAI === 'function') {
     try {
-      const answer = await bot.askSilvieAI(prompt, 'Administrador');
+      const fn = bot.askKayzelAI || bot.askSilvieAI; const answer = await fn(prompt, 'Administrador');
       return res.json({ success: true, answer });
     } catch (err) {
       return res.status(400).json({ error: err.message });
@@ -2843,7 +2843,7 @@ app.get('/api/vote/arena', (req, res) => {
       description: dailyQuest.description || 'Complete os desafios para garantir bônus!',
       targetCount: Number(dailyQuest.targetCount) || 2,
       rewardTitle: dailyQuest.rewardTitle || '2x Chaves de Voto',
-      silvieTip: dailyQuest.silvieTip || 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮',
+      silvieTip: dailyQuest.silvieTip || 'Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮',
       progress: dailyQuestProgress,
       claimed: dailyQuestClaimed
     }
@@ -3107,7 +3107,7 @@ app.post('/api/admin/vote-arena/poll/reset', (req, res) => {
   res.json({ success: true, message: 'Contagem de votos da enquete zerada com sucesso!' });
 });
 
-// Admin: Sugerir Quest do Dia com Silvie IA
+// Admin: Sugerir Quest do Dia com Kayzel IA
 app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
   const thematicFallbackQuests = [
     {
@@ -3116,7 +3116,7 @@ app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
       targetCount: 2,
       rewardTitle: "2x Chaves de Voto",
       rewardCommand: "crate key give {nick} vote 2",
-      silvieTip: "Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮"
+      silvieTip: "Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮"
     },
     {
       title: "O Desafio do Mago Ancestral",
@@ -3148,7 +3148,7 @@ app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
       targetCount: 2,
       rewardTitle: "2x Chaves de Voto",
       rewardCommand: "crate key give {nick} vote 2",
-      silvieTip: "Dizem que até os Creepers pensam duas vezes antes de errar uma charada da Silvie! 💥"
+      silvieTip: "Dizem que até os Creepers pensam duas vezes antes de errar uma charada do Kayzel! 💥"
     },
     {
       title: "Mestre da Sabedoria e Humor",
@@ -3160,16 +3160,16 @@ app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
     }
   ];
 
-  // Se o bot e Silvie IA estiverem disponíveis e configurados
-  if (bot && typeof bot.askSilvieAI === 'function' && db.settings.aiApiKey) {
+  // Se o bot e Kayzel IA estiverem disponíveis e configurados
+  if (bot && typeof bot.askKayzelAI === 'function' && db.settings.aiApiKey) {
     try {
       const prompt = `Gere uma sugestão criativa e empolgante de "Quest do Dia" (Missão Diária) para o servidor de Minecraft "Ravok Network".
 A missão deve convidar o jogador a fazer desafios na Arena de Votos no site (Quiz de Perguntas, Enquete da Comunidade, Vencer Pegadinhas, Completar Piadas).
 IMPORTANTE: A recompensa NUNCA PODE SER COINS! As recompensas devem ser sempre "2x Chaves de Voto" ou "1x Chave Rara".
 Responda ESTRITAMENTE em formato JSON válido, sem cercas de código markdown nem explicações adicionais, no seguinte formato:
-{"title": "Título da Missão", "description": "Texto empolgante explicando o que fazer hoje", "targetCount": 2, "rewardTitle": "2x Chaves de Voto", "rewardCommand": "crate key give {nick} vote 2", "silvieTip": "Uma dica amigável e mágica da Silvie inspirando o jogador"}`;
+{"title": "Título da Missão", "description": "Texto empolgante explicando o que fazer hoje", "targetCount": 2, "rewardTitle": "2x Chaves de Voto", "rewardCommand": "crate key give {nick} vote 2", "silvieTip": "Uma dica amigável e mágica do Kayzel inspirando o jogador"}`;
 
-      const aiRaw = await bot.askSilvieAI(prompt, 'Administrador');
+      const aiRaw = await bot.askKayzelAI(prompt, 'Administrador');
       const cleaned = aiRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
       const match = cleaned.match(/\{[\s\S]*\}/);
       if (match) {
@@ -3184,7 +3184,7 @@ Responda ESTRITAMENTE em formato JSON válido, sem cercas de código markdown ne
               targetCount: Math.min(4, Math.max(1, parseInt(parsed.targetCount, 10) || 2)),
               rewardTitle: String(parsed.rewardTitle || '2x Chaves de Voto').replace(/coins?/gi, 'Chaves'),
               rewardCommand: 'crate key give {nick} vote 2', // ZERO COINS garantido!
-              silvieTip: String(parsed.silvieTip || 'Dica da Silvie: Foque nos desafios e pegue suas chaves no /resgatar! 🔮').trim()
+              silvieTip: String(parsed.silvieTip || 'Dica do Kayzel: Foque nos desafios e pegue suas chaves no /resgatar! 🔮').trim()
             }
           });
         }
@@ -3961,15 +3961,15 @@ app.delete('/api/admin/delivery/:id', (req, res) => {
 });
 
 // ----------------------------------------------------
-// CRIAÇÃO DE PEDIDO MANUAL VIA WHATSAPP / PIX DIRETO
+// CRIAÇÃO DE PEDIDO MANUAL VIA DISCORD TICKET (COMPRAS) / PIX DIRETO
 // ----------------------------------------------------
 app.post('/api/orders/manual', (req, res) => {
-  const { nick, items, total, coupon, notes } = req.body || {};
+  const { nick, items, total, coupon, notes, paymentMethod, id } = req.body || {};
   if (!nick || !nick.trim()) {
     return res.status(400).json({ error: 'Nick do jogador é obrigatório.' });
   }
   const cleanNick = nick.trim();
-  const orderId = 'RV-' + Math.floor(1000 + Math.random() * 9000);
+  const orderId = (typeof id === 'string' && id.startsWith('RV-')) ? id : ('RV-' + Math.floor(1000 + Math.random() * 9000));
   const cleanItems = Array.isArray(items) ? items.map(item => {
     const prod = (db.products || []).find(p => String(p.id) === String(item.id));
     return {
@@ -3992,21 +3992,21 @@ app.post('/api/orders/manual', (req, res) => {
     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
     createdAt: new Date().toISOString(),
     status: 'pendente_admin',
-    paymentMethod: 'pix_manual',
+    paymentMethod: paymentMethod || 'discord_ticket',
     coupon: coupon || '',
-    notes: notes || 'Aguardando validação do comprovante Pix pelo Admin via WhatsApp/Discord',
+    notes: notes || 'Pedido criado via Discord Ticket (Categoria de Compras). Aguardando envio do comprovante Pix.',
     delivery_status: 'aguardando_aprovacao',
     delivered: false
   };
   db.orders = db.orders || [];
   db.orders.unshift(newOrder);
   saveDb(db);
-  console.log('[Manual Order] Novo pedido criado:', newOrder.id, 'para', cleanNick, 'Total:', finalTotal);
+  console.log('[Discord Ticket Order] Novo pedido criado:', newOrder.id, 'para', cleanNick, 'Total:', finalTotal, 'Método:', newOrder.paymentMethod);
   res.json({
     success: true,
     orderId,
     order: newOrder,
-    message: 'Pedido registrado com sucesso! Envie o comprovante ao Administrador para liberação no /resgatar.'
+    message: 'Pedido registrado com sucesso! Abra seu ticket na categoria Compras do Discord para liberação no /resgatar.'
   });
 });
 

@@ -23,6 +23,29 @@ const fs = require('fs');
 const path = require('path');
 const { generateWelcomeCard } = require('./welcomeCard.js');
 
+// Carregamento automático e resiliente do .env se existir
+const envFile = path.join(__dirname, '.env');
+if (fs.existsSync(envFile)) {
+  try {
+    const rawEnv = fs.readFileSync(envFile, 'utf8');
+    for (const line of rawEnv.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const idx = trimmed.indexOf('=');
+      if (idx > 0) {
+        const key = trimmed.slice(0, idx).trim();
+        let val = trimmed.slice(idx + 1).trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    }
+  } catch (e) {}
+}
+
 const DATA_DIR = process.env.VERCEL ? path.join('/tmp', 'data') : path.join(__dirname, 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
 const API_BASE = process.env.API_URL || 'https://ravok-site.vercel.app';
@@ -43,6 +66,9 @@ function getDbSettings() {
 
 function saveDbAtomic(data) {
   try {
+    if (!fs.existsSync(DATA_DIR)) {
+      fs.mkdirSync(DATA_DIR, { recursive: true });
+    }
     const tempFile = `${DB_FILE}.tmp.${Date.now()}`;
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
     fs.renameSync(tempFile, DB_FILE);
@@ -138,14 +164,24 @@ async function fetchMinecraftStatus(forceFresh = false) {
   };
 }
 
+// Determinar intents do bot (intents padrão evitam erro "Used disallowed intents")
+const wantsPrivileged = process.env.DISCORD_PRIVILEGED_INTENTS === 'true';
+
+const botIntents = [
+  GatewayIntentBits.Guilds,
+  GatewayIntentBits.GuildMessages,
+  GatewayIntentBits.GuildMessageReactions
+];
+
+if (wantsPrivileged) {
+  botIntents.push(GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMembers);
+  console.log('[Bot] Intents privilegiados ativados (MessageContent, GuildMembers).');
+} else {
+  console.log('[Bot] Rodando com intents padrão homologados (Guilds, GuildMessages, Reactions).');
+}
+
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.GuildMessageReactions
-  ],
+  intents: botIntents,
   partials: [Partials.Channel, Partials.Message, Partials.GuildMember]
 });
 
@@ -200,11 +236,11 @@ const commands = [
     ),
 
   new SlashCommandBuilder()
-    .setName('silvie')
-    .setDescription('Converse com a Silvie, a assistente de Inteligência Artificial da Ravok Network')
+    .setName('kayzel')
+    .setDescription('Converse com a Kayzel, o assistente oficial da Ravok Network')
     .addStringOption(opt =>
       opt.setName('pergunta')
-        .setDescription('Sua dúvida ou conversa para a Silvie responder')
+        .setDescription('Sua dúvida ou conversa para o Kayzel responder')
         .setRequired(true)
     ),
 
@@ -346,7 +382,7 @@ async function updateBotPresence() {
 client.on('interactionCreate', async (interaction) => {
   try {
     // ----------------------------------------------------
-    // BOTÕES INTERATIVOS (PAINÉIS DA SILVIE)
+    // BOTÕES INTERATIVOS (PAINÉIS DO KAYZEL)
     // ----------------------------------------------------
     if (interaction.isButton()) {
       return await handleButtonInteraction(interaction);
@@ -646,13 +682,13 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   // COMANDO: /silvie
-  if (commandName === 'silvie') {
+  if (commandName === 'kayzel' || commandName === 'silvie') {
     const pergunta = interaction.options.getString('pergunta');
     await interaction.deferReply();
     try {
-      const answer = await askSilvieAI(pergunta, interaction.user.displayName || interaction.user.username);
+      const answer = await askKayzelAI(pergunta, interaction.user.displayName || interaction.user.username);
       const embed = new EmbedBuilder()
-        .setTitle('🔮 Silvie Responde')
+        .setTitle('🔮 Kayzel Responde')
         .setColor(0x55e6d8)
         .setDescription(answer.length > 4000 ? answer.slice(0, 3990) + '...' : answer)
         .addFields({ name: 'Sua Pergunta', value: pergunta.slice(0, 1024) })
@@ -662,7 +698,7 @@ client.on('interactionCreate', async (interaction) => {
       await interaction.editReply({ embeds: [embed] });
       logBot('info', `Comando /silvie usado por ${interaction.user.tag}`);
     } catch (err) {
-      await interaction.editReply({ content: `❌ Erro ao consultar a Silvie: ${err.message}` });
+      await interaction.editReply({ content: `❌ Erro ao consultar o Kayzel: ${err.message}` });
     }
   }
 
@@ -828,7 +864,7 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 // ----------------------------------------------------
-// HANDLER DE BOTÕES INTERATIVOS (PAINÉIS DA SILVIE)
+// HANDLER DE BOTÕES INTERATIVOS (PAINÉIS DO KAYZEL)
 // ----------------------------------------------------
 async function handleButtonInteraction(interaction) {
   try {
@@ -1083,7 +1119,7 @@ async function handleModalSubmit(interaction) {
   if (customId === 'modal_ticket') {
     if (!guild) return interaction.reply({ content: '❌ Use dentro do servidor.', ephemeral: true });
 
-    const existing = guild.channels.cache.find(c => c.topic === `silvie-ticket:${interaction.user.id}`);
+    const existing = guild.channels.cache.find(c => c.topic === `kayzel-ticket:${interaction.user.id}`);
     if (existing) {
       return interaction.reply({ content: `🌿 Você já possui um ticket em aberto em ${existing}!`, ephemeral: true });
     }
@@ -1098,7 +1134,7 @@ async function handleModalSubmit(interaction) {
         name: `ticket-${interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '') || interaction.user.id}`,
         type: ChannelType.GuildText,
         parent: category && category.type === ChannelType.GuildCategory ? category.id : undefined,
-        topic: `silvie-ticket:${interaction.user.id}`,
+        topic: `kayzel-ticket:${interaction.user.id}`,
         permissionOverwrites: [
           { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
           { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] },
@@ -1424,7 +1460,7 @@ client.on('guildMemberAdd', async (member) => {
 // ----------------------------------------------------
 // MOTOR DE INTELIGÊNCIA ARTIFICIAL — SILVIE AI
 // ----------------------------------------------------
-async function askSilvieAI(promptText, authorName = 'Aventureiro') {
+async function askKayzelAI(promptText, authorName = 'Aventureiro') {
   const settings = getDbSettings();
   const apiKey = (settings.aiApiKey || '').trim();
   const systemPrompt = settings.aiPrompt || 'Você é Silvie, a assistente oficial da Ravok Network. Ajude os aventureiros com simpatia e clareza em português do Brasil.';
@@ -1529,8 +1565,11 @@ client.on('messageCreate', async (message) => {
 
   const settings = getDbSettings();
 
+  const contentStr = typeof message.content === 'string' ? message.content : '';
+  if (!contentStr) return;
+
   // COMANDOS PREFIXO DE TESTE RÁPIDO PARA ADMINS (!testwelcome, !boasvindas, !welcome)
-  const rawMsg = message.content.trim().toLowerCase();
+  const rawMsg = contentStr.trim().toLowerCase();
   if (rawMsg === '!testwelcome' || rawMsg === '!boasvindas' || rawMsg === '!welcome') {
     const isStaff = message.member && (
       message.member.permissions.has(PermissionFlagsBits.Administrator) ||
@@ -1853,7 +1892,7 @@ client.on('messageCreate', async (message) => {
   try {
     await message.channel.sendTyping();
     const authorName = message.author.displayName || message.author.username;
-    const response = await askSilvieAI(cleanText, authorName);
+    const response = await askKayzelAI(cleanText, authorName);
 
     if (response.length <= 1900) {
       await message.reply({ content: response, allowedMentions: { repliedUser: false } });
@@ -2624,6 +2663,7 @@ async function publishStorePanel(targetChannelId) {
 }
 
 module.exports = {
+  askSilvieAI: askKayzelAI,
   client,
   startBot,
   stopBot,
@@ -2637,7 +2677,7 @@ module.exports = {
   testWelcomeNotification,
   syncCommands,
   clearLogs,
-  askSilvieAI,
+  askKayzelAI,
   publishPanel,
   empurrarPainel,
   assignLinkedRoles,

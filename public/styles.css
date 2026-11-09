@@ -316,6 +316,7 @@ body {
 .topbar-brand-wrap {
   display: flex;
   align-items: center;
+  min-height: 48px;
 }
 
 .brand {
@@ -325,15 +326,20 @@ body {
   gap: 12px !important;
   text-decoration: none !important;
   line-height: 1 !important;
+  padding: 2px 0 !important;
 }
 
 .brand .brand-logo-img,
 .brand img {
   width: 42px !important;
   height: 42px !important;
+  max-height: 42px !important;
   object-fit: contain !important;
   filter: drop-shadow(0 0 12px rgba(255, 179, 0, 0.6)) !important;
   flex-shrink: 0 !important;
+  display: block !important;
+  vertical-align: middle !important;
+  margin: 0 !important;
   transition: transform 0.25s ease !important;
 }
 
@@ -343,18 +349,24 @@ body {
 }
 
 .brand .brand-title {
-  display: inline-block !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
   font-family: 'Unbounded', sans-serif !important;
   font-size: 20px !important;
   font-weight: 800 !important;
   letter-spacing: -0.5px !important;
   white-space: nowrap !important;
-  background: linear-gradient(135deg, #FFFFFF 0%, #FFE082 50%, #FFB300 100%) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  text-shadow: none !important;
+  color: #FFFFFF !important;
   margin: 0 !important;
   line-height: 1 !important;
+}
+
+.brand .brand-title .brand-title-accent,
+.brand .brand-title-accent {
+  background: linear-gradient(135deg, #FFE082 0%, #FFB300 50%, #FF8F00 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
 }
 
 /* Status do Servidor no Topo — Cyan Neon & Azul Celeste (Dark Tech - Zero Verde) */
@@ -4783,4 +4795,211 @@ input:focus, textarea:focus, select:focus {
   cursor: not-allowed !important;
   box-shadow: none !important;
   opacity: 0.85;
+}
+
+
+/* ==========================================================================
+   CARTAO MISTERIOSO "EM BREVE" (PETS E VISUAIS DE FERRAMENTA)
+   ========================================================================== */
+.rw-card.rw-mystery-card {
+  min-height: 320px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: radial-gradient(circle at 50% 40%, rgba(55, 28, 16, 0.95) 0%, rgba(20, 11, 8, 0.98) 100%) !important;
+  border: 1px solid rgba(255, 193, 7, 0.25) !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 0 25px rgba(255, 193, 7, 0.05) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
+  padding: 24px 16px !important;
+  text-align: center !important;
+}
+.rw-card.rw-mystery-card:hover {
+  transform: translateY(-4px) !important;
+  border-color: rgba(255, 193, 7, 0.5) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(255, 193, 7, 0.2) !important;
+}
+.rw-mystery-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+}
+.rw-mystery-silhouette {
+  width: 105px;
+  height: 105px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(216, 67, 21, 0.25) 0%, rgba(15, 8, 5, 0.85) 75%);
+  border: 2px dashed rgba(255, 193, 7, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-shadow: 0 0 30px rgba(216, 67, 21, 0.3), inset 0 0 18px rgba(0, 0, 0, 0.85);
+  animation: pulseMysteryGlow 3s ease-in-out infinite alternate;
+}
+@keyframes pulseMysteryGlow {
+  0% {
+    box-shadow: 0 0 18px rgba(216, 67, 21, 0.2), inset 0 0 14px rgba(0, 0, 0, 0.85);
+    border-color: rgba(255, 193, 7, 0.3);
+    transform: scale(0.98);
+  }
+  100% {
+    box-shadow: 0 0 35px rgba(255, 193, 7, 0.4), inset 0 0 22px rgba(216, 67, 21, 0.35);
+    border-color: rgba(255, 193, 7, 0.65);
+    transform: scale(1.02);
+  }
+}
+.rw-mystery-question {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 52px;
+  font-weight: 900;
+  color: #FFC107;
+  text-shadow: 0 0 20px rgba(255, 193, 7, 0.8), 0 0 40px rgba(216, 67, 21, 0.6);
+  user-select: none;
+  line-height: 1;
+}
+.rw-mystery-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #FFE082;
+  background: rgba(255, 193, 7, 0.12);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  padding: 8px 20px;
+  border-radius: 100px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* ==========================================================================
+   CHECKOUT DISCORD & MODAL DE TICKET (CATEGORIA DE COMPRAS)
+   ========================================================================== */
+.btn-checkout-discord {
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(88, 101, 242, 0.6);
+  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.35);
+}
+.btn-checkout-discord:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(88, 101, 242, 0.55);
+  background: linear-gradient(135deg, #6775F5 0%, #4752C4 100%);
+}
+.btn-checkout-discord:active {
+  transform: translateY(0);
+}
+
+.discord-order-dialog {
+  border: 1px solid rgba(88, 101, 242, 0.5) !important;
+  border-radius: 18px !important;
+  background: radial-gradient(circle at 50% 10%, #2E1B15 0%, #150C08 100%) !important;
+  color: #FFFFFF !important;
+  max-width: 520px !important;
+  width: 92% !important;
+  padding: 26px 24px !important;
+  box-shadow: 0 25px 70px rgba(0, 0, 0, 0.85), 0 0 35px rgba(88, 101, 242, 0.25) !important;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  z-index: 1000;
+}
+.discord-order-dialog::backdrop {
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(6px);
+}
+.dc-modal-header {
+  text-align: center;
+  margin-bottom: 18px;
+}
+.dc-modal-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: rgba(88, 101, 242, 0.18);
+  border: 1px solid rgba(88, 101, 242, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin: 0 auto 12px;
+  box-shadow: 0 0 20px rgba(88, 101, 242, 0.3);
+}
+.dc-modal-ticket-box {
+  background: rgba(18, 10, 7, 0.95);
+  border: 1px solid rgba(255, 193, 7, 0.28);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.dc-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.btn-dc-copy {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 193, 7, 0.4);
+  background: rgba(255, 193, 7, 0.12);
+  color: #FFE082;
+  font-family: 'DM Mono', monospace;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+.btn-dc-copy:hover {
+  background: rgba(255, 193, 7, 0.22);
+  border-color: #FFC107;
+  color: #FFFFFF;
+}
+.btn-dc-join {
+  width: 100%;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  background: linear-gradient(135deg, #5865F2 0%, #4752C4 100%);
+  color: #FFFFFF;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 6px 20px rgba(88, 101, 242, 0.35);
+  transition: all 0.2s;
+}
+.btn-dc-join:hover {
+  background: linear-gradient(135deg, #6775F5 0%, #4752C4 100%);
+  transform: translateY(-2px);
 }

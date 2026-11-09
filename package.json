@@ -2,11 +2,12 @@
   "name": "ravok-network",
   "version": "1.0.0",
   "description": "Loja, Painel Administrativo e Backend de Entrega Automática do Ravok Network",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js",
+    "start": "node index.js",
     "bot": "node bot.js",
+    "server": "node server.js",
+    "dev": "node --watch index.js",
     "build-plugin": "powershell -ExecutionPolicy Bypass -File ./scripts/build-plugin.ps1"
   },
   "keywords": [

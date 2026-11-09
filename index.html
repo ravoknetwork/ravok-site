@@ -20,7 +20,7 @@
     <div class="topbar-brand-wrap">
       <a class="brand" href="#inicio" aria-label="Ravok Network">
         <img src="images/emblema_ravok_outonal.png" alt="Ravok Network" class="brand-logo-img">
-        <span class="brand-title">RAVOK NETWORK</span>
+        <span class="brand-title">RAVOK <span class="brand-title-accent">NETWORK</span></span>
       </a>
     </div>
 
@@ -438,52 +438,65 @@
         <button type="button" id="applyCouponBtn" style="padding: 10px 18px; background: var(--ravok-accent-cyan); color: var(--ravok-text-inverse); font-weight: 700; border: none; border-radius: var(--ravok-radius-pill); cursor: pointer; font-size: 13px; box-shadow: var(--ravok-glow-cyan);">Aplicar</button>
       </div>
       <div id="couponAppliedBadge" style="display: none; font-size: 12px; color: var(--ravok-accent-cyan); margin-bottom: 10px; font-weight: 600;">✓ Cupom RAVOK aplicado (-20%)</div>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">        <span style="font-size:14px; color:var(--ravok-text-secondary);">Total</span>        <strong id="cartTotal" style="font-size:20px; font-family:'Unbounded', sans-serif; color:var(--amber-gold);">R$ 0,00</strong>      </div>      <!-- BOTÃO 1: CONCLUIR COM ADMIN (WHATSAPP / PIX DIRETO) -->      <button type="button" class="btn-checkout-admin" id="checkoutAdmin" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 16px; border-radius: var(--ravok-radius-pill); font-family: 'Unbounded', sans-serif; font-size: 12.5px; font-weight: 800; background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); color: #ffffff; border: none; cursor: pointer; box-shadow: 0 4px 18px rgba(37, 211, 102, 0.4); margin-bottom: 8px; transition: transform 0.2s, box-shadow 0.2s;">        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.174 8.174 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.12-.14.17-.25.25-.42.08-.17.04-.31-.02-.44s-.56-1.36-.77-1.86c-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.17-.48-.29z"/></svg>        <span>Concluir com Admin (WhatsApp)</span>      </button>      <!-- BOTÃO 2: CHECKOUT PIX AUTOMÁTICO -->      <button class="primary full" id="checkout" style="padding: 10px; font-size: 12px; opacity: 0.85;">        <span>⚡ Pagar via Pix Automático</span>      </button>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">        <span style="font-size:14px; color:var(--ravok-text-secondary);">Total</span>        <strong id="cartTotal" style="font-size:20px; font-family:'Unbounded', sans-serif; color:var(--amber-gold);">R$ 0,00</strong>      </div>      <!-- BOTÃO DE CHECKOUT DISCORD (CRIAR TICKET NA CATEGORIA DE COMPRAS) -->
+      <button type="button" class="btn-checkout-discord" id="checkoutDiscord">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        <span>Concluir no Discord (Criar Ticket)</span>
+      </button>      <!-- BOTÃO 2: CHECKOUT PIX AUTOMÁTICO -->      <button class="primary full" id="checkout" style="padding: 10px; font-size: 12px; opacity: 0.85;">        <span>⚡ Pagar via Pix Automático</span>      </button>
     </div>
   </aside>
 
   <div class="overlay" id="overlay"></div>
 
   
-  <!-- Diálogo: Pedido com Administrador (WhatsApp / Pix Manual) -->
-  <dialog id="adminOrderModal" class="vip-modal-dialog" style="max-width: 520px; width: 92%;">
-    <button class="close dialog-close" data-close onclick="document.getElementById('adminOrderModal').close()">✕</button>
-    <p class="eyebrow" style="color:#25D366;"><img src="images/autumn/folha_de_bordo_flutuante.png" alt="" style="width:14px; height:14px; vertical-align:middle;"> FINALIZAÇÃO COM ADMIN</p>
-    <h2 style="font-size: 22px; margin-bottom: 6px;">Concluir Pedido via WhatsApp</h2>
-    <p style="font-size: 13px; color: var(--ravok-text-secondary); margin-bottom: 16px;">
-      Envie o comprovante do Pix diretamente para nossa Staff no WhatsApp para ativação imediata no <code style="color:var(--amber-gold);">/resgatar</code>!
-    </p>
+  <!-- Diálogo: Pedido via Ticket do Discord (Categoria de Compras) -->
+  <dialog id="discordOrderModal" class="discord-order-dialog">
+    <button class="close dialog-close" data-close onclick="document.getElementById('discordOrderModal').close()">✕</button>
+    <div class="dc-modal-header">
+      <div class="dc-modal-icon">🎫</div>
+      <p class="eyebrow" style="color:var(--amber-gold); margin-bottom:4px;"><img src="images/autumn/folha_de_bordo_flutuante.png" alt="" style="width:14px; height:14px; vertical-align:middle;"> FINALIZAÇÃO VIA DISCORD TICKET</p>
+      <h2 style="font-size:22px; margin-bottom:6px;">Pedido Gerado com Sucesso!</h2>
+      <p style="font-size:13px; color:rgba(255,255,255,0.75); margin:0;">
+        Abra um ticket na categoria <strong style="color:var(--amber-gold);">Compras</strong> no Discord para enviar o comprovante Pix e receber seus itens imediatamente no <code style="color:var(--amber-gold);">/resgatar</code>!
+      </p>
+    </div>
 
-    <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--ravok-border-subtle); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-        <span style="color:var(--ravok-text-secondary);">Identificador:</span>
-        <strong id="adminOrderId" style="color:var(--amber-gold); font-family:'DM Mono', monospace;">#RV-0000</strong>
+    <div class="dc-modal-ticket-box" id="dcModalTicketBox">
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span style="color:var(--ravok-text-secondary);">Código do Pedido:</span>
+        <strong id="dcOrderId" style="color:var(--amber-gold);">#RV-0000</strong>
       </div>
-      <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-        <span style="color:var(--ravok-text-secondary);">Nick do Jogador:</span>
-        <strong id="adminOrderNick" style="color:#fff;">-</strong>
+      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+        <span style="color:var(--ravok-text-secondary);">Nick Minecraft:</span>
+        <strong id="dcOrderNick" style="color:#ffffff;">-</strong>
       </div>
-      <div id="adminOrderItems" style="border-top: 1px dashed rgba(255,255,255,0.1); border-bottom: 1px dashed rgba(255,255,255,0.1); padding: 8px 0; margin: 8px 0;"></div>
-      <div style="display:flex; justify-content:space-between; align-items:center; font-size:15px;">
-        <span>Total a Transferir:</span>
-        <strong id="adminOrderTotal" style="color:var(--amber-gold); font-family:'Unbounded', sans-serif; font-size:18px;">R$ 0,00</strong>
+      <div id="dcOrderItems" style="border-top:1px dashed rgba(255,255,255,0.15); border-bottom:1px dashed rgba(255,255,255,0.15); padding:8px 0; margin:8px 0; max-height:120px; overflow-y:auto;"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; font-size:14px;">
+        <span>Total a Pagar:</span>
+        <strong id="dcOrderTotal" style="color:var(--amber-gold); font-size:17px; font-family:'Unbounded', sans-serif;">R$ 0,00</strong>
       </div>
     </div>
 
     <!-- CHAVE PIX OFICIAL -->
-    <div style="margin-bottom: 18px;">
-      <label style="display:block; font-size:11px; font-weight:700; color:var(--amber-gold); font-family:'DM Mono', monospace; margin-bottom:6px; text-transform:uppercase;">Chave Pix (E-mail):</label>
+    <div style="margin-bottom:16px;">
+      <label style="display:block; font-size:11px; font-weight:700; color:var(--amber-gold); font-family:'DM Mono', monospace; margin-bottom:6px; text-transform:uppercase;">Chave Pix Oficial (E-mail):</label>
       <div style="display:flex; gap:8px;">
-        <input type="text" id="adminOrderPixKey" readonly value="contato@ravok.network" style="flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--ravok-border-subtle); background:#120B07; color:#fff; font-family:'DM Mono', monospace; font-size:13px;">
-        <button type="button" class="btn-ghost" onclick="navigator.clipboard.writeText(document.getElementById('adminOrderPixKey').value); toast('✓ Chave Pix copiada!');" style="padding:10px 16px; font-size:12px; white-space:nowrap;">📋 Copiar</button>
+        <input type="text" id="dcOrderPixKey" readonly value="contato@ravok.network" style="flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--ravok-border-subtle); background:#120B07; color:#fff; font-family:'DM Mono', monospace; font-size:13px;">
+        <button type="button" class="btn-ghost" onclick="navigator.clipboard.writeText(document.getElementById('dcOrderPixKey').value); toast('✓ Chave Pix copiada!');" style="padding:10px 14px; font-size:12px; white-space:nowrap;">📋 Copiar Pix</button>
       </div>
     </div>
 
-    <!-- BOTÃO DE AÇÃO WHATSAPP -->
-    <a id="adminOrderWaBtn" href="#" target="_blank" rel="noopener" class="primary full" style="background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); border:none; text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; padding:15px; font-size:13.5px; font-weight:800; box-shadow:0 6px 20px rgba(37,211,102,0.4); border-radius:10px;">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.41a8.174 8.174 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.19 8.19 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.66c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.4-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.38-.44.12-.14.17-.25.25-.42.08-.17.04-.31-.02-.44s-.56-1.36-.77-1.86c-.2-.49-.41-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1 0 1.24.9 2.44 1.03 2.61.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.6.19 1.15.16 1.58.1.48-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.1-.23-.17-.48-.29z"/></svg>
-      <span>Abrir WhatsApp do Administrador ↗</span>
-    </a>
+    <!-- AÇÕES: COPIAR DETALHES & ABRIR DISCORD -->
+    <div class="dc-modal-actions">
+      <button type="button" class="btn-dc-copy" id="btnCopyDcOrder">
+        📋 Copiar Mensagem do Pedido para o Ticket
+      </button>
+      <a id="btnOpenDiscordTicket" href="https://discord.gg/ravok" target="_blank" rel="noopener" class="btn-dc-join">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.929 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.894.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
+        <span>Abrir Discord &amp; Criar Ticket na Categoria Compras ↗</span>
+      </a>
+      <button type="button" class="btn-ghost" onclick="document.getElementById('discordOrderModal').close()" style="font-size:12px; color:rgba(255,255,255,0.6); padding:8px;">Fechar</button>
+    </div>
   </dialog>
 
   <!-- Diálogo: Nick do Jogador -->

@@ -481,51 +481,6 @@
       ]
     },
     {
-      "id": "voucher-skin-aleatoria",
-      "cat": "Vouchers",
-      "badge": "NOVIDADE",
-      "badgeColor": "gold",
-      "icon": "📜",
-      "image": "images/products/voucher_skin_pixel_hd.png",
-      "name": "Voucher Skin Aleatória",
-      "description": "Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!",
-      "price": 9.99,
-      "oldPrice": 19.9,
-      "perksList": [
-        "136 Visuais raros possíveis",
-        "Resgate com 1 clique no inventário",
-        "Compatível com espadas, picaretas e machados",
-        "Não perde ao morrer"
-      ],
-      "command": "crazyvouchers give Random_Toolskin 1 {player}"
-    },
-    {
-      "id": "pet-dino",
-      "cat": "Pets",
-      "badge": "EM BREVE",
-      "badgeColor": "purple",
-      "icon": "🦖",
-      "image": "images/products/pet_dino_hd.png",
-      "name": "Pet Dinossauro 3D",
-      "description": "Um companheiro pré-histórico com animações customizadas e efeitos sonoros.",
-      "price": 29.9,
-      "command": "mcpets spawn dino {player} false",
-      "isComingSoon": true
-    },
-    {
-      "id": "pet-cubee",
-      "cat": "Pets",
-      "badge": "EM BREVE",
-      "badgeColor": "purple",
-      "icon": "🧊",
-      "image": "images/products/pet_cubee_hd.png",
-      "name": "Pet Cubee Mágico",
-      "description": "Cubinho flutuante que segue você com partículas de luz e animações suaves.",
-      "price": 34.9,
-      "command": "mcpets spawn cubee_magico {player} false",
-      "isComingSoon": true
-    },
-    {
       "id": "cosmetic-fire",
       "cat": "Cosméticos",
       "badge": "RARO",
@@ -736,6 +691,16 @@
         "Economiza tempo precioso coletando madeira no Survival",
         "Compatível com todos os machados (ferro, diamante e netherite)"
       ]
+    },
+    {
+      "id": "mystery-skins",
+      "cat": "Vouchers",
+      "isMystery": true
+    },
+    {
+      "id": "mystery-pets",
+      "cat": "Pets",
+      "isMystery": true
     }
   ],
   "slides": [
@@ -1206,7 +1171,8 @@
       "targetCount": 2,
       "rewardTitle": "2x Chaves de Voto",
       "rewardCommand": "crate key give {nick} vote 2",
-      "silvieTip": "Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮"
+      "silvieTip": "Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮",
+      "kayzelTip": "Dica da Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮"
     },
     "dailyQuestClaims": [],
     "votesHistory": []

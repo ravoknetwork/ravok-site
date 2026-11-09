@@ -638,50 +638,15 @@ const DEFAULT_PRODUCTS = [
       "Ativação imediata via /resgatar usando /darfly"
     ]
   },
-  {
-    "id": "voucher-skin-aleatoria",
+    {
+    "id": "mystery-skins",
     "cat": "Vouchers",
-    "badge": "NOVIDADE",
-    "badgeColor": "gold",
-    "icon": "📜",
-    "image": "images/products/voucher_skin_pixel_hd.png",
-    "name": "Voucher Skin Aleatória",
-    "description": "Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!",
-    "price": 9.99,
-    "oldPrice": 19.9,
-    "perksList": [
-      "136 Visuais raros possíveis",
-      "Resgate com 1 clique no inventário",
-      "Compatível com espadas, picaretas e machados",
-      "Não perde ao morrer"
-    ],
-    "command": "crazyvouchers give Random_Toolskin 1 {player}"
+    "isMystery": true
   },
   {
-    "id": "pet-dino",
+    "id": "mystery-pets",
     "cat": "Pets",
-    "badge": "EM BREVE",
-    "badgeColor": "purple",
-    "icon": "🦖",
-    "image": "images/products/pet_dino_hd.png",
-    "name": "Pet Dinossauro 3D",
-    "description": "Um companheiro pré-histórico com animações customizadas e efeitos sonoros.",
-    "price": 29.9,
-    "command": "mcpets spawn dino {player} false",
-    "isComingSoon": true
-  },
-  {
-    "id": "pet-cubee",
-    "cat": "Pets",
-    "badge": "EM BREVE",
-    "badgeColor": "purple",
-    "icon": "🧊",
-    "image": "images/products/pet_cubee_hd.png",
-    "name": "Pet Cubee Mágico",
-    "description": "Cubinho flutuante que segue você com partículas de luz e animações suaves.",
-    "price": 34.9,
-    "command": "mcpets spawn cubee_magico {player} false",
-    "isComingSoon": true
+    "isMystery": true
   },
   {
     "id": "cosmetic-fire",
@@ -922,7 +887,6 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'key-epic': 'images/products/key_epica_hd.png',
   'key-superior': 'images/products/key_superior_hd.png',
   'key-combo': 'images/products/key_combo_4x_hd.png',
-  'voucher-skin-aleatoria': 'images/products/voucher_skin_pixel_hd.png',
   'enchant-fortuna-4': 'images/products/livro_fortuna_4.png',
   'enchant-eficiencia-6': 'images/products/livro_eficiencia_6.png',
   'enchant-inquebravel-4': 'images/products/livro_inquebravel_4.png',
@@ -934,8 +898,6 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'cmd-heal': 'images/products/cmd_heal_hd.png',
   'cmd-repair': 'images/products/cmd_repair_hd.png',
   'cmd-fly': 'images/products/cmd_fly_hd.png',
-  'pet-dino': 'images/products/pet_dino_hd.png',
-  'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
   'cosmetic-sword': 'images/products/espada_solar_hd.png',
   'vip-vendaval': 'images/products/vip_vendaval_hd.png',
@@ -991,8 +953,6 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
     'key-combo': 24.90,
     'enchant-silkspawner': 50.00,
     'enchant-treefeller': 4.50,
-    'voucher-skin': 9.99,
-    'voucher-skin-aleatoria': 9.99,
     'cmd-fly': 4.90,
     'cmd-back': 6.90,
     'cmd-feed': 8.90,
@@ -1065,7 +1025,7 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
       } else if (p.cat === 'Comandos') {
         p.image = 'images/products/cmd_repair_hd.png';
       } else if (p.cat === 'Pets') {
-        p.image = 'images/products/pet_dino_hd.png';
+        
       } else if (p.cat === 'Cosméticos') {
         p.image = 'images/products/espada_solar_hd.png';
       }

@@ -1,3 +1,26 @@
+// Auto-purga definitiva de itens legados no navegador do usuario
+(function purgeLegacyBrowserStorage() {
+  const BANNED = ['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin'];
+  ['ravok_products_v15', 'ravok_products_v12', 'ravok_products_v8', 'ravok_products_v6', 'ravok_products_v5', 'ravok_admin_snapshot_v2', 'ravok_admin_snapshot_v1'].forEach(k => {
+    try {
+      const raw = localStorage.getItem(k);
+      if (raw) {
+        let parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          if (parsed.some(p => BANNED.includes(String(p.id)))) {
+            parsed = parsed.filter(p => !BANNED.includes(String(p.id)));
+            localStorage.setItem(k, JSON.stringify(parsed));
+          }
+        } else if (parsed && Array.isArray(parsed.products)) {
+          if (parsed.products.some(p => BANNED.includes(String(p.id)))) {
+            parsed.products = parsed.products.filter(p => !BANNED.includes(String(p.id)));
+            localStorage.setItem(k, JSON.stringify(parsed));
+          }
+        }
+      }
+    } catch (e) {}
+  });
+})();
 
 const DEFAULT_ORDERS = [
   {
@@ -512,50 +535,15 @@ const DEFAULT_PRODUCTS = [
       "Ativação imediata via /resgatar usando /darfly"
     ]
   },
-  {
-    "id": "voucher-skin-aleatoria",
+    {
+    "id": "mystery-skins",
     "cat": "Vouchers",
-    "badge": "NOVIDADE",
-    "badgeColor": "gold",
-    "icon": "📜",
-    "image": "images/products/voucher_skin_pixel_hd.png",
-    "name": "Voucher Skin Aleatória",
-    "description": "Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!",
-    "price": 9.99,
-    "oldPrice": 19.9,
-    "perksList": [
-      "136 Visuais raros possíveis",
-      "Resgate com 1 clique no inventário",
-      "Compatível com espadas, picaretas e machados",
-      "Não perde ao morrer"
-    ],
-    "command": "crazyvouchers give Random_Toolskin 1 {player}"
+    "isMystery": true
   },
   {
-    "id": "pet-dino",
+    "id": "mystery-pets",
     "cat": "Pets",
-    "badge": "EM BREVE",
-    "badgeColor": "purple",
-    "icon": "🦖",
-    "image": "images/products/pet_dino_hd.png",
-    "name": "Pet Dinossauro 3D",
-    "description": "Um companheiro pré-histórico com animações customizadas e efeitos sonoros.",
-    "price": 29.9,
-    "command": "mcpets spawn dino {player} false",
-    "isComingSoon": true
-  },
-  {
-    "id": "pet-cubee",
-    "cat": "Pets",
-    "badge": "EM BREVE",
-    "badgeColor": "purple",
-    "icon": "🧊",
-    "image": "images/products/pet_cubee_hd.png",
-    "name": "Pet Cubee Mágico",
-    "description": "Cubinho flutuante que segue você com partículas de luz e animações suaves.",
-    "price": 34.9,
-    "command": "mcpets spawn cubee_magico {player} false",
-    "isComingSoon": true
+    "isMystery": true
   },
   {
     "id": "cosmetic-fire",
@@ -1050,7 +1038,7 @@ async function syncAdminFromBackend() {
         const cleanProds = upgradeClientProducts(state.products);
         if (cleanProds.length > 0) {
           try {
-            localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
+            localStorage.setItem('ravok_products_v15', JSON.stringify(cleanProds));
             localStorage.setItem('ravok_products_synced', '1');
           } catch (e) {}
         }
@@ -1415,7 +1403,7 @@ function compressImageFile(file, maxDimension = 512) {
 function saveStoredProducts(prods, updatedAt) {
   const clean = upgradeClientProducts(prods);
   try {
-    localStorage.setItem('ravok_products_v6', JSON.stringify(clean));
+    localStorage.setItem('ravok_products_v15', JSON.stringify(clean));
     localStorage.removeItem('ravok_products_v5');
     localStorage.setItem('ravok_products_synced', '1');
   } catch (err) {
@@ -1524,7 +1512,7 @@ by('#productForm').onsubmit = async (e) => {
     'Encantamentos': 'images/products/livro_fortuna_4.png',
     'Comandos': 'images/products/cmd_repair_hd.png',
     'Vouchers': 'images/products/voucher_skin_pixel_hd.png',
-    'Pets': 'images/products/pet_dino_hd.png',
+    
     'Cosméticos': 'images/products/espada_solar_hd.png'
   }[cat] || 'images/emblema_ravok_outonal.png';
 

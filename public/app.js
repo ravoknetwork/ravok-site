@@ -1,3 +1,26 @@
+// Auto-purga definitiva de itens legados no navegador do usuario
+(function purgeLegacyBrowserStorage() {
+  const BANNED = ['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin'];
+  ['ravok_products_v15', 'ravok_products_v12', 'ravok_products_v8', 'ravok_products_v6', 'ravok_products_v5', 'ravok_admin_snapshot_v2', 'ravok_admin_snapshot_v1'].forEach(k => {
+    try {
+      const raw = localStorage.getItem(k);
+      if (raw) {
+        let parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          if (parsed.some(p => BANNED.includes(String(p.id)))) {
+            parsed = parsed.filter(p => !BANNED.includes(String(p.id)));
+            localStorage.setItem(k, JSON.stringify(parsed));
+          }
+        } else if (parsed && Array.isArray(parsed.products)) {
+          if (parsed.products.some(p => BANNED.includes(String(p.id)))) {
+            parsed.products = parsed.products.filter(p => !BANNED.includes(String(p.id)));
+            localStorage.setItem(k, JSON.stringify(parsed));
+          }
+        }
+      }
+    } catch (e) {}
+  });
+})();
 let cart = [];
 const money = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const by = s => document.querySelector(s);
@@ -853,7 +876,6 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'key-epic': 'images/products/key_epica_hd.png',
   'key-superior': 'images/products/key_superior_hd.png',
   'key-combo': 'images/products/key_combo_4x_hd.png',
-  'voucher-skin-aleatoria': 'images/products/voucher_skin_pixel_hd.png',
   'enchant-fortuna-4': 'images/products/livro_fortuna_4.png',
   'enchant-eficiencia-6': 'images/products/livro_eficiencia_6.png',
   'enchant-inquebravel-4': 'images/products/livro_inquebravel_4.png',
@@ -865,8 +887,6 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'cmd-heal': 'images/products/cmd_heal_hd.png',
   'cmd-repair': 'images/products/cmd_repair_hd.png',
   'cmd-fly': 'images/products/cmd_fly_hd.png',
-  'pet-dino': 'images/products/pet_dino_hd.png',
-  'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
   'cosmetic-sword': 'images/products/espada_solar_hd.png',
   'vip-vendaval': 'images/products/vip_vendaval_hd.png',
@@ -926,6 +946,8 @@ function getDeletedProductIds() {
 }
 
 function upgradeClientProducts(list) {
+  const BANNED_LEGACY_IDS = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  list = (Array.isArray(list) ? list : []).filter(p => p && !BANNED_LEGACY_IDS.has(String(p.id)));
   const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
   const CANONICAL_PRICES = {
     'key-voto': 4.99,
@@ -936,8 +958,6 @@ function upgradeClientProducts(list) {
     'key-combo': 24.90,
     'enchant-silkspawner': 50.00,
     'enchant-treefeller': 4.50,
-    'voucher-skin': 9.99,
-    'voucher-skin-aleatoria': 9.99,
     'cmd-fly': 4.90,
     'cmd-back': 6.90,
     'cmd-feed': 8.90,
@@ -1011,7 +1031,7 @@ function upgradeClientProducts(list) {
       } else if (p.cat === 'Comandos') {
         p.image = 'images/products/cmd_repair_hd.png';
       } else if (p.cat === 'Pets') {
-        p.image = 'images/products/pet_dino_hd.png';
+        
       } else if (p.cat === 'Cosméticos') {
         p.image = 'images/products/espada_solar_hd.png';
       }
@@ -1211,7 +1231,8 @@ function renderProducts() {
     sidebarEl.innerHTML = rawCategories.map(c => {
       const meta = CATEGORY_META[c] || { icon: '⭐', label: c };
       const isActive = c === activeCategory;
-      const count = c === 'Todos' ? products.length : products.filter(p => p.cat === c).length;
+      const isMysteryCat = (c === 'Pets' || c === 'Vouchers');
+      const count = c === 'Todos' ? products.filter(p => !p.isMystery).length : (isMysteryCat ? '⏳' : products.filter(p => p.cat === c).length);
       const iconMarkup = meta.iconImg
         ? `<img src="${meta.iconImg}" alt="" class="rw-cat-tex-icon" onerror="this.style.display='none'">`
         : `<span class="rw-cat-icon">${meta.icon}</span>`;
@@ -1232,6 +1253,18 @@ function renderProducts() {
   const gridEl = by('#productGrid');
   if (gridEl) {
     gridEl.innerHTML = filtered.map(p => {
+      if (p.isMystery || p.id === 'mystery-pets' || p.id === 'mystery-skins') {
+        return `
+          <article class="rw-card rw-mystery-card">
+            <div class="rw-mystery-wrap">
+              <div class="rw-mystery-silhouette">
+                <span class="rw-mystery-question">?</span>
+              </div>
+              <div class="rw-mystery-badge">EM BREVE</div>
+            </div>
+          </article>
+        `;
+      }
       const badgeText = p.badge || (p.cat === 'VIPs' ? 'SUPREMO' : 'OUTONO');
       const badgeClass = p.badgeColor || (p.cat === 'VIPs' ? 'gold' : 'orange');
 

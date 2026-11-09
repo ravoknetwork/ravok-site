@@ -160,492 +160,705 @@ if (!fs.existsSync(DATA_DIR)) {
 }
 
 const DEFAULT_PRODUCTS = [
-  // --- VIPS TEMPORADA 3 (OUTONO) ---
   {
-    id: 'vip-vendaval',
-    cat: 'VIPs',
-    badge: 'INICIAL',
-    badgeColor: 'orange',
-    tag: '[VENDAVAL]',
-    tagClass: 'vendaval',
-    prefixImg: 'images/prefixes/knight.png',
-    icon: '🌪️',
-    image: 'images/products/vip_vendaval_hd.png',
-    name: 'VIP VENDAVAL',
-    description: 'Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.',
-    price: 14.90,
-    oldPrice: 19.90,
-    homes: 5,
-    kit: 'Kit Vendaval',
-    commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal'],
-    perksList: [
-      'Tag [VENDAVAL] no chat e TAB',
-      'Definir até 5 Casas (/sethome)',
-      'Kit Vendaval semanal exclusivo',
-      'Comandos /feed, /back e /recipe',
-      'Lixeira portátil com /disposal'
+    "id": "vip-vendaval",
+    "cat": "VIPs",
+    "badge": "INICIAL",
+    "badgeColor": "orange",
+    "tag": "[VENDAVAL]",
+    "tagClass": "vendaval",
+    "prefixImg": "images/prefixes/knight.png",
+    "icon": "🌪️",
+    "image": "images/products/vip_vendaval_hd.png",
+    "name": "VIP VENDAVAL",
+    "description": "Tag [VENDAVAL], até 5 sethomes, Kit Vendaval periódico, /nick, /back, /recipe, /feed e /disposal.",
+    "price": 14.9,
+    "oldPrice": 19.9,
+    "homes": 5,
+    "kit": "Kit Vendaval",
+    "commandsList": [
+      "/nick",
+      "/back",
+      "/recipe",
+      "/feed",
+      "/disposal"
     ],
-    command: 'lp user {player} parent settrack rank knight'
-  },
-  {
-    id: 'vip-flamejante',
-    cat: 'VIPs',
-    badge: 'POPULAR',
-    badgeColor: 'gold',
-    tag: '[FLAMEJANTE]',
-    tagClass: 'flamejante',
-    prefixImg: 'images/prefixes/lord.png',
-    icon: '🔥',
-    image: 'images/products/vip_flamejante_hd.png',
-    name: 'VIP FLAMEJANTE',
-    description: 'Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.',
-    price: 29.90,
-    oldPrice: 39.90,
-    homes: 10,
-    kit: 'Kit Flamejante',
-    commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft'],
-    perksList: [
-      'Tag [FLAMEJANTE] em chamas',
-      'Definir até 10 Casas (/sethome)',
-      'Kit Flamejante com armas ígneas',
-      'Bancada virtual com /craft',
-      'Localizar jogadores próximos com /near'
+    "perksList": [
+      "Tag [VENDAVAL] no chat e TAB",
+      "Definir até 5 Casas (/sethome)",
+      "Kit Vendaval semanal exclusivo",
+      "Comandos /feed, /back e /recipe",
+      "Lixeira portátil com /disposal"
     ],
-    command: 'lp user {player} parent settrack rank lord'
+    "command": "lp user {player} parent settrack rank knight"
   },
   {
-    id: 'vip-carvalho',
-    cat: 'VIPs',
-    badge: 'AVANÇADO',
-    badgeColor: 'gold',
-    tag: '[CARVALHO]',
-    tagClass: 'carvalho',
-    prefixImg: 'images/prefixes/paladin.png',
-    icon: '🛡️',
-    image: 'images/products/vip_carvalho_hd.png',
-    name: 'VIP CARVALHO',
-    description: 'Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.',
-    price: 44.90,
-    oldPrice: 59.90,
-    homes: 15,
-    kit: 'Kit Carvalho',
-    commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair'],
-    perksList: [
-      'Tag [CARVALHO] no chat e TAB',
-      'Definir até 15 Casas (/sethome)',
-      'Kit Carvalho com armadura reforçada',
-      'Baú do Fim portátil com /ec',
-      'Reparar itens na mão com /repair',
-      'Ajustar clima e hora individual com /ptime'
+    "id": "vip-flamejante",
+    "cat": "VIPs",
+    "badge": "POPULAR",
+    "badgeColor": "gold",
+    "tag": "[FLAMEJANTE]",
+    "tagClass": "flamejante",
+    "prefixImg": "images/prefixes/lord.png",
+    "icon": "🔥",
+    "image": "images/products/vip_flamejante_hd.png",
+    "name": "VIP FLAMEJANTE",
+    "description": "Tag [FLAMEJANTE], até 10 sethomes, Kit Flamejante, bancada portátil /craft, radar /near, /feed e /back.",
+    "price": 29.9,
+    "oldPrice": 39.9,
+    "homes": 10,
+    "kit": "Kit Flamejante",
+    "commandsList": [
+      "/nick",
+      "/back",
+      "/recipe",
+      "/feed",
+      "/disposal",
+      "/near",
+      "/craft"
     ],
-    command: 'lp user {player} parent settrack rank paladin'
-  },
-  {
-    id: 'vip-aurora',
-    cat: 'VIPs',
-    badge: 'ELITE',
-    badgeColor: 'gold',
-    tag: '[AURORA]',
-    tagClass: 'aurora',
-    prefixImg: 'images/prefixes/duke.png',
-    icon: '✨',
-    image: 'images/products/vip_aurora_hd.png',
-    name: 'VIP AURORA',
-    description: 'Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.',
-    price: 64.90,
-    oldPrice: 79.90,
-    homes: 25,
-    kit: 'Kit Aurora',
-    commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/heal', '/compactar', '/hat'],
-    perksList: [
-      'Tag [AURORA] dourada no chat e TAB',
-      'Definir até 25 Casas (/sethome)',
-      'Kit Aurora com armadura e armas místicas',
-      'Regeneração e cura com /heal',
-      'Compactação de minérios rápida com /compactar',
-      'Colocar qualquer bloco na cabeça com /hat'
+    "perksList": [
+      "Tag [FLAMEJANTE] em chamas",
+      "Definir até 10 Casas (/sethome)",
+      "Kit Flamejante com armas ígneas",
+      "Bancada virtual com /craft",
+      "Localizar jogadores próximos com /near"
     ],
-    command: 'lp user {player} parent settrack rank duke'
+    "command": "lp user {player} parent settrack rank lord"
   },
   {
-    id: 'vip-solar',
-    cat: 'VIPs',
-    badge: 'VALOR INESTIMÁVEL',
-    badgeColor: 'gold',
-    tag: '[SOLAR]',
-    tagClass: 'solar',
-    prefixImg: 'images/prefixes/king.png',
-    icon: '👑',
-    image: 'images/products/vip_solar_hd.png',
-    name: 'VIP SOLAR',
-    description: 'O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.',
-    price: 0,
-    oldPrice: null,
-    inestimavel: true,
-    homes: 999,
-    kit: 'Kit Solar do Rei',
-    commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/heal', '/compactar', '/hat', '/fly', '/god'],
-    perksList: [
-      'Tag [SOLAR] com brilho majestoso',
-      'Casas ILIMITADAS (/sethome)',
-      'Kit Solar com armamento do rei solar',
-      'Voar livremente pelo mapa com /fly',
-      'Modo invencível temporário com /god',
-      'Entrada anunciada em broadcast no servidor'
+    "id": "vip-carvalho",
+    "cat": "VIPs",
+    "badge": "AVANÇADO",
+    "badgeColor": "gold",
+    "tag": "[CARVALHO]",
+    "tagClass": "carvalho",
+    "prefixImg": "images/prefixes/paladin.png",
+    "icon": "🛡️",
+    "image": "images/products/vip_carvalho_hd.png",
+    "name": "VIP CARVALHO",
+    "description": "Tag [CARVALHO], até 15 sethomes, Kit Carvalho épico, /ec (enderchest portátil), /repair e /ptime.",
+    "price": 44.9,
+    "oldPrice": 59.9,
+    "homes": 15,
+    "kit": "Kit Carvalho",
+    "commandsList": [
+      "/nick",
+      "/back",
+      "/recipe",
+      "/feed",
+      "/disposal",
+      "/near",
+      "/craft",
+      "/ec",
+      "/ptime",
+      "/repair"
     ],
-    command: 'lp user {player} parent settrack rank king'
-  },
-  {
-    id: 'vip-deusa',
-    cat: 'VIPs',
-    badge: 'DIGNIDADE DIVINA',
-    badgeColor: 'purple',
-    tag: '[DEUSA]',
-    tagClass: 'deusa',
-    prefixImg: 'images/prefixes/deusa.png',
-    icon: '🔮',
-    image: 'images/products/vip_deusa_hd.png',
-    name: 'VIP DEUSA',
-    description: 'A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.',
-    price: 0,
-    oldPrice: null,
-    inestimavel: true,
-    homes: 999,
-    kit: 'Todos os Kits',
-    commandsList: ['/nick', '/back', '/recipe', '/feed', '/disposal', '/near', '/craft', '/ec', '/ptime', '/repair', '/repair all', '/heal', '/compactar', '/hat', '/fly', '/god', 'prefixo deusa'],
-    perksList: [
-      'Tag [DEUSA] iridescente exclusiva',
-      'Casas ILIMITADAS (/sethome)',
-      'Acesso liberado a TODOS os Kits do jogo',
-      'Reparo total e instantâneo com /repair all',
-      'Voar sem limites com /fly',
-      'Aura divina celestial e prioridade máxima na fila'
+    "perksList": [
+      "Tag [CARVALHO] no chat e TAB",
+      "Definir até 15 Casas (/sethome)",
+      "Kit Carvalho com armadura reforçada",
+      "Baú do Fim portátil com /ec",
+      "Reparar itens na mão com /repair",
+      "Ajustar clima e hora individual com /ptime"
     ],
-    command: 'lp user {player} parent add deusa'
-  },
-
-  // --- PACOTES DE MOEDAS OFICIAIS (COINS S3) ---
-  {
-    id: 'coins-1000',
-    cat: 'Coins',
-    badge: 'INICIAL',
-    badgeColor: 'orange',
-    icon: '🪙',
-    image: 'images/products/moedas_1000.png',
-    name: '1.000 Moedas',
-    description: 'Pacote inicial de moedas para gastar na Loja de Moedas (/coinshop) do servidor.',
-    price: 9.90,
-    command: 'coins give {player} 1000'
+    "command": "lp user {player} parent settrack rank paladin"
   },
   {
-    id: 'coins-2500',
-    cat: 'Coins',
-    badge: 'POPULAR',
-    badgeColor: 'gold',
-    icon: '🪙',
-    image: 'images/products/moedas_2500.png',
-    name: '2.500 Moedas',
-    description: 'Mais moedas para desbloquear cosméticos, utilitários e itens exclusivos.',
-    price: 19.90,
-    command: 'coins give {player} 2500'
+    "id": "vip-aurora",
+    "cat": "VIPs",
+    "badge": "ELITE",
+    "badgeColor": "gold",
+    "tag": "[AURORA]",
+    "tagClass": "aurora",
+    "prefixImg": "images/prefixes/duke.png",
+    "icon": "✨",
+    "image": "images/products/vip_aurora_hd.png",
+    "name": "VIP AURORA",
+    "description": "Tag [AURORA], até 25 sethomes, Kit Aurora Místico, cura instantânea com /heal, /compactar e /hat.",
+    "price": 64.9,
+    "oldPrice": 79.9,
+    "homes": 25,
+    "kit": "Kit Aurora",
+    "commandsList": [
+      "/nick",
+      "/back",
+      "/recipe",
+      "/feed",
+      "/disposal",
+      "/near",
+      "/craft",
+      "/ec",
+      "/ptime",
+      "/repair",
+      "/heal",
+      "/compactar",
+      "/hat"
+    ],
+    "perksList": [
+      "Tag [AURORA] dourada no chat e TAB",
+      "Definir até 25 Casas (/sethome)",
+      "Kit Aurora com armadura e armas místicas",
+      "Regeneração e cura com /heal",
+      "Compactação de minérios rápida com /compactar",
+      "Colocar qualquer bloco na cabeça com /hat"
+    ],
+    "command": "lp user {player} parent settrack rank duke"
   },
   {
-    id: 'coins-5000',
-    cat: 'Coins',
-    badge: 'AVANÇADO',
-    badgeColor: 'gold',
-    icon: '🪙',
-    image: 'images/products/moedas_5000.png',
-    name: '5.000 Moedas',
-    description: 'Excelente custo-benefício para adquirir visuais raros e itens na Coin Shop.',
-    price: 34.90,
-    command: 'coins give {player} 5000'
+    "id": "vip-solar",
+    "cat": "VIPs",
+    "badge": "VALOR INESTIMÁVEL",
+    "badgeColor": "gold",
+    "tag": "[SOLAR]",
+    "tagClass": "solar",
+    "prefixImg": "images/prefixes/king.png",
+    "icon": "👑",
+    "image": "images/products/vip_solar_hd.png",
+    "name": "VIP SOLAR",
+    "description": "O mais alto escalão dos nobres da Era de Ouro. Concedido exclusivamente em Eventos Históricos e Torneios do Reino. Casas ILIMITADAS, voar com /fly, /god e /repair all.",
+    "price": 0,
+    "oldPrice": null,
+    "inestimavel": true,
+    "homes": 999,
+    "kit": "Kit Solar do Rei",
+    "commandsList": [
+      "/nick",
+      "/back",
+      "/recipe",
+      "/feed",
+      "/disposal",
+      "/near",
+      "/craft",
+      "/ec",
+      "/ptime",
+      "/repair",
+      "/heal",
+      "/compactar",
+      "/hat",
+      "/fly",
+      "/god"
+    ],
+    "perksList": [
+      "Tag [SOLAR] com brilho majestoso",
+      "Casas ILIMITADAS (/sethome)",
+      "Kit Solar com armamento do rei solar",
+      "Voar livremente pelo mapa com /fly",
+      "Modo invencível temporário com /god",
+      "Entrada anunciada em broadcast no servidor"
+    ],
+    "command": "lp user {player} parent settrack rank king"
   },
   {
-    id: 'coins-8000',
-    cat: 'Coins',
-    badge: 'DESTAQUE',
-    badgeColor: 'red',
-    icon: '🪙',
-    image: 'images/products/moedas_8000.png',
-    name: '8.000 Moedas',
-    description: 'Grande pacote de moedas para evoluir com tudo na Temporada 3.',
-    price: 49.90,
-    command: 'coins give {player} 8000'
+    "id": "vip-deusa",
+    "cat": "VIPs",
+    "badge": "DIGNIDADE DIVINA",
+    "badgeColor": "purple",
+    "tag": "[DEUSA]",
+    "tagClass": "deusa",
+    "prefixImg": "images/prefixes/deusa.png",
+    "icon": "🔮",
+    "image": "images/products/vip_deusa_hd.png",
+    "name": "VIP DEUSA",
+    "description": "A patente mais sagrada e suprema da Ravok Network! Aura iridescente divina, acesso a TODOS os kits do servidor, /fly e comandos divinos. Valor Inestimável.",
+    "price": 0,
+    "oldPrice": null,
+    "inestimavel": true,
+    "homes": 999,
+    "kit": "Todos os Kits",
+    "commandsList": [
+      "/nick",
+      "/back",
+      "/recipe",
+      "/feed",
+      "/disposal",
+      "/near",
+      "/craft",
+      "/ec",
+      "/ptime",
+      "/repair",
+      "/repair all",
+      "/heal",
+      "/compactar",
+      "/hat",
+      "/fly",
+      "/god",
+      "prefixo deusa"
+    ],
+    "perksList": [
+      "Tag [DEUSA] iridescente exclusiva",
+      "Casas ILIMITADAS (/sethome)",
+      "Acesso liberado a TODOS os Kits do jogo",
+      "Reparo total e instantâneo com /repair all",
+      "Voar sem limites com /fly",
+      "Aura divina celestial e prioridade máxima na fila"
+    ],
+    "command": "lp user {player} parent add deusa"
   },
   {
-    id: 'coins-10000',
-    cat: 'Coins',
-    badge: 'ELITE',
-    badgeColor: 'gold',
-    icon: '🪙',
-    image: 'images/products/moedas_10000.png',
-    name: '10.000 Moedas',
-    description: 'Pacote de elite para mercadores e líderes de clã dominarem a economia.',
-    price: 59.90,
-    command: 'coins give {player} 10000'
+    "id": "coins-1000",
+    "cat": "Coins",
+    "badge": "INICIAL",
+    "badgeColor": "orange",
+    "icon": "🪙",
+    "image": "images/products/moedas_1000.png",
+    "name": "1.000 Moedas",
+    "description": "Pacote inicial de moedas para gastar na Loja de Moedas (/coinshop) do servidor.",
+    "price": 9.9,
+    "command": "coins give {player} 1000"
   },
   {
-    id: 'coins-20000',
-    cat: 'Coins',
-    badge: 'SUPREMO',
-    badgeColor: 'gold',
-    icon: '🪙',
-    image: 'images/products/moedas_20000.png',
-    name: '20.000 + 2.000 Bônus',
-    description: 'O maior pacote do servidor! Receba 20.000 moedas + 2.000 moedas extras de brinde (Total: 22.000 Moedas)!',
-    price: 99.90,
-    oldPrice: 129.90,
-    command: 'coins give {player} 22000'
-  },
-
-  // --- CHAVES & CAIXAS MÍSTICAS S3 ---
-  {
-    id: 'key-voto',
-    cat: 'Chaves',
-    badge: 'VOTO',
-    badgeColor: 'orange',
-    icon: '🗝️',
-    image: 'images/products/key_voto_3x_hd.png',
-    name: '3x Chave de Voto',
-    description: 'Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.',
-    price: 4.90,
-    command: 'crate key give {player} vote 3'
+    "id": "coins-2500",
+    "cat": "Coins",
+    "badge": "POPULAR",
+    "badgeColor": "gold",
+    "icon": "🪙",
+    "image": "images/products/moedas_2500.png",
+    "name": "2.500 Moedas",
+    "description": "Mais moedas para desbloquear cosméticos, utilitários e itens exclusivos.",
+    "price": 19.9,
+    "command": "coins give {player} 2500"
   },
   {
-    id: 'key-comum',
-    cat: 'Chaves',
-    badge: 'COMUM',
-    badgeColor: 'orange',
-    icon: '🗝️',
-    image: 'images/products/key_comum_hd.png',
-    name: 'Chave Comum S3',
-    description: 'Chave inicial da Caixa Comum de Outono com suprimentos úteis e minérios.',
-    price: 7.90,
-    command: 'crate key give {player} common 1'
+    "id": "coins-5000",
+    "cat": "Coins",
+    "badge": "AVANÇADO",
+    "badgeColor": "gold",
+    "icon": "🪙",
+    "image": "images/products/moedas_5000.png",
+    "name": "5.000 Moedas",
+    "description": "Excelente custo-benefício para adquirir visuais raros e itens na Coin Shop.",
+    "price": 34.9,
+    "command": "coins give {player} 5000"
   },
   {
-    id: 'key-rara',
-    cat: 'Chaves',
-    badge: 'RARA',
-    badgeColor: 'gold',
-    icon: '🗝️',
-    image: 'images/products/key_rara_hd.png',
-    name: 'Chave Rara S3',
-    description: 'Recompensas raras, minérios nobres e recursos valorizados da temporada.',
-    price: 14.90,
-    command: 'crate key give {player} rare 1'
+    "id": "coins-8000",
+    "cat": "Coins",
+    "badge": "DESTAQUE",
+    "badgeColor": "red",
+    "icon": "🪙",
+    "image": "images/products/moedas_8000.png",
+    "name": "8.000 Moedas",
+    "description": "Grande pacote de moedas para evoluir com tudo na Temporada 3.",
+    "price": 49.9,
+    "command": "coins give {player} 8000"
   },
   {
-    id: 'key-epica',
-    cat: 'Chaves',
-    badge: 'ÉPICA',
-    badgeColor: 'gold',
-    icon: '🗝️',
-    image: 'images/products/key_epica_hd.png',
-    name: 'Chave Épica S3',
-    description: 'Caixa épica com alta chance de itens lendários e encantamentos superiores.',
-    price: 24.90,
-    oldPrice: 29.90,
-    command: 'crate key give {player} epic 1'
+    "id": "coins-10000",
+    "cat": "Coins",
+    "badge": "ELITE",
+    "badgeColor": "gold",
+    "icon": "🪙",
+    "image": "images/products/moedas_10000.png",
+    "name": "10.000 Moedas",
+    "description": "Pacote de elite para mercadores e líderes de clã dominarem a economia.",
+    "price": 59.9,
+    "command": "coins give {player} 10000"
   },
   {
-    id: 'key-superior',
-    cat: 'Chaves',
-    badge: 'MÍTICA',
-    badgeColor: 'red',
-    icon: '🗝️',
-    image: 'images/products/key_superior_hd.png',
-    name: 'Chave Superior S3',
-    description: 'A mais poderosa chave da temporada com prêmios exclusivos e itens ancestrais.',
-    price: 39.90,
-    oldPrice: 49.90,
-    command: 'crate key give {player} superior 1'
+    "id": "coins-20000",
+    "cat": "Coins",
+    "badge": "SUPREMO",
+    "badgeColor": "gold",
+    "icon": "🪙",
+    "image": "images/products/moedas_20000.png",
+    "name": "20.000 + 2.000 Bônus",
+    "description": "O maior pacote do servidor! Receba 20.000 moedas + 2.000 moedas extras de brinde (Total: 22.000 Moedas)!",
+    "price": 99.9,
+    "oldPrice": 129.9,
+    "command": "coins give {player} 22000"
   },
   {
-    id: 'key-combo',
-    cat: 'Chaves',
-    badge: 'COMBO',
-    badgeColor: 'gold',
-    icon: '🗝️',
-    image: 'images/products/key_combo_4x_hd.png',
-    name: 'Combo 4x Chaves Místicas',
-    description: 'Pacote especial contendo 1x Comum, 1x Rara, 1x Épica e 1x Superior com super desconto!',
-    price: 69.90,
-    oldPrice: 87.60,
-    command: 'crate key give {player} common 1; crate key give {player} rare 1; crate key give {player} epic 1; crate key give {player} superior 1'
-  },
-
-  // --- LIVROS DE ENCANTAMENTO ---
-  {
-    id: 'enchant-fortuna-4',
-    cat: 'Encantamentos',
-    badge: 'LIVRO',
-    badgeColor: 'gold',
-    icon: '📖',
-    image: 'images/products/livro_fortuna_4.png',
-    name: 'Livro: Fortuna IV',
-    description: 'Livro de Encantamento Fortuna IV. Multiplica os minérios e recursos minerados muito além do limite padrão do jogo.',
-    price: 14.90,
-    oldPrice: 19.90,
-    command: 'excellentenchants:ee book fortune 4 {player}'
+    "id": "key-voto",
+    "cat": "Chaves",
+    "badge": "VOTO",
+    "badgeColor": "orange",
+    "icon": "🗝️",
+    "image": "images/products/key_voto_3x_hd.png",
+    "name": "3x Chave de Voto",
+    "description": "Abra a Caixa de Voto no spawn e retire recompensas diárias e boosters.",
+    "price": 4.99,
+    "command": "crate key give {player} vote 3"
   },
   {
-    id: 'enchant-eficiencia-6',
-    cat: 'Encantamentos',
-    badge: 'LIVRO',
-    badgeColor: 'orange',
-    icon: '📖',
-    image: 'images/products/livro_eficiencia_6.png',
-    name: 'Livro: Eficiência VI',
-    description: 'Livro de Encantamento Eficiência VI. Velocidade de mineração ultrarrápida superando o limite máximo do Minecraft tradicional.',
-    price: 16.90,
-    oldPrice: 22.90,
-    command: 'excellentenchants:ee book efficiency 6 {player}'
+    "id": "key-comum",
+    "cat": "Chaves",
+    "badge": "COMUM",
+    "badgeColor": "orange",
+    "icon": "🗝️",
+    "image": "images/products/key_comum_hd.png",
+    "name": "Chave Comum S3",
+    "description": "Chave inicial da Caixa Comum de Outono com suprimentos úteis e minérios.",
+    "price": 2.9,
+    "command": "crate key give {player} common 1"
   },
   {
-    id: 'enchant-inquebravel-4',
-    cat: 'Encantamentos',
-    badge: 'LIVRO',
-    badgeColor: 'gold',
-    icon: '📖',
-    image: 'images/products/livro_inquebravel_4.png',
-    name: 'Livro: Inquebrável IV',
-    description: 'Livro de Encantamento Inquebrável IV. Quadruplica a durabilidade de suas ferramentas, armas e armaduras.',
-    price: 14.90,
-    oldPrice: 19.90,
-    command: 'excellentenchants:ee book unbreaking 4 {player}'
+    "id": "key-rara",
+    "cat": "Chaves",
+    "badge": "RARA",
+    "badgeColor": "gold",
+    "icon": "🗝️",
+    "image": "images/products/key_rara_hd.png",
+    "name": "Chave Rara S3",
+    "description": "Recompensas raras, minérios nobres e recursos valorizados da temporada.",
+    "price": 5.9,
+    "command": "crate key give {player} rare 1"
   },
   {
-    id: 'enchant-remendo',
-    cat: 'Encantamentos',
-    badge: 'ESSENCIAL',
-    badgeColor: 'orange',
-    icon: '📖',
-    image: 'images/products/livro_remendo.png',
-    name: 'Livro: Remendo (Mending)',
-    description: 'Livro de Encantamento Remendo. Repara seus itens e ferramentas automaticamente através da coleta de esferas de XP.',
-    price: 12.90,
-    oldPrice: 16.90,
-    command: 'excellentenchants:ee book mending 1 {player}'
+    "id": "key-epica",
+    "cat": "Chaves",
+    "badge": "ÉPICA",
+    "badgeColor": "gold",
+    "icon": "🗝️",
+    "image": "images/products/key_epica_hd.png",
+    "name": "Chave Épica S3",
+    "description": "Caixa épica com alta chance de itens lendários e encantamentos superiores.",
+    "price": 9.9,
+    "oldPrice": 29.9,
+    "command": "crate key give {player} epic 1"
   },
   {
-    id: 'enchant-soulbound',
-    cat: 'Encantamentos',
-    badge: 'PROTEÇÃO',
-    badgeColor: 'red',
-    icon: '📖',
-    image: 'images/products/livro_soulbound.png',
-    name: 'Livro: Vínculo da Alma',
-    description: 'Livro de Encantamento Vínculo da Alma (Soulbound). Impede que o item seja derrubado ou perdido caso você morra no jogo!',
-    price: 19.90,
-    oldPrice: 26.90,
-    command: 'excellentenchants:ee book soulbound 1 {player}'
+    "id": "key-superior",
+    "cat": "Chaves",
+    "badge": "MÍTICA",
+    "badgeColor": "red",
+    "icon": "🗝️",
+    "image": "images/products/key_superior_hd.png",
+    "name": "Chave Superior S3",
+    "description": "A mais poderosa chave da temporada com prêmios exclusivos e itens ancestrais.",
+    "price": 14.9,
+    "oldPrice": 49.9,
+    "command": "crate key give {player} superior 1"
   },
   {
-    id: 'enchant-telecinese',
-    cat: 'Encantamentos',
-    badge: 'UTILIDADE',
-    badgeColor: 'gold',
-    icon: '📖',
-    image: 'images/products/livro_telecinese.png',
-    name: 'Livro: Telecinese',
-    description: 'Livro de Encantamento Telecinese. Move todos os blocos quebrados e itens dropados instantaneamente para seu inventário.',
-    price: 17.90,
-    oldPrice: 24.90,
-    command: 'excellentenchants:ee book telekinesis 1 {player}'
+    "id": "key-combo",
+    "cat": "Chaves",
+    "badge": "COMBO",
+    "badgeColor": "gold",
+    "icon": "🗝️",
+    "image": "images/products/key_combo_4x_hd.png",
+    "name": "Combo 4x Chaves Místicas",
+    "description": "Pacote especial contendo 1x Comum, 1x Rara, 1x Épica e 1x Superior com super desconto!",
+    "price": 24.9,
+    "oldPrice": 87.6,
+    "command": "crate key give {player} common 1; crate key give {player} rare 1; crate key give {player} epic 1; crate key give {player} superior 1"
   },
-
-  // --- PERMISSÕES & COMANDOS (/FLY TEMPORÁRIO & ACUMULATIVO) ---
   {
-    id: 'cmd-fly',
-    cat: 'Comandos',
-    badge: '30 MINUTOS',
-    badgeColor: 'blue',
-    icon: '🪶',
-    image: 'images/products/cmd_fly_hd.png',
-    name: 'Tempo de Fly (30 Minutos)',
-    description: '30 minutos de voo livre (/fly). É cumulativo! Se você comprar mais de uma vez ou estocar antes de acabar o tempo, o tempo é somado automaticamente no servidor.',
-    price: 4.90,
-    command: 'darfly {player} 30m',
-    perksList: [
-      '30 minutos de voo livre (/fly) no Survival',
-      '100% Acumulativo (estoca tempo comprando mais)',
-      'Ativação imediata via /resgatar usando /darfly'
+    "id": "enchant-fortuna-4",
+    "cat": "Encantamentos",
+    "badge": "LIVRO",
+    "badgeColor": "gold",
+    "icon": "📖",
+    "image": "images/products/livro_fortuna_4.png",
+    "name": "Livro: Fortuna IV",
+    "description": "Livro de Encantamento Fortuna IV. Multiplica os minérios e recursos minerados muito além do limite padrão do jogo.",
+    "price": 3.9,
+    "oldPrice": 19.9,
+    "command": "excellentenchants:ee book fortune 4 {player}"
+  },
+  {
+    "id": "enchant-eficiencia-6",
+    "cat": "Encantamentos",
+    "badge": "LIVRO",
+    "badgeColor": "orange",
+    "icon": "📖",
+    "image": "images/products/livro_eficiencia_6.png",
+    "name": "Livro: Eficiência VI",
+    "description": "Livro de Encantamento Eficiência VI. Velocidade de mineração ultrarrápida superando o limite máximo do Minecraft tradicional.",
+    "price": 3.9,
+    "oldPrice": 22.9,
+    "command": "excellentenchants:ee book efficiency 6 {player}"
+  },
+  {
+    "id": "enchant-inquebravel-4",
+    "cat": "Encantamentos",
+    "badge": "LIVRO",
+    "badgeColor": "gold",
+    "icon": "📖",
+    "image": "images/products/livro_inquebravel_4.png",
+    "name": "Livro: Inquebrável IV",
+    "description": "Livro de Encantamento Inquebrável IV. Quadruplica a durabilidade de suas ferramentas, armas e armaduras.",
+    "price": 3.5,
+    "oldPrice": 19.9,
+    "command": "excellentenchants:ee book unbreaking 4 {player}"
+  },
+  {
+    "id": "enchant-remendo",
+    "cat": "Encantamentos",
+    "badge": "ESSENCIAL",
+    "badgeColor": "orange",
+    "icon": "📖",
+    "image": "images/products/livro_remendo.png",
+    "name": "Livro: Remendo (Mending)",
+    "description": "Livro de Encantamento Remendo. Repara seus itens e ferramentas automaticamente através da coleta de esferas de XP.",
+    "price": 3.9,
+    "oldPrice": 16.9,
+    "command": "excellentenchants:ee book mending 1 {player}"
+  },
+  {
+    "id": "enchant-soulbound",
+    "cat": "Encantamentos",
+    "badge": "PROTEÇÃO",
+    "badgeColor": "red",
+    "icon": "📖",
+    "image": "images/products/livro_soulbound.png",
+    "name": "Livro: Vínculo da Alma",
+    "description": "Livro de Encantamento Vínculo da Alma (Soulbound). Impede que o item seja derrubado ou perdido caso você morra no jogo!",
+    "price": 4.5,
+    "oldPrice": 26.9,
+    "command": "excellentenchants:ee book soulbound 1 {player}"
+  },
+  {
+    "id": "enchant-telecinese",
+    "cat": "Encantamentos",
+    "badge": "UTILIDADE",
+    "badgeColor": "gold",
+    "icon": "📖",
+    "image": "images/products/livro_telecinese.png",
+    "name": "Livro: Telecinese",
+    "description": "Livro de Encantamento Telecinese. Move todos os blocos quebrados e itens dropados instantaneamente para seu inventário.",
+    "price": 4.5,
+    "oldPrice": 24.9,
+    "command": "excellentenchants:ee book telekinesis 1 {player}"
+  },
+  {
+    "id": "cmd-fly",
+    "cat": "Comandos",
+    "badge": "30 MINUTOS",
+    "badgeColor": "blue",
+    "icon": "🪶",
+    "image": "images/products/cmd_fly_hd.png",
+    "name": "Tempo de Fly (30 Minutos)",
+    "description": "30 minutos de voo livre (/fly). É cumulativo! Se você comprar mais de uma vez ou estocar antes de acabar o tempo, o tempo é somado automaticamente no servidor.",
+    "price": 4.9,
+    "command": "darfly {player} 30m",
+    "perksList": [
+      "30 minutos de voo livre (/fly) no Survival",
+      "100% Acumulativo (estoca tempo comprando mais)",
+      "Ativação imediata via /resgatar usando /darfly"
     ]
   },
-
-  // --- VOUCHERS (SKINS DE FERRAMENTAS & ARMAS) ---
-  {
-    id: 'voucher-skin-aleatoria',
-    cat: 'Vouchers',
-    badge: 'NOVIDADE',
-    badgeColor: 'gold',
-    icon: '📜',
-    image: 'images/products/voucher_skin_pixel_hd.png',
-    name: 'Voucher Skin Aleatória',
-    description: 'Resgate no servidor com clique esquerdo para receber 1 visual exclusivo aleatório para suas ferramentas (Espada, Picareta, Machado, etc.). São 136 modelos raros!',
-    price: 14.90,
-    oldPrice: 19.90,
-    perksList: [
-      '136 Visuais raros possíveis',
-      'Resgate com 1 clique no inventário',
-      'Compatível com espadas, picaretas e machados',
-      'Não perde ao morrer'
-    ],
-    command: 'crazyvouchers:voucher give Random_Toolskin 1 {player}'
-  },
-
-  // --- PETS ---
-  {
-    id: 'pet-dino',
-    cat: 'Pets',
-    badge: '3D',
-    badgeColor: 'orange',
-    icon: '🦖',
-    image: 'images/products/pet_dino_hd.png',
-    name: 'Pet Dinossauro 3D',
-    description: 'Um companheiro pré-histórico com animações customizadas e efeitos sonoros.',
-    price: 29.90,
-    command: 'mcpets spawn dino {player} false'
+    {
+    "id": "mystery-skins",
+    "cat": "Vouchers",
+    "isMystery": true
   },
   {
-    id: 'pet-cubee',
-    cat: 'Pets',
-    badge: 'MÁGICO',
-    badgeColor: 'gold',
-    icon: '🧊',
-    image: 'images/products/pet_cubee_hd.png',
-    name: 'Pet Cubee Mágico',
-    description: 'Cubinho flutuante que segue você com partículas de luz e animações suaves.',
-    price: 34.90,
-    command: 'mcpets spawn cubee_magico {player} false'
-  },
-
-  // --- COSMÉTICOS ---
-  {
-    id: 'cosmetic-fire',
-    cat: 'Cosméticos',
-    badge: 'RARO',
-    badgeColor: 'red',
-    icon: '🪓',
-    image: 'images/products/machado_chamas_hd.png',
-    name: 'Machado das Chamas',
-    description: 'Skin cosmética para machados com partículas de fogo perpétuas.',
-    price: 14.90,
-    command: 'uc menu effects {player}'
+    "id": "mystery-pets",
+    "cat": "Pets",
+    "isMystery": true
   },
   {
-    id: 'cosmetic-sword',
-    cat: 'Cosméticos',
-    badge: 'LENDÁRIO',
-    badgeColor: 'gold',
-    icon: '⚔️',
-    image: 'images/products/espada_solar_hd.png',
-    name: 'Espada Rúnica Solar',
-    description: 'Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.',
-    price: 19.90,
-    command: 'uc menu effects {player}'
+    "id": "cosmetic-fire",
+    "cat": "Cosméticos",
+    "badge": "RARO",
+    "badgeColor": "red",
+    "icon": "🪓",
+    "image": "images/products/machado_chamas_hd.png",
+    "name": "Machado das Chamas",
+    "description": "Skin cosmética para machados com partículas de fogo perpétuas.",
+    "price": 14.9,
+    "command": "uc menu effects {player}"
+  },
+  {
+    "id": "cosmetic-sword",
+    "cat": "Cosméticos",
+    "badge": "LENDÁRIO",
+    "badgeColor": "gold",
+    "icon": "⚔️",
+    "image": "images/products/espada_solar_hd.png",
+    "name": "Espada Rúnica Solar",
+    "description": "Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.",
+    "price": 19.9,
+    "command": "uc menu effects {player}"
+  },
+  {
+    "id": "enchant-smelter",
+    "cat": "Encantamentos",
+    "badge": "EXCELLENT",
+    "badgeColor": "orange",
+    "icon": "📖",
+    "image": "images/products/livro_smelter.png",
+    "name": "Livro: Fundição Instantânea",
+    "description": "Encantamento ExcellentEnchants para ferramentas. Funde automaticamente minérios brutos em barras e areia em vidro diretamente ao quebrar o bloco.",
+    "price": 3.9,
+    "command": "excellentenchants:ee book smelter 1 {player}",
+    "perksList": [
+      "Funde minérios instantaneamente ao quebrar",
+      "Economiza carvão e tempo de fornalhas",
+      "Compatível com picaretas de diamante e netherite"
+    ]
+  },
+  {
+    "id": "enchant-decapitator",
+    "cat": "Encantamentos",
+    "badge": "EXCELLENT",
+    "badgeColor": "gold",
+    "icon": "📖",
+    "image": "images/products/livro_decapitator.png",
+    "name": "Livro: Decapitador",
+    "description": "Encantamento ExcellentEnchants para machados e espadas. Chance de decepar e dropar as cabeças raras de monstros e jogadores derrotados no PvP e PvE.",
+    "price": 3.5,
+    "command": "excellentenchants:ee book decapitator 1 {player}",
+    "perksList": [
+      "Chance de dropar cabeças de monstros e jogadores",
+      "Excelente para troféus e colecionáveis raros",
+      "Aplicável em espadas e machados de combate"
+    ]
+  },
+  {
+    "id": "enchant-tunnel",
+    "cat": "Encantamentos",
+    "badge": "EXCELLENT",
+    "badgeColor": "purple",
+    "icon": "📖",
+    "image": "images/products/livro_tunnel.png",
+    "name": "Livro: Túnel I (Mineração 3x3)",
+    "description": "Encantamento ExcellentEnchants lendário. Escave blocos em uma área cúbica de 3x3 com picaretas e pás com extrema velocidade.",
+    "price": 4.5,
+    "command": "excellentenchants:ee book tunnel 1 {player}",
+    "perksList": [
+      "Escavação e quebra em área de 3x3 blocos",
+      "Acelera aberturas de minas e construção de bases",
+      "Item lendário muito disputado no servidor"
+    ]
+  },
+  {
+    "id": "enchant-veinminer",
+    "cat": "Encantamentos",
+    "badge": "EXCELLENT",
+    "badgeColor": "blue",
+    "icon": "📖",
+    "image": "images/products/livro_veinminer.png",
+    "name": "Livro: Minerador de Veios",
+    "description": "Encantamento ExcellentEnchants para picaretas. Minere instantaneamente todo o veio conectado de diamantes, ouro, ferro ou netherite de uma só vez.",
+    "price": 4.5,
+    "command": "excellentenchants:ee book veinminer 1 {player}",
+    "perksList": [
+      "Quebra toda a veia mineral conectada instantaneamente",
+      "Economiza minutos em cada jazida de minério encontrada",
+      "Ativação segura via /resgatar"
+    ]
+  },
+  {
+    "id": "enchant-vampire",
+    "cat": "Encantamentos",
+    "badge": "EXCELLENT",
+    "badgeColor": "red",
+    "icon": "📖",
+    "image": "images/products/livro_vampire.png",
+    "name": "Livro: Vampirismo",
+    "description": "Encantamento ExcellentEnchants para espadas. Drena a vitalidade dos seus inimigos a cada golpe desferido, recuperando sua vida em combates difíceis.",
+    "price": 4.9,
+    "command": "excellentenchants:ee book vampire 1 {player}",
+    "perksList": [
+      "Roubo de vida e cura constante a cada golpe",
+      "Vantagem indispensável em masmorras e chefões",
+      "Compatível com espadas de diamante e netherite"
+    ]
+  },
+  {
+    "id": "enchant-silkspawner",
+    "cat": "Encantamentos",
+    "badge": "SUPREMO",
+    "badgeColor": "gold",
+    "icon": "📖",
+    "image": "images/products/livro_silkspawner.png",
+    "name": "Livro: Caçador de Almas (Spawners)",
+    "description": "Encantamento ExcellentEnchants supremo para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
+    "price": 50,
+    "command": "excellentenchants:ee book silk_spawner 1 {player}",
+    "perksList": [
+      "Coleta e transporte de Gaiolas de Monstros (Spawners)",
+      "Monte suas farms automáticas onde quiser",
+      "Um dos encantamentos mais cobiçados da economia"
+    ]
+  },
+  {
+    "id": "cmd-back",
+    "cat": "Comandos",
+    "badge": "COMANDO",
+    "badgeColor": "orange",
+    "icon": "🔧",
+    "image": "images/products/cmd_back_hd.png",
+    "name": "Comando /back",
+    "description": "Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou ao ponto onde morreu.",
+    "price": 6.9,
+    "command": "crazyvouchers give Back_Command 1 {player}; lp user {player} permission set essentials.back true",
+    "perksList": [
+      "Acesso definitivo ao comando /back no Survival",
+      "Volte ao local exato de mortes ou teleportes",
+      "Ativação imediata via /resgatar"
+    ]
+  },
+  {
+    "id": "cmd-feed",
+    "cat": "Comandos",
+    "badge": "COMANDO",
+    "badgeColor": "orange",
+    "icon": "🔧",
+    "image": "images/products/cmd_feed_hd.png",
+    "name": "Comando /feed",
+    "description": "Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver, sem precisar carregar comida.",
+    "price": 8.9,
+    "command": "crazyvouchers give Feed_Command 1 {player}; lp user {player} permission set essentials.feed true",
+    "perksList": [
+      "Acesso definitivo ao comando /feed",
+      "Recupere a saturação e fome com 1 comando",
+      "Ativação imediata via /resgatar"
+    ]
+  },
+  {
+    "id": "cmd-heal",
+    "cat": "Comandos",
+    "badge": "COMANDO",
+    "badgeColor": "red",
+    "icon": "🔧",
+    "image": "images/products/cmd_heal_hd.png",
+    "name": "Comando /heal",
+    "description": "Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique durante suas jornadas.",
+    "price": 12.9,
+    "command": "crazyvouchers give Heal_Command 1 {player}; lp user {player} permission set essentials.heal true",
+    "perksList": [
+      "Acesso definitivo ao comando /heal",
+      "Cura instantânea de todos os seus corações",
+      "Ativação imediata via /resgatar"
+    ]
+  },
+  {
+    "id": "cmd-repair",
+    "cat": "Comandos",
+    "badge": "COMANDO",
+    "badgeColor": "gold",
+    "icon": "🔧",
+    "image": "images/products/cmd_repair_hd.png",
+    "name": "Comando /repair",
+    "description": "Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis de XP ou materiais na bigorna.",
+    "price": 14.9,
+    "command": "crazyvouchers give Repair_Command 1 {player}; lp user {player} permission set essentials.repair.hand true",
+    "perksList": [
+      "Acesso definitivo ao comando /repair no Survival",
+      "Repara armas, armaduras e ferramentas sem gastar XP",
+      "Ativação imediata via /resgatar"
+    ]
+  },
+  {
+    "id": "enchant-treefeller",
+    "cat": "Encantamentos",
+    "badge": "LENHADOR",
+    "badgeColor": "green",
+    "icon": "🪓",
+    "image": "images/products/livro_treefeller.png",
+    "name": "Livro: Lenhador (Árvores Inteiras)",
+    "description": "Encantamento ExcellentEnchants para machados. Derruba uma árvore inteira instantaneamente ao quebrar apenas um bloco do tronco de madeira.",
+    "price": 4.5,
+    "oldPrice": 24.9,
+    "command": "excellentenchants:ee book treefeller 1 {player}",
+    "perksList": [
+      "Derruba toda a árvore e folhagens de uma só vez",
+      "Economiza tempo precioso coletando madeira no Survival",
+      "Compatível com todos os machados (ferro, diamante e netherite)"
+    ]
   }
 ];
 
@@ -674,7 +887,6 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'key-epic': 'images/products/key_epica_hd.png',
   'key-superior': 'images/products/key_superior_hd.png',
   'key-combo': 'images/products/key_combo_4x_hd.png',
-  'voucher-skin-aleatoria': 'images/products/voucher_skin_pixel_hd.png',
   'enchant-fortuna-4': 'images/products/livro_fortuna_4.png',
   'enchant-eficiencia-6': 'images/products/livro_eficiencia_6.png',
   'enchant-inquebravel-4': 'images/products/livro_inquebravel_4.png',
@@ -686,8 +898,6 @@ const OFFICIAL_PRODUCT_IMAGES = {
   'cmd-heal': 'images/products/cmd_heal_hd.png',
   'cmd-repair': 'images/products/cmd_repair_hd.png',
   'cmd-fly': 'images/products/cmd_fly_hd.png',
-  'pet-dino': 'images/products/pet_dino_hd.png',
-  'pet-cubee': 'images/products/pet_cubee_hd.png',
   'cosmetic-fire': 'images/products/machado_chamas_hd.png',
   'cosmetic-sword': 'images/products/espada_solar_hd.png',
   'vip-vendaval': 'images/products/vip_vendaval_hd.png',
@@ -733,9 +943,38 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
 ];
 
 function upgradeProductCatalog(list, deletedProductIds = null) {
-  const activeDeleted = Array.isArray(deletedProductIds)
+  const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
+  const CANONICAL_PRICES = {
+    'key-voto': 4.99,
+    'key-comum': 2.90,
+    'key-rara': 5.90,
+    'key-epica': 9.90,
+    'key-superior': 14.90,
+    'key-combo': 24.90,
+    'enchant-silkspawner': 50.00,
+    'enchant-treefeller': 4.50,
+    'cmd-fly': 4.90,
+    'cmd-back': 6.90,
+    'cmd-feed': 8.90,
+    'cmd-heal': 12.90,
+    'cmd-repair': 14.90,
+    'enchant-tunnel': 4.50,
+    'enchant-veinminer': 4.50,
+    'enchant-smelter': 3.90,
+    'enchant-vampire': 4.90,
+    'enchant-decapitator': 3.50,
+    'enchant-soulbound': 4.50
+  };
+
+  let activeDeleted = Array.isArray(deletedProductIds)
     ? deletedProductIds
     : (typeof db !== 'undefined' && Array.isArray(db.deletedProductIds) ? db.deletedProductIds : []);
+  
+  // NUNCA permite que comandos padrão fiquem marcados como deletados
+  activeDeleted = activeDeleted.filter(id => !PROTECTED_COMMAND_IDS.includes(String(id)));
+  if (typeof db !== 'undefined' && Array.isArray(db.deletedProductIds)) {
+    db.deletedProductIds = db.deletedProductIds.filter(id => !PROTECTED_COMMAND_IDS.includes(String(id)));
+  }
   const delSet = new Set(activeDeleted.map(String));
 
   if (!Array.isArray(list)) {
@@ -786,13 +1025,31 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
       } else if (p.cat === 'Comandos') {
         p.image = 'images/products/cmd_repair_hd.png';
       } else if (p.cat === 'Pets') {
-        p.image = 'images/products/pet_dino_hd.png';
+        
       } else if (p.cat === 'Cosméticos') {
         p.image = 'images/products/espada_solar_hd.png';
       }
     }
     if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
       p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+    }
+    // Sincroniza dados e preços canônicos (chaves harmonizadas, comandos e Caçador de Almas R$ 50)
+    const def = (typeof DEFAULT_PRODUCTS !== 'undefined' ? DEFAULT_PRODUCTS : []).find(d => String(d.id) === String(p.id));
+    if (def && !p.customEdited) {
+      p.name = def.name;
+      p.cat = def.cat;
+      p.badge = def.badge;
+      p.badgeColor = def.badgeColor;
+      p.price = (typeof CANONICAL_PRICES !== 'undefined' && CANONICAL_PRICES[p.id] !== undefined)
+        ? CANONICAL_PRICES[p.id]
+        : def.price;
+      if (def.command && !p.command) p.command = def.command;
+      if (def.image && (!p.image || p.image === 'images/emblema_ravok_outonal.png')) p.image = def.image;
+    }
+    if (p.id === 'enchant-silkspawner') {
+      p.price = 50.00;
+      p.badge = 'SUPREMO';
+      p.badgeColor = 'gold';
     }
     return p;
   }).filter(Boolean);
@@ -809,6 +1066,62 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
 
   return mapped.filter(p => !delSet.has(String(p.id)));
 }
+
+
+const DEFAULT_HERO_SLIDES = [
+  {
+    "id": "hero-slide-1",
+    "tagIcon": "images/autumn/folha_de_bordo_flutuante.png",
+    "tagText": "TEMPORADA 3 • OUTONAL",
+    "title": "COLHEITA &amp;<br>GLÓRIA ANCESTRAL",
+    "desc": "A nova era da Ravok Network chegou! Explore a atmosfera outonal, desbloqueie os VIPs Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa, novas Chaves S3 e texturas oficiais exclusivas com entrega automática.",
+    "charImg": "images/fullbody.png",
+    "charAlt": "Guerreiro Ravok 3D",
+    "primaryText": "Jogar agora: jogar.ravok.network",
+    "primaryAction": "copyServerIp()",
+    "secText": "Baixar Texturas Oficiais (v1.2)",
+    "secHref": "texturas.html"
+  },
+  {
+    "id": "hero-slide-2",
+    "tagIcon": "images/autumn/girassol_radiante.png",
+    "tagText": "VIPS &amp; PRIVILÉGIOS EXCLUSIVOS",
+    "title": "FORJE SEU IMPÉRIO<br>COM RANKS LENDÁRIOS",
+    "desc": "Garanta kits diários, fly, comandos de teleporte, multiplicadores de moedas e tags animadas. Do Vendaval ao Solar, domine as temporadas com prestígio!",
+    "charImg": "images/kayzel1.png",
+    "charAlt": "Cavaleiro de Carvalho",
+    "primaryText": "Explorar Ranks VIP",
+    "primaryAction": "filterCategory('VIPs')",
+    "secText": "Ver Tabela Comparativa",
+    "secHref": "#produtos"
+  },
+  {
+    "id": "hero-slide-3",
+    "tagIcon": "images/autumn/bussola_de_latao_dourado.png",
+    "tagText": "ECONOMIA &amp; PEDREIRAS",
+    "title": "COMÉRCIO VIVO &amp;<br>MOEDAS OFICIAIS",
+    "desc": "Construa sua riqueza vendendo colheitas no mercado, ativando pedreiras automáticas e comprando pacotes de moedas com bônus imediatos via Pix.",
+    "charImg": "images/kayzel2.png",
+    "charAlt": "Guardião Ravok",
+    "primaryText": "Pacotes de Moedas",
+    "primaryAction": "filterCategory('Moedas')",
+    "secText": "Conhecer Pedreiras",
+    "secHref": "#como-funciona"
+  },
+  {
+    "id": "hero-slide-4",
+    "tagIcon": "images/autumn/pedra_do_sol_ancestral.png",
+    "tagText": "ARMAS &amp; VISUAIS MÍSTICOS",
+    "title": "CHAVES, LIVROS &amp;<br>COSMÉTICOS S3",
+    "desc": "Abra Caixas Místicas com as Chaves de Voto, Comum, Rara, Épica e Superior. Encante suas ferramentas com Fortuna IV, Eficiência VI, Túnel e Remendo!",
+    "charImg": "images/kayzel3.png",
+    "charAlt": "Guerreiro das Chamas",
+    "primaryText": "Ver Chaves e Livros",
+    "primaryAction": "filterCategory('Chaves')",
+    "secText": "Galeria do Servidor",
+    "secHref": "#galeria"
+  }
+];
 
 const DEFAULT_SLIDES = [
   {
@@ -899,10 +1212,10 @@ const DEFAULT_SETTINGS = {
   apiToken: process.env.PLUGIN_API_TOKEN || 'ravok_sec_99a8b7c6d5e4',
   adminUser: 'guiilew',
   adminPassword: process.env.ADMIN_PASSWORD || '000e2ecd4a',
-  goalMode: 'manual',
-  goalManualPercent: 0,
-  metaVendasValor: 2000,
-  metaVendasBase: 0,
+  goalMode: 'auto',
+  goalManualPercent: 11,
+  metaVendasValor: 300,
+  metaVendasBase: 33,
   mpPublicKey: '',
   mpAccessToken: '',
   discordInviteUrl: 'https://discord.gg',
@@ -1042,7 +1355,7 @@ const DEFAULT_VOTE_ARENA = {
     targetCount: 2,
     rewardTitle: '2x Chaves de Voto',
     rewardCommand: 'crate key give {nick} vote 2',
-    silvieTip: 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮'
+    silvieTip: 'Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮'
   },
   dailyQuestClaims: [],
   votesHistory: []
@@ -1080,18 +1393,19 @@ function normalizeStreamer(s) {
 function computeGoalStatus() {
   const s = (db && db.settings) ? db.settings : DEFAULT_SETTINGS;
   const orders = (db && Array.isArray(db.orders)) ? db.orders : [];
-  const goalMode = s.goalMode === 'auto' ? 'auto' : 'manual';
+  const goalMode = s.goalMode === 'manual' ? 'manual' : 'auto';
   const manualPercent = Math.min(100, Math.max(0, Math.round(Number(s.goalManualPercent || 0))));
-  const targetGoal = Math.max(1, Number(s.metaVendasValor || 2000));
-  const baseSales = Math.max(0, Number(s.metaVendasBase || 0));
+  const targetGoal = Math.max(1, Number(s.metaVendasValor || 300));
+  const baseSales = Math.max(33.00, Number(s.metaVendasBase || 33.00));
 
   const approvedTotal = orders
     .filter(o => ['aprovado', 'approved', 'paid', 'completed', 'entregue'].includes(String(o.status || '').toLowerCase()))
     .reduce((acc, o) => acc + Number(o.total || 0), 0);
 
-  const totalArrecadado = Math.max(0, baseSales + approvedTotal);
+  // Mantém no mínimo os R$ 33,00 confirmados ontem, somando novos pedidos aprovados
+  const totalArrecadado = Math.max(baseSales, approvedTotal);
   const autoPercent = Math.min(100, Math.round((totalArrecadado / targetGoal) * 100));
-  const percent = goalMode === 'manual' ? manualPercent : autoPercent;
+  const percent = (goalMode === 'manual' && manualPercent > 0) ? manualPercent : autoPercent;
   const falta = Math.max(0, targetGoal - totalArrecadado);
 
   return {
@@ -1177,7 +1491,7 @@ function loadDb() {
         parsed.voteArena.dailyQuest = JSON.parse(JSON.stringify(DEFAULT_VOTE_ARENA.dailyQuest));
       }
       if (!parsed.voteArena.dailyQuest.silvieTip) {
-        parsed.voteArena.dailyQuest.silvieTip = 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮';
+        parsed.voteArena.dailyQuest.silvieTip = 'Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮';
       }
       if (!Array.isArray(parsed.voteArena.dailyQuestClaims)) {
         parsed.voteArena.dailyQuestClaims = [];
@@ -1188,6 +1502,9 @@ function loadDb() {
         parsed.settings.apiUrl = process.env.API_URL || 'https://ravok-site.vercel.app';
       }
       parsed.deletedProductIds = Array.isArray(parsed.deletedProductIds) ? parsed.deletedProductIds : [];
+      if (Array.isArray(parsed.deletedProductIds)) {
+        parsed.deletedProductIds = parsed.deletedProductIds.filter(id => !['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'].includes(String(id)));
+      }
       parsed.products = Array.isArray(parsed.products)
         ? upgradeProductCatalog(parsed.products, parsed.deletedProductIds)
         : upgradeProductCatalog(DEFAULT_PRODUCTS, parsed.deletedProductIds);
@@ -1438,6 +1755,65 @@ app.delete('/api/admin/products/:id', (req, res) => {
 // ----------------------------------------------------
 // ROTAS DE SLIDES / GALERIA DO SERVIDOR
 // ----------------------------------------------------
+
+// -------------------------------------------------------------
+// HERO BANNER SLIDES (CARROSSEL DA HOME)
+// -------------------------------------------------------------
+app.get('/api/hero-slides', (req, res) => {
+  db.heroSlides = Array.isArray(db.heroSlides) && db.heroSlides.length ? db.heroSlides : DEFAULT_HERO_SLIDES;
+  res.json(db.heroSlides);
+});
+
+app.post('/api/admin/hero-slides', (req, res) => {
+  const body = req.body || {};
+  if (Array.isArray(body.heroSlides)) {
+    db.heroSlides = body.heroSlides;
+    saveDb(db);
+    return res.json({ success: true, heroSlides: db.heroSlides, updatedAt: db.updatedAt });
+  }
+  const { id, tagIcon, tagText, title, desc, charImg, charAlt, primaryText, primaryAction, secText, secHref } = body;
+  if (!title) {
+    return res.status(400).json({ error: 'Título do slide é obrigatório.' });
+  }
+  const newSlide = {
+    id: id || `hero-${Date.now()}`,
+    tagIcon: tagIcon || 'images/autumn/folha_de_bordo_flutuante.png',
+    tagText: tagText || 'TEMPORADA 3 • OUTONAL',
+    title: String(title).trim(),
+    desc: String(desc || '').trim(),
+    charImg: charImg || 'images/fullbody.png',
+    charAlt: charAlt || 'Guerreiro Ravok 3D',
+    primaryText: primaryText || 'Jogar agora: jogar.ravok.network',
+    primaryAction: primaryAction || 'copyServerIp()',
+    secText: secText || 'Ver Loja',
+    secHref: secHref || '#produtos'
+  };
+  const list = Array.isArray(db.heroSlides) && db.heroSlides.length ? db.heroSlides : [...DEFAULT_HERO_SLIDES];
+  const existingIdx = list.findIndex(s => s.id === newSlide.id);
+  if (existingIdx !== -1) {
+    list[existingIdx] = newSlide;
+  } else {
+    list.push(newSlide);
+  }
+  db.heroSlides = list;
+  saveDb(db);
+  res.json({ success: true, slide: newSlide, heroSlides: db.heroSlides, updatedAt: db.updatedAt });
+});
+
+app.delete('/api/admin/hero-slides/:id', (req, res) => {
+  const { id } = req.params;
+  const list = Array.isArray(db.heroSlides) && db.heroSlides.length ? db.heroSlides : [...DEFAULT_HERO_SLIDES];
+  db.heroSlides = list.filter(s => s.id !== id);
+  saveDb(db);
+  res.json({ success: true, heroSlides: db.heroSlides, updatedAt: db.updatedAt });
+});
+
+app.post('/api/admin/hero-slides/reset', (req, res) => {
+  db.heroSlides = [...DEFAULT_HERO_SLIDES];
+  saveDb(db);
+  res.json({ success: true, heroSlides: db.heroSlides, updatedAt: db.updatedAt });
+});
+
 app.get('/api/slides', (req, res) => {
   db.slides = sanitizeSlides(db.slides || DEFAULT_SLIDES);
   res.json(db.slides);
@@ -2318,7 +2694,7 @@ app.post('/api/admin/bot/ai', (req, res) => {
   if (prompt !== undefined) db.settings.aiPrompt = prompt;
 
   saveDb(db);
-  res.json({ success: true, message: 'Configurações de IA da Silvie salvas com sucesso!' });
+  res.json({ success: true, message: 'Configurações de IA do Kayzel salvas com sucesso!' });
 });
 
 app.post('/api/admin/bot/ai/test', async (req, res) => {
@@ -2327,9 +2703,9 @@ app.post('/api/admin/bot/ai/test', async (req, res) => {
     return res.status(400).json({ error: 'Digite uma mensagem ou pergunta de teste.' });
   }
 
-  if (bot && typeof bot.askSilvieAI === 'function') {
+  if (bot && typeof bot.askKayzelAI === 'function') {
     try {
-      const answer = await bot.askSilvieAI(prompt, 'Administrador');
+      const fn = bot.askKayzelAI || bot.askSilvieAI; const answer = await fn(prompt, 'Administrador');
       return res.json({ success: true, answer });
     } catch (err) {
       return res.status(400).json({ error: err.message });
@@ -2427,7 +2803,7 @@ app.get('/api/vote/arena', (req, res) => {
       description: dailyQuest.description || 'Complete os desafios para garantir bônus!',
       targetCount: Number(dailyQuest.targetCount) || 2,
       rewardTitle: dailyQuest.rewardTitle || '2x Chaves de Voto',
-      silvieTip: dailyQuest.silvieTip || 'Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮',
+      silvieTip: dailyQuest.silvieTip || 'Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮',
       progress: dailyQuestProgress,
       claimed: dailyQuestClaimed
     }
@@ -2691,7 +3067,7 @@ app.post('/api/admin/vote-arena/poll/reset', (req, res) => {
   res.json({ success: true, message: 'Contagem de votos da enquete zerada com sucesso!' });
 });
 
-// Admin: Sugerir Quest do Dia com Silvie IA
+// Admin: Sugerir Quest do Dia com Kayzel IA
 app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
   const thematicFallbackQuests = [
     {
@@ -2700,7 +3076,7 @@ app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
       targetCount: 2,
       rewardTitle: "2x Chaves de Voto",
       rewardCommand: "crate key give {nick} vote 2",
-      silvieTip: "Dica da Silvie: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮"
+      silvieTip: "Dica do Kayzel: Comece pelo Quiz de Minecraft para aquecer seus neurônios! 🔮"
     },
     {
       title: "O Desafio do Mago Ancestral",
@@ -2732,7 +3108,7 @@ app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
       targetCount: 2,
       rewardTitle: "2x Chaves de Voto",
       rewardCommand: "crate key give {nick} vote 2",
-      silvieTip: "Dizem que até os Creepers pensam duas vezes antes de errar uma charada da Silvie! 💥"
+      silvieTip: "Dizem que até os Creepers pensam duas vezes antes de errar uma charada do Kayzel! 💥"
     },
     {
       title: "Mestre da Sabedoria e Humor",
@@ -2744,16 +3120,16 @@ app.post('/api/admin/vote-arena/quest/suggest-ai', async (req, res) => {
     }
   ];
 
-  // Se o bot e Silvie IA estiverem disponíveis e configurados
-  if (bot && typeof bot.askSilvieAI === 'function' && db.settings.aiApiKey) {
+  // Se o bot e Kayzel IA estiverem disponíveis e configurados
+  if (bot && typeof bot.askKayzelAI === 'function' && db.settings.aiApiKey) {
     try {
       const prompt = `Gere uma sugestão criativa e empolgante de "Quest do Dia" (Missão Diária) para o servidor de Minecraft "Ravok Network".
 A missão deve convidar o jogador a fazer desafios na Arena de Votos no site (Quiz de Perguntas, Enquete da Comunidade, Vencer Pegadinhas, Completar Piadas).
 IMPORTANTE: A recompensa NUNCA PODE SER COINS! As recompensas devem ser sempre "2x Chaves de Voto" ou "1x Chave Rara".
 Responda ESTRITAMENTE em formato JSON válido, sem cercas de código markdown nem explicações adicionais, no seguinte formato:
-{"title": "Título da Missão", "description": "Texto empolgante explicando o que fazer hoje", "targetCount": 2, "rewardTitle": "2x Chaves de Voto", "rewardCommand": "crate key give {nick} vote 2", "silvieTip": "Uma dica amigável e mágica da Silvie inspirando o jogador"}`;
+{"title": "Título da Missão", "description": "Texto empolgante explicando o que fazer hoje", "targetCount": 2, "rewardTitle": "2x Chaves de Voto", "rewardCommand": "crate key give {nick} vote 2", "silvieTip": "Uma dica amigável e mágica do Kayzel inspirando o jogador"}`;
 
-      const aiRaw = await bot.askSilvieAI(prompt, 'Administrador');
+      const aiRaw = await bot.askKayzelAI(prompt, 'Administrador');
       const cleaned = aiRaw.replace(/```json/gi, '').replace(/```/g, '').trim();
       const match = cleaned.match(/\{[\s\S]*\}/);
       if (match) {
@@ -2768,7 +3144,7 @@ Responda ESTRITAMENTE em formato JSON válido, sem cercas de código markdown ne
               targetCount: Math.min(4, Math.max(1, parseInt(parsed.targetCount, 10) || 2)),
               rewardTitle: String(parsed.rewardTitle || '2x Chaves de Voto').replace(/coins?/gi, 'Chaves'),
               rewardCommand: 'crate key give {nick} vote 2', // ZERO COINS garantido!
-              silvieTip: String(parsed.silvieTip || 'Dica da Silvie: Foque nos desafios e pegue suas chaves no /resgatar! 🔮').trim()
+              silvieTip: String(parsed.silvieTip || 'Dica do Kayzel: Foque nos desafios e pegue suas chaves no /resgatar! 🔮').trim()
             }
           });
         }
@@ -3544,6 +3920,125 @@ app.delete('/api/admin/delivery/:id', (req, res) => {
   res.json({ success: true, removed: initialLen !== db.pendingDeliveries.length });
 });
 
+// ----------------------------------------------------
+// CRIAÇÃO DE PEDIDO MANUAL VIA DISCORD TICKET (COMPRAS) / PIX DIRETO
+// ----------------------------------------------------
+app.post('/api/orders/manual', (req, res) => {
+  const { nick, items, total, coupon, notes, paymentMethod, id } = req.body || {};
+  if (!nick || !nick.trim()) {
+    return res.status(400).json({ error: 'Nick do jogador é obrigatório.' });
+  }
+  const cleanNick = nick.trim();
+  const orderId = (typeof id === 'string' && id.startsWith('RV-')) ? id : ('RV-' + Math.floor(1000 + Math.random() * 9000));
+  const cleanItems = Array.isArray(items) ? items.map(item => {
+    const prod = (db.products || []).find(p => String(p.id) === String(item.id));
+    return {
+      id: item.id,
+      name: item.name || (prod ? prod.name : 'Item Ravok'),
+      price: Number(item.price) || (prod ? prod.price : 0),
+      quantity: Number(item.quantity) || 1,
+      cat: item.cat || (prod ? prod.cat : 'Loja'),
+      command: (prod && prod.command) || item.command || ''
+    };
+  }) : [];
+  const finalTotal = typeof total === 'number' && total >= 0 ? total : cleanItems.reduce((acc, i) => acc + (i.price * i.quantity), 0);
+  const newOrder = {
+    id: orderId,
+    externalReference: orderId,
+    nick: cleanNick,
+    player: cleanNick,
+    items: cleanItems,
+    total: Number(finalTotal.toFixed(2)),
+    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
+    createdAt: new Date().toISOString(),
+    status: 'pendente_admin',
+    paymentMethod: paymentMethod || 'discord_ticket',
+    coupon: coupon || '',
+    notes: notes || 'Pedido criado via Discord Ticket (Categoria de Compras). Aguardando envio do comprovante Pix.',
+    delivery_status: 'aguardando_aprovacao',
+    delivered: false
+  };
+  db.orders = db.orders || [];
+  db.orders.unshift(newOrder);
+  saveDb(db);
+  console.log('[Discord Ticket Order] Novo pedido criado:', newOrder.id, 'para', cleanNick, 'Total:', finalTotal, 'Método:', newOrder.paymentMethod);
+  res.json({
+    success: true,
+    orderId,
+    order: newOrder,
+    message: 'Pedido registrado com sucesso! Abra seu ticket na categoria Compras do Discord para liberação no /resgatar.'
+  });
+});
+
+// ----------------------------------------------------
+// APROVAÇÃO 1-CLIQUE PELO ADMIN (LIBERAÇÃO NO /resgatar)
+// ----------------------------------------------------
+app.post('/api/admin/orders/:id/approve', (req, res) => {
+  const orderId = String(req.params.id);
+  db.orders = db.orders || [];
+  const order = db.orders.find(o => String(o.id) === orderId || String(o.externalReference) === orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'Pedido não encontrado.' });
+  }
+  order.status = 'aprovado';
+  order.approved_at = new Date().toISOString();
+  order.delivery_status = 'pendente';
+  order.delivered = false;
+  db.pendingDeliveries = db.pendingDeliveries || [];
+  const createdDeliveries = [];
+  if (Array.isArray(order.items)) {
+    order.items.forEach((item, idx) => {
+      const prod = (db.products || []).find(p => String(p.id) === String(item.id));
+      const rawCmd = (prod && prod.command) || item.command || '';
+      const cleanCmd = rawCmd.replace(/{player}|{nick}/gi, order.nick);
+      const qty = Number(item.quantity) || 1;
+      for (let q = 0; q < qty; q++) {
+        const dItem = {
+          id: generateSafeId(),
+          orderId: order.id,
+          nick: order.nick,
+          product_name: item.name || (prod ? prod.name : 'Item Ravok'),
+          category: item.cat || (prod ? prod.cat : 'Loja'),
+          command: cleanCmd,
+          gui_icon: (prod && prod.guiIcon) || 'CHEST',
+          status: 'pending',
+          created_at: new Date().toISOString()
+        };
+        db.pendingDeliveries.unshift(dItem);
+        createdDeliveries.push(dItem);
+      }
+    });
+  }
+  saveDb(db);
+  console.log('[Order Approve] Pedido aprovado:', order.id, 'Entregas geradas:', createdDeliveries.length);
+  res.json({
+    success: true,
+    message: 'Pedido #' + order.id + ' aprovado com sucesso! ' + createdDeliveries.length + ' item(ns) liberado(s) na fila do /resgatar.',
+    order,
+    createdDeliveries,
+    goal: computeGoalStatus()
+  });
+});
+
+app.post('/api/admin/orders/:id/mark-delivered', (req, res) => {
+  const orderId = String(req.params.id);
+  db.orders = db.orders || [];
+  const order = db.orders.find(o => String(o.id) === orderId || String(o.externalReference) === orderId);
+  if (order) {
+    order.delivery_status = 'entregue';
+    order.delivered = true;
+    order.delivered_at = new Date().toISOString();
+  }
+  db.pendingDeliveries = db.pendingDeliveries || [];
+  db.pendingDeliveries.forEach(d => {
+    if (String(d.orderId) === orderId) {
+      d.status = 'delivered';
+      d.delivered_at = new Date().toISOString();
+    }
+  });
+  saveDb(db);
+  res.json({ success: true, message: 'Pedido #' + orderId + ' marcado como entregue!' });
+});
 // Listagem de Pedidos (Admin)
 app.get('/api/admin/orders', (req, res) => {
   res.json(db.orders || []);

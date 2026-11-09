@@ -1,5 +1,5 @@
 {
-  "updatedAt": 1794264004337,
+  "updatedAt": 1794265720023,
   "deletedProductIds": [],
   "products": [
     {
@@ -481,28 +481,9 @@
       ]
     },
     {
-      "id": "cosmetic-fire",
-      "cat": "Cosméticos",
-      "badge": "RARO",
-      "badgeColor": "red",
-      "icon": "🪓",
-      "image": "images/products/machado_chamas_hd.png",
-      "name": "Machado das Chamas",
-      "description": "Skin cosmética para machados com partículas de fogo perpétuas.",
-      "price": 14.9,
-      "command": "uc menu effects {player}"
-    },
-    {
-      "id": "cosmetic-sword",
-      "cat": "Cosméticos",
-      "badge": "LENDÁRIO",
-      "badgeColor": "gold",
-      "icon": "⚔️",
-      "image": "images/products/espada_solar_hd.png",
-      "name": "Espada Rúnica Solar",
-      "description": "Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.",
-      "price": 19.9,
-      "command": "uc menu effects {player}"
+      "id": "mystery-pets",
+      "cat": "Pets",
+      "isMystery": true
     },
     {
       "id": "enchant-smelter",
@@ -693,13 +674,8 @@
       ]
     },
     {
-      "id": "mystery-skins",
-      "cat": "Vouchers",
-      "isMystery": true
-    },
-    {
-      "id": "mystery-pets",
-      "cat": "Pets",
+      "id": "mystery-cosmetics",
+      "cat": "Cosméticos",
       "isMystery": true
     }
   ],

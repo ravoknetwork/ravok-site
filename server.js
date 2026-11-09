@@ -638,39 +638,10 @@ const DEFAULT_PRODUCTS = [
       "Ativação imediata via /resgatar usando /darfly"
     ]
   },
-    {
-    "id": "mystery-skins",
-    "cat": "Vouchers",
-    "isMystery": true
-  },
   {
     "id": "mystery-pets",
     "cat": "Pets",
     "isMystery": true
-  },
-  {
-    "id": "cosmetic-fire",
-    "cat": "Cosméticos",
-    "badge": "RARO",
-    "badgeColor": "red",
-    "icon": "🪓",
-    "image": "images/products/machado_chamas_hd.png",
-    "name": "Machado das Chamas",
-    "description": "Skin cosmética para machados com partículas de fogo perpétuas.",
-    "price": 14.9,
-    "command": "uc menu effects {player}"
-  },
-  {
-    "id": "cosmetic-sword",
-    "cat": "Cosméticos",
-    "badge": "LENDÁRIO",
-    "badgeColor": "gold",
-    "icon": "⚔️",
-    "image": "images/products/espada_solar_hd.png",
-    "name": "Espada Rúnica Solar",
-    "description": "Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.",
-    "price": 19.9,
-    "command": "uc menu effects {player}"
   },
   {
     "id": "enchant-smelter",
@@ -859,6 +830,11 @@ const DEFAULT_PRODUCTS = [
       "Economiza tempo precioso coletando madeira no Survival",
       "Compatível com todos os machados (ferro, diamante e netherite)"
     ]
+  },
+  {
+    "id": "mystery-cosmetics",
+    "cat": "Cosméticos",
+    "isMystery": true
   }
 ];
 
@@ -943,7 +919,7 @@ const LEGACY_BROKEN_PRODUCT_IMAGES = [
 ];
 
 function upgradeProductCatalog(list, deletedProductIds = null) {
-  const BANNED_LEGACY_IDS = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  const BANNED_LEGACY_IDS = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword']);
   list = (Array.isArray(list) ? list : []).filter(p => p && !BANNED_LEGACY_IDS.has(String(p.id)));
   const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
   const CANONICAL_PRICES = {
@@ -1020,8 +996,6 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
         p.image = 'products/VIPS/membro.png';
       } else if (p.cat === 'Chaves') {
         p.image = 'images/products/key_comum_hd.png';
-      } else if (p.cat === 'Vouchers') {
-        p.image = 'images/products/voucher_skin_pixel_hd.png';
       } else if (p.cat === 'Encantamentos') {
         p.image = 'images/products/livro_fortuna_4.png';
       } else if (p.cat === 'Comandos') {
@@ -1587,7 +1561,7 @@ let db = loadDb();
 
 // Endpoint unificado de sincronização rápida para a Home e Admin
 app.get('/api/sync-state', (req, res) => {
-  const BANNED_SYNC = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  const BANNED_SYNC = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword']);
   db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS, db.deletedProductIds).filter(p => p && !BANNED_SYNC.has(String(p.id)));
   res.json({
     success: true,

@@ -1,7 +1,7 @@
 // Auto-purga definitiva de itens legados no navegador do usuario
 (function purgeLegacyBrowserStorage() {
-  const BANNED = ['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin'];
-  ['ravok_products_v15', 'ravok_products_v12', 'ravok_products_v8', 'ravok_products_v6', 'ravok_products_v5', 'ravok_admin_snapshot_v2', 'ravok_admin_snapshot_v1'].forEach(k => {
+  const BANNED = ['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword'];
+  ['ravok_products_v16', 'ravok_products_v15', 'ravok_products_v12', 'ravok_products_v8', 'ravok_products_v6', 'ravok_products_v5', 'ravok_admin_snapshot_v2', 'ravok_admin_snapshot_v1'].forEach(k => {
     try {
       const raw = localStorage.getItem(k);
       if (raw) {
@@ -507,38 +507,9 @@ const DEFAULT_PRODUCTS = [
     ]
   },
   {
-    "id": "mystery-skins",
-    "cat": "Vouchers",
-    "isMystery": true
-  },
-  {
     "id": "mystery-pets",
     "cat": "Pets",
     "isMystery": true
-  },
-  {
-    "id": "cosmetic-fire",
-    "cat": "Cosméticos",
-    "badge": "RARO",
-    "badgeColor": "red",
-    "icon": "🪓",
-    "image": "images/products/machado_chamas_hd.png",
-    "name": "Machado das Chamas",
-    "description": "Skin cosmética para machados com partículas de fogo perpétuas.",
-    "price": 14.9,
-    "command": "uc menu effects {player}"
-  },
-  {
-    "id": "cosmetic-sword",
-    "cat": "Cosméticos",
-    "badge": "LENDÁRIO",
-    "badgeColor": "gold",
-    "icon": "⚔️",
-    "image": "images/products/espada_solar_hd.png",
-    "name": "Espada Rúnica Solar",
-    "description": "Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.",
-    "price": 19.9,
-    "command": "uc menu effects {player}"
   },
   {
     "id": "enchant-smelter",
@@ -727,6 +698,11 @@ const DEFAULT_PRODUCTS = [
       "Economiza tempo precioso coletando madeira no Survival",
       "Compatível com todos os machados (ferro, diamante e netherite)"
     ]
+  },
+  {
+    "id": "mystery-cosmetics",
+    "cat": "Cosméticos",
+    "isMystery": true
   }
 ];
 
@@ -946,7 +922,7 @@ function getDeletedProductIds() {
 }
 
 function upgradeClientProducts(list) {
-  const BANNED_LEGACY_IDS = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  const BANNED_LEGACY_IDS = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword']);
   list = (Array.isArray(list) ? list : []).filter(p => p && !BANNED_LEGACY_IDS.has(String(p.id)));
   const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
   const CANONICAL_PRICES = {
@@ -1024,8 +1000,6 @@ function upgradeClientProducts(list) {
         p.image = 'products/VIPS/membro.png';
       } else if (p.cat === 'Chaves') {
         p.image = 'images/products/key_comum_hd.png';
-      } else if (p.cat === 'Vouchers') {
-        p.image = 'images/products/voucher_skin_pixel_hd.png';
       } else if (p.cat === 'Encantamentos') {
         p.image = 'images/products/livro_fortuna_4.png';
       } else if (p.cat === 'Comandos') {
@@ -1074,9 +1048,9 @@ function upgradeClientProducts(list) {
 }
 
 function getProducts() {
-  const STORAGE_KEY = 'ravok_products_v15';
+  const STORAGE_KEY = 'ravok_products_v16';
   const delSet = new Set(getDeletedProductIds().map(String));
-  const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('ravok_products_v8');
+  const saved = localStorage.getItem(STORAGE_KEY) || localStorage.getItem('ravok_products_v15') || localStorage.getItem('ravok_products_v8');
   if (saved) {
     try {
       const parsed = JSON.parse(saved);
@@ -1200,9 +1174,8 @@ const CATEGORY_META = {
   'Chaves': { iconImg: 'images/icons/deliveries_32.png', icon: '🗝️', label: 'Caixas & Chaves' },
   'Encantamentos': { iconImg: 'images/icons/enchantedbook_32.png', icon: '📖', label: 'Encantamentos' },
   'Comandos': { iconImg: 'images/icons/feather_32.png', icon: '🔧', label: 'Comandos & Permissões' },
-  'Vouchers': { iconImg: 'images/icons/toolskins_32.png', icon: '🎨', label: 'Visuais de Ferramenta' },
-  'Pets': { iconImg: 'images/icons/sword_32.png', icon: '🐾', label: 'Pets' },
-  'Cosméticos': { iconImg: 'images/icons/cosmetics_32.png', icon: '⚔️', label: 'Cosméticos & Armas' }
+  'Cosméticos': { iconImg: 'images/icons/cosmetics_32.png', icon: '🎨', label: 'Cosméticos' },
+  'Pets': { iconImg: 'images/icons/pets_32.png', icon: '🐾', label: 'Pets' }
 };
 
 let activeCategory = 'Todos';
@@ -1218,7 +1191,7 @@ window.filterCategoryAndScroll = filterCategoryAndScroll;
 
 function renderProducts() {
   products = getProducts();
-  const CATEGORY_ORDER = ['Todos', 'VIPs', 'Coins', 'Chaves', 'Encantamentos', 'Comandos', 'Vouchers', 'Pets', 'Cosméticos'];
+  const CATEGORY_ORDER = ['Todos', 'VIPs', 'Coins', 'Chaves', 'Encantamentos', 'Comandos', 'Cosméticos', 'Pets'];
   const availableCats = new Set(products.map(p => p.cat));
   const rawCategories = ['Todos', ...CATEGORY_ORDER.filter(c => c !== 'Todos')];
   availableCats.forEach(c => {
@@ -1231,7 +1204,7 @@ function renderProducts() {
     sidebarEl.innerHTML = rawCategories.map(c => {
       const meta = CATEGORY_META[c] || { icon: '⭐', label: c };
       const isActive = c === activeCategory;
-      const isMysteryCat = (c === 'Pets' || c === 'Vouchers');
+      const isMysteryCat = (c === 'Pets' || c === 'Cosméticos');
       const count = c === 'Todos' ? products.filter(p => !p.isMystery).length : (isMysteryCat ? '⏳' : products.filter(p => p.cat === c).length);
       const iconMarkup = meta.iconImg
         ? `<img src="${meta.iconImg}" alt="" class="rw-cat-tex-icon" onerror="this.style.display='none'">`
@@ -1253,7 +1226,7 @@ function renderProducts() {
   const gridEl = by('#productGrid');
   if (gridEl) {
     gridEl.innerHTML = filtered.map(p => {
-      if (p.isMystery || p.id === 'mystery-pets' || p.id === 'mystery-skins') {
+      if (p.isMystery || p.id === 'mystery-pets' || p.id === 'mystery-cosmetics') {
         return `
           <article class="rw-card rw-mystery-card">
             <div class="rw-mystery-wrap">
@@ -2511,7 +2484,7 @@ async function syncWithBackend() {
         const cleanProds = upgradeClientProducts(mergedProds);
         if (cleanProds.length > 0) {
           try {
-            localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
+            localStorage.setItem('ravok_products_v16', JSON.stringify(cleanProds));
             localStorage.setItem('ravok_products_synced', '1');
           } catch (e) {}
           products = cleanProds;
@@ -2564,7 +2537,7 @@ async function syncWithBackend() {
       const prods = await resProd.json();
       if (Array.isArray(prods)) {
         const cleanProds = upgradeClientProducts(prods);
-        localStorage.setItem('ravok_products_v6', JSON.stringify(cleanProds));
+        localStorage.setItem('ravok_products_v16', JSON.stringify(cleanProds));
         localStorage.setItem('ravok_products_synced', '1');
         products = cleanProds;
         renderProducts();
@@ -2726,17 +2699,17 @@ const HERO_SLIDES = [
     secOnClick: "filterCategoryAndScroll('Coins')"
   },
   {
-    tagIcon: 'images/products/voucher_toolskin_hd.png',
-    tagText: 'CHAVES &amp; VOUCHERS • NOVIDADE S3',
-    title: 'CHAVES MÍSTICAS &amp;<br>VISUAIS DE FERRAMENTAS',
-    desc: 'Abra Caixas Místicas com Chaves Lendárias e garanta o novo Voucher de Skin Aleatória com mais de 130 visuais épicos para espadas, machados, picaretas e arcos!',
+    tagIcon: 'images/icons/cosmetics_32.png',
+    tagText: 'CHAVES &amp; COSMÉTICOS • NOVIDADE S3',
+    title: 'CHAVES MÍSTICAS &amp;<br>COSMÉTICOS EXCLUSIVOS',
+    desc: 'Abra Caixas Místicas com Chaves Lendárias da Temporada 3 e confira as novidades em Cosméticos exclusivos do reino!',
     charImg: 'images/kayzel5.png',
-    charAlt: 'Guerreiro das Chaves e Vouchers',
-    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg><span>Ver Chaves &amp; Vouchers</span>',
-    primaryOnClick: "filterCategoryAndScroll('Vouchers')",
-    secHtml: '<span>Abrir Caixas</span>',
+    charAlt: 'Guerreiro das Chaves e Cosméticos',
+    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg><span>Ver Chaves &amp; Cosméticos</span>',
+    primaryOnClick: "filterCategoryAndScroll('Chaves')",
+    secHtml: '<span>Ver Cosméticos 🎨</span>',
     secHref: '#produtos',
-    secOnClick: "filterCategoryAndScroll('Chaves')"
+    secOnClick: "filterCategoryAndScroll('Cosméticos')"
   }
 ];
 
@@ -3317,3 +3290,22 @@ if (submitCodeBtn && verifyCodeInput) {
   };
 }
 
+
+// Sincronização em tempo real com o painel administrativo
+(function initAdminBroadcastSync() {
+  window.ravok_sync_listener_attached = true;
+  try {
+    const bc = new BroadcastChannel('ravok_sync');
+    bc.onmessage = (ev) => {
+      if (ev.data && (ev.data.type === 'products' || ev.data.type === 'all')) {
+        console.log('[Sync] Atualização de produtos recebida do Admin');
+        if (typeof renderProducts === 'function') renderProducts();
+      }
+    };
+  } catch (e) {}
+  window.addEventListener('storage', (ev) => {
+    if (ev.key === 'ravok_products_v16' || ev.key === 'ravok_products_v15') {
+      if (typeof renderProducts === 'function') renderProducts();
+    }
+  });
+})();

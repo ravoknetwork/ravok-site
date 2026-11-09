@@ -1,7 +1,7 @@
 // Auto-purga definitiva de itens legados no navegador do usuario
 (function purgeLegacyBrowserStorage() {
-  const BANNED = ['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin'];
-  ['ravok_products_v15', 'ravok_products_v12', 'ravok_products_v8', 'ravok_products_v6', 'ravok_products_v5', 'ravok_admin_snapshot_v2', 'ravok_admin_snapshot_v1'].forEach(k => {
+  const BANNED = ['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword'];
+  ['ravok_products_v16', 'ravok_products_v15', 'ravok_products_v12', 'ravok_products_v8', 'ravok_products_v6', 'ravok_products_v5', 'ravok_admin_snapshot_v2', 'ravok_admin_snapshot_v1'].forEach(k => {
     try {
       const raw = localStorage.getItem(k);
       if (raw) {
@@ -535,39 +535,10 @@ const DEFAULT_PRODUCTS = [
       "Ativação imediata via /resgatar usando /darfly"
     ]
   },
-    {
-    "id": "mystery-skins",
-    "cat": "Vouchers",
-    "isMystery": true
-  },
   {
     "id": "mystery-pets",
     "cat": "Pets",
     "isMystery": true
-  },
-  {
-    "id": "cosmetic-fire",
-    "cat": "Cosméticos",
-    "badge": "RARO",
-    "badgeColor": "red",
-    "icon": "🪓",
-    "image": "images/products/machado_chamas_hd.png",
-    "name": "Machado das Chamas",
-    "description": "Skin cosmética para machados com partículas de fogo perpétuas.",
-    "price": 14.9,
-    "command": "uc menu effects {player}"
-  },
-  {
-    "id": "cosmetic-sword",
-    "cat": "Cosméticos",
-    "badge": "LENDÁRIO",
-    "badgeColor": "gold",
-    "icon": "⚔️",
-    "image": "images/products/espada_solar_hd.png",
-    "name": "Espada Rúnica Solar",
-    "description": "Visual temático da Temporada 3 com runas brilhantes e efeito sonoro.",
-    "price": 19.9,
-    "command": "uc menu effects {player}"
   },
   {
     "id": "enchant-smelter",
@@ -756,6 +727,11 @@ const DEFAULT_PRODUCTS = [
       "Economiza tempo precioso coletando madeira no Survival",
       "Compatível com todos os machados (ferro, diamante e netherite)"
     ]
+  },
+  {
+    "id": "mystery-cosmetics",
+    "cat": "Cosméticos",
+    "isMystery": true
   }
 ];
 
@@ -803,15 +779,270 @@ const DEFAULT_SLIDES = [
     img: 'images/gallery/vale_outonal_bosque.png'
   }
 ];
+
+const HERO_SLIDES = [
+  {
+    tagIcon: 'images/autumn/folha_de_bordo_flutuante.png',
+    tagText: 'TEMPORADA 3 • OUTONAL',
+    title: 'COLHEITA &amp;<br>GLÓRIA ANCESTRAL',
+    desc: 'A nova era da Ravok Network chegou! Explore a atmosfera outonal, desbloqueie os VIPs Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa, novas Chaves S3 e texturas oficiais exclusivas com entrega automática.',
+    charImg: 'images/fullbody.png',
+    charAlt: 'Guerreiro Ravok 3D',
+    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg><span>Jogar agora: <b id="serverIpBanner">jogar.ravok.network</b> <span style="font-size:11px; opacity:0.85; margin-left:4px; font-weight:normal;">(Bedrock: 26575)</span></span>',
+    primaryOnClick: 'copyServerIp()',
+    secHtml: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg><span>Texturas HD</span>',
+    secHref: '/texturas'
+  },
+  {
+    tagIcon: 'images/autumn/girassol_radiante.png',
+    tagText: 'RANKS VIP • BENEFÍCIOS REAIS',
+    title: 'TORNE-SE UMA<br>LENDA NO REINO',
+    desc: 'Desbloqueie os Ranks Vendaval, Flamejante, Carvalho, Aurora, Solar e Deusa. Ganhe acesso a voo (/fly), kits diários, /god e comandos VIP exclusivos!',
+    charImg: 'images/kayzel2.png',
+    charAlt: 'Cavaleiro VIP Flamejante',
+    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg><span>Ver Ranks VIP na Loja</span>',
+    primaryOnClick: "filterCategoryAndScroll('VIPs')",
+    secHtml: '<span>Ver Vantagens 📜</span>',
+    secHref: '#produtos',
+    secOnClick: "openProductDetails('vip-solar')"
+  },
+  {
+    tagIcon: 'images/autumn/bussola_de_latao_dourado.png',
+    tagText: 'ECONOMIA • COINS &amp; MERCADO',
+    title: 'PACOTES DE COINS<br>&amp; MERCADO OFICIAL',
+    desc: 'Adquira pacotes de 1.000 a 22.000 Moedas oficiais com bônus exclusivos! Troque no Mercado dos Mercadores (/coinshop) por itens raros, cosméticos e encantamentos únicos.',
+    charImg: 'images/kayzel4.png',
+    charAlt: 'Mercador de Moedas',
+    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><path d="M14.8 9A2 2 0 0 0 13 8h-2a2 2 0 0 0 0 4h2a2 2 0 0 1 0 4h-2a2 2 0 0 1-1.8-1"></path><path d="M12 6v2m0 8v2"></path></svg><span>Adquirir Coins com Bônus</span>',
+    primaryOnClick: "filterCategoryAndScroll('Coins')",
+    secHtml: '<span>Ver Pacotes de Moedas</span>',
+    secHref: '#produtos',
+    secOnClick: "filterCategoryAndScroll('Coins')"
+  },
+  {
+    tagIcon: 'images/icons/cosmetics_32.png',
+    tagText: 'CHAVES &amp; COSMÉTICOS • NOVIDADE S3',
+    title: 'CHAVES MÍSTICAS &amp;<br>COSMÉTICOS EXCLUSIVOS',
+    desc: 'Abra Caixas Místicas com Chaves Lendárias da Temporada 3 e confira as novidades em Cosméticos exclusivos do reino!',
+    charImg: 'images/kayzel5.png',
+    charAlt: 'Guerreiro das Chaves e Cosméticos',
+    primaryHtml: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"></path></svg><span>Ver Chaves &amp; Cosméticos</span>',
+    primaryOnClick: "filterCategoryAndScroll('Chaves')",
+    secHtml: '<span>Ver Cosméticos 🎨</span>',
+    secHref: '#produtos',
+    secOnClick: "filterCategoryAndScroll('Cosméticos')"
+  }
+];
+
+function getStoredHeroSlides() {
+  const saved = localStorage.getItem('ravok_hero_slides_s3');
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (e) {}
+  }
+  return HERO_SLIDES;
+}
+
+function saveStoredHeroSlides(slides) {
+  try {
+    localStorage.setItem('ravok_hero_slides_s3', JSON.stringify(slides));
+  } catch (e) {}
+  notifyPublicSite('hero_slides');
+}
+
+function getDeletedProductIds() {
+  try {
+    const raw = localStorage.getItem('ravok_deleted_products_v1');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) {
+        const canonicalIds = new Set(DEFAULT_PRODUCTS.map(p => String(p.id)));
+        return parsed.filter(id => !canonicalIds.has(String(id)));
+      }
+    }
+  } catch (e) {}
+  return [];
+}
+
+const OFFICIAL_PRODUCT_IMAGES = {
+  'vip-vendaval': 'images/products/vip_vendaval_hd.png',
+  'vip-flamejante': 'images/products/vip_flamejante_hd.png',
+  'vip-carvalho': 'images/products/vip_carvalho_hd.png',
+  'vip-aurora': 'images/products/vip_aurora_hd.png',
+  'vip-solar': 'images/products/vip_solar_hd.png',
+  'vip-deusa': 'images/products/vip_deusa_hd.png',
+  'coin-1000': 'images/products/moedas_1000.png',
+  'coin-2500': 'images/products/moedas_2500.png',
+  'coin-5000': 'images/products/moedas_5000.png',
+  'coin-10000': 'images/products/moedas_10000.png',
+  'coin-15000': 'images/products/moedas_15000.png',
+  'coin-22000': 'images/products/moedas_22000.png',
+  'key-voto': 'images/products/key_voto_3x_hd.png',
+  'key-comum': 'images/products/key_comum_hd.png',
+  'key-rara': 'images/products/key_rara_hd.png',
+  'key-epica': 'images/products/key_epica_hd.png',
+  'key-superior': 'images/products/key_superior_hd.png',
+  'key-combo': 'images/products/key_combo_4x_hd.png',
+  'enchant-silkspawner': 'images/products/livro_silkspawner.png',
+  'enchant-treefeller': 'images/products/livro_treefeller.png',
+  'enchant-tunnel': 'images/products/livro_tunnel.png',
+  'enchant-veinminer': 'images/products/livro_veinminer.png',
+  'enchant-smelter': 'images/products/livro_smelter.png',
+  'enchant-vampire': 'images/products/livro_vampire.png',
+  'enchant-decapitator': 'images/products/livro_decapitator.png',
+  'enchant-soulbound': 'images/products/livro_soulbound.png',
+  'enchant-replant': 'images/products/livro_replant.png',
+  'enchant-telepathy': 'images/products/livro_telepathy.png',
+  'enchant-experience': 'images/products/livro_experience.png',
+  'enchant-blast': 'images/products/livro_blast.png',
+  'enchant-lifesteal': 'images/products/livro_lifesteal.png',
+  'cmd-fly': 'images/products/cmd_fly_hd.png',
+  'cmd-back': 'images/products/cmd_back_hd.png',
+  'cmd-feed': 'images/products/cmd_feed_hd.png',
+  'cmd-heal': 'images/products/cmd_heal_hd.png',
+  'cmd-repair': 'images/products/cmd_repair_hd.png'
+};
+
+const OFFICIAL_PREFIX_IMGS = {
+  'vip-vendaval': 'images/prefixes/knight.png',
+  'vip-flamejante': 'images/prefixes/lord.png',
+  'vip-carvalho': 'images/prefixes/paladin.png',
+  'vip-aurora': 'images/prefixes/duke.png',
+  'vip-solar': 'images/prefixes/king.png',
+  'vip-deusa': 'images/prefixes/deusa.png'
+};
+
+const LEGACY_BROKEN_PRODUCT_IMAGES = [
+  'images/kits/preview',
+  'images/autumn/pedra_do_sol_ancestral.png',
+  'images/autumn/bussola_de_latao_dourado.png',
+  'images/autumn/girassol_radiante.png',
+  'images/autumn/fogueira_acolhedora.png',
+  'images/gallery/npc_vip_aurora.png',
+  'images/chave_voto_s3.png',
+  'images/toolskins.png',
+  'images/chave_comum.png',
+  'images/chave_rara.png',
+  'images/chave_epica.png',
+  'images/chave_lendaria.png',
+  'images/chave_epic_dragon.png',
+  'images/products/chave_voto_hd.png'
+];
+
+function upgradeClientProducts(list) {
+  const BANNED_LEGACY_IDS = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword']);
+  list = (Array.isArray(list) ? list : []).filter(p => p && !BANNED_LEGACY_IDS.has(String(p.id)));
+  const PROTECTED_COMMAND_IDS = ['cmd-fly', 'cmd-back', 'cmd-feed', 'cmd-heal', 'cmd-repair'];
+  const CANONICAL_PRICES = {
+    'key-voto': 4.99,
+    'key-comum': 2.90,
+    'key-rara': 5.90,
+    'key-epica': 9.90,
+    'key-superior': 14.90,
+    'key-combo': 24.90,
+    'enchant-silkspawner': 50.00,
+    'enchant-treefeller': 4.50,
+    'cmd-fly': 4.90,
+    'cmd-back': 6.90,
+    'cmd-feed': 8.90,
+    'cmd-heal': 12.90,
+    'cmd-repair': 14.90,
+    'enchant-tunnel': 4.50,
+    'enchant-veinminer': 4.50,
+    'enchant-smelter': 3.90,
+    'enchant-vampire': 4.90,
+    'enchant-decapitator': 3.50,
+    'enchant-soulbound': 4.50,
+    'enchant-replant': 3.90,
+    'enchant-telepathy': 4.50,
+    'enchant-experience': 3.90,
+    'enchant-blast': 4.50,
+    'enchant-lifesteal': 4.90
+  };
+
+  const rawDel = getDeletedProductIds().map(String);
+  const cleanDel = rawDel.filter(id => !PROTECTED_COMMAND_IDS.includes(id));
+  if (cleanDel.length !== rawDel.length) {
+    try { localStorage.setItem('ravok_deleted_products_v1', JSON.stringify(cleanDel)); } catch(e){}
+  }
+  const delSet = new Set(cleanDel);
+  if (!Array.isArray(list)) return DEFAULT_PRODUCTS.filter(p => !delSet.has(String(p.id)));
+  const mapped = list.filter(p => p && !delSet.has(String(p.id))).map(raw => {
+    if (!raw || typeof raw !== 'object') return null;
+    const p = { ...raw };
+    if (p.id === 'vip-outono') {
+      p.id = 'vip-vendaval';
+      p.name = 'VIP VENDAVAL';
+      p.tag = '[VENDAVAL]';
+      p.tagClass = 'vendaval';
+    } else if (p.id === 'vip-ambar') {
+      p.id = 'vip-flamejante';
+      p.name = 'VIP FLAMEJANTE';
+      p.tag = '[FLAMEJANTE]';
+      p.tagClass = 'flamejante';
+    }
+
+    if (!p.customEdited) {
+      if (CANONICAL_PRICES[p.id]) p.price = CANONICAL_PRICES[p.id];
+      if (p.id === 'enchant-silkspawner') {
+        p.price = 50.00;
+        p.badge = 'SUPREMO';
+        p.badgeColor = 'gold';
+      }
+    }
+
+    if (p.customEdited) {
+      if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
+        p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+      }
+      return p;
+    }
+
+    const img = String(p.image || '').trim();
+    const isLegacyBroken = !img
+      || LEGACY_BROKEN_PRODUCT_IMAGES.some(b => img.includes(b))
+      || (img === 'images/emblema_ravok_outonal.png' && OFFICIAL_PRODUCT_IMAGES[p.id]);
+
+    if (isLegacyBroken && OFFICIAL_PRODUCT_IMAGES[p.id]) {
+      p.image = OFFICIAL_PRODUCT_IMAGES[p.id];
+    }
+    if (!p.prefixImg && OFFICIAL_PREFIX_IMGS[p.id]) {
+      p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+    }
+
+    const def = (typeof DEFAULT_PRODUCTS !== 'undefined' ? DEFAULT_PRODUCTS : []).find(d => String(d.id) === String(p.id));
+    if (def && !p.customEdited) {
+      p.name = def.name || p.name;
+      p.cat = def.cat || p.cat;
+      p.badge = def.badge || p.badge;
+      p.badgeColor = def.badgeColor || p.badgeColor;
+      p.price = (typeof CANONICAL_PRICES !== 'undefined' && CANONICAL_PRICES[p.id] !== undefined)
+        ? CANONICAL_PRICES[p.id]
+        : (def.price !== undefined ? def.price : p.price);
+      if (def.command && !p.command) p.command = def.command;
+      if (def.image && (!p.image || p.image === 'images/emblema_ravok_outonal.png')) p.image = def.image;
+    }
+    return p;
+  }).filter(Boolean);
+
+  const existingIds = new Set(mapped.map(p => String(p.id)));
+  DEFAULT_PRODUCTS.forEach(def => {
+    const defId = String(def.id);
+    if (!existingIds.has(defId) && !delSet.has(defId)) {
+      mapped.push({ ...def });
+      existingIds.add(defId);
+    }
+  });
+
+  return mapped.filter(p => !delSet.has(String(p.id)));
+}
+
+
 const escapeHtml = str => String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
 
-function notifyPublicSite(type = 'all') {
-  try {
-    const bc = new BroadcastChannel('ravok_sync');
-    bc.postMessage({ type, ts: Date.now() });
-    bc.close();
-  } catch (e) {}
-}
+
 
 function getAdminAuthHeaders(extra = {}) {
   const token = sessionStorage.getItem('ravok_admin_token') || localStorage.getItem('ravok_admin_token') || '';
@@ -1038,7 +1269,7 @@ async function syncAdminFromBackend() {
         const cleanProds = upgradeClientProducts(state.products);
         if (cleanProds.length > 0) {
           try {
-            localStorage.setItem('ravok_products_v15', JSON.stringify(cleanProds));
+            localStorage.setItem('ravok_products_v16', JSON.stringify(cleanProds)); renderProductsTable();
             localStorage.setItem('ravok_products_synced', '1');
           } catch (e) {}
         }
@@ -1339,72 +1570,26 @@ function refreshDashboard() {
 // ----------------------------------------------------
 // 3. PRODUTOS (CRUD)
 // ----------------------------------------------------
+let adminActiveCat = 'Todos';
+
 function getStoredProducts() {
-  const data = localStorage.getItem('ravok_products_v8') || localStorage.getItem('ravok_products_v5');
   const delSet = new Set(getDeletedProductIds().map(String));
+  const data = localStorage.getItem('ravok_products_v16') || localStorage.getItem('ravok_products_v15');
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) {
-        const upgraded = upgradeClientProducts(parsed).filter(p => !delSet.has(String(p.id)));
-        return upgraded;
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return upgradeClientProducts(parsed).filter(p => !delSet.has(String(p.id)));
       }
     } catch (e) {}
   }
-  if (typeof DEFAULT_PRODUCTS !== 'undefined') {
-    const fallback = upgradeClientProducts(DEFAULT_PRODUCTS).filter(p => !delSet.has(String(p.id)));
-    return fallback;
-  }
-  return [];
-}
-
-function compressImageFile(file, maxDimension = 512) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onerror = () => resolve('');
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onerror = () => resolve('');
-      img.onload = () => {
-        let { width, height } = img;
-        const canvas = document.createElement('canvas');
-        if (width <= 64 && height <= 64) {
-          canvas.width = 256;
-          canvas.height = 256;
-          const ctx = canvas.getContext('2d');
-          ctx.imageSmoothingEnabled = false;
-          ctx.drawImage(img, 0, 0, 256, 256);
-          resolve(canvas.toDataURL('image/png'));
-          return;
-        }
-        if (width > maxDimension || height > maxDimension) {
-          if (width > height) {
-            height = Math.round((height * maxDimension) / width);
-            width = maxDimension;
-          } else {
-            width = Math.round((width * maxDimension) / height);
-            height = maxDimension;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
-        ctx.drawImage(img, 0, 0, width, height);
-        resolve(canvas.toDataURL('image/png', 0.92));
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+  return upgradeClientProducts(DEFAULT_PRODUCTS).filter(p => !delSet.has(String(p.id)));
 }
 
 function saveStoredProducts(prods, updatedAt) {
   const clean = upgradeClientProducts(prods);
   try {
-    localStorage.setItem('ravok_products_v15', JSON.stringify(clean));
-    localStorage.removeItem('ravok_products_v5');
+    localStorage.setItem('ravok_products_v16', JSON.stringify(clean));
     localStorage.setItem('ravok_products_synced', '1');
   } catch (err) {
     console.warn('[Admin] Aviso ao salvar produtos no localStorage:', err);
@@ -1418,26 +1603,48 @@ function saveStoredProducts(prods, updatedAt) {
 function renderProductsTable() {
   const products = getStoredProducts();
   const tbody = by('#productsTableBody');
+  if (!tbody) return;
 
-  if (!products.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:30px;">Nenhum produto cadastrado.</td></tr>';
+  const catFilterContainer = by('#adminProductCatFilters');
+  if (catFilterContainer) {
+    catFilterContainer.querySelectorAll('button[data-admin-cat]').forEach(btn => {
+      const c = btn.dataset.adminCat;
+      const count = c === 'Todos' ? products.filter(p => !p.isMystery).length : products.filter(p => p.cat === c && !p.isMystery).length;
+      btn.innerHTML = `${c} <span style="opacity:0.65; font-size:11px;">(${count})</span>`;
+      btn.classList.toggle('active', c === adminActiveCat);
+      btn.onclick = () => {
+        adminActiveCat = c;
+        renderProductsTable();
+      };
+    });
+  }
+
+  const filtered = adminActiveCat === 'Todos'
+    ? products.filter(p => !p.isMystery)
+    : products.filter(p => p.cat === adminActiveCat);
+
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--muted); padding:30px;">Nenhum produto cadastrado nesta categoria (${escapeHtml(adminActiveCat)}).</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = products.map(p => {
+  tbody.innerHTML = filtered.map(p => {
     const imgSrc = p.image || (p.icon && (p.icon.startsWith('http') || p.icon.startsWith('data:') || p.icon.startsWith('images/') || p.icon.startsWith('products/')) ? p.icon : '');
     const iconDisplay = imgSrc
-      ? `<img src="${imgSrc}" alt="${escapeHtml(p.name)}" style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:rgba(255,255,255,0.04); padding:2px;">`
+      ? `<img src="${imgSrc}" alt="${escapeHtml(p.name || '')}" style="width:38px; height:38px; object-fit:contain; border-radius:6px; background:rgba(255,255,255,0.04); padding:2px;" onerror="this.src='images/emblema_ravok_outonal.png'">`
       : `<span style="font-size:18px;">${p.icon || '✦'}</span>`;
+
+    const displayName = p.isMystery ? `${p.cat} (Em Breve)` : (p.name || 'Sem Nome');
+    const displayPrice = p.inestimavel || p.price === 0 ? '✨ Inestimável' : (p.isMystery ? '⏳ Em Breve' : money(p.price));
 
     return `
       <tr>
         <td>${iconDisplay}</td>
-        <td><strong style="color:#fff;">${p.name}</strong></td>
-        <td><span class="badge badge-get">${p.cat}</span></td>
-        <td><strong>${p.inestimavel || p.price === 0 ? '✨ Inestimável' : money(p.price)}</strong></td>
-        <td><code>${p.guiIcon || 'CHEST'}</code></td>
-        <td><code style="max-width:240px; overflow:hidden; text-overflow:ellipsis; display:inline-block;">${p.command || 'Nenhum'}</code></td>
+        <td><strong style="color:#fff;">${escapeHtml(displayName)}</strong> ${p.badge ? `<span class="badge badge-${p.badgeColor || 'orange'}" style="font-size:9.5px; margin-left:4px;">${p.badge}</span>` : ''}</td>
+        <td><span class="badge badge-get">${escapeHtml(p.cat)}</span></td>
+        <td><strong>${displayPrice}</strong></td>
+        <td><code>${escapeHtml(p.guiIcon || 'CHEST')}</code></td>
+        <td><code style="max-width:240px; overflow:hidden; text-overflow:ellipsis; display:inline-block;">${escapeHtml(p.command || 'Nenhum')}</code></td>
         <td style="text-align:right;">
           <button class="btn-sm" data-id="${escapeHtml(p.id)}" onclick="editProduct(this.dataset.id)">Editar</button>
           <button class="btn-danger" data-id="${escapeHtml(p.id)}" onclick="deleteProduct(this.dataset.id)" style="margin-left:6px;">Excluir</button>
@@ -1446,6 +1653,18 @@ function renderProductsTable() {
     `;
   }).join('');
 }
+
+function notifyPublicSite(type = 'all') {
+  try {
+    const bc = new BroadcastChannel('ravok_sync');
+    bc.postMessage({ type, timestamp: Date.now() });
+    bc.close();
+  } catch (e) {}
+  try {
+    window.dispatchEvent(new StorageEvent('storage', { key: 'ravok_products_v16' }));
+  } catch (e) {}
+}
+
 
 function openProductModal(prod = null) {
   const modal = by('#productModal');

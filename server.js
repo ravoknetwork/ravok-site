@@ -655,31 +655,33 @@ const DEFAULT_PRODUCTS = [
       "Compatível com espadas, picaretas e machados",
       "Não perde ao morrer"
     ],
-    "command": "crazyvouchers:voucher give Random_Toolskin 1 {player}"
+    "command": "crazyvouchers give Random_Toolskin 1 {player}"
   },
   {
     "id": "pet-dino",
     "cat": "Pets",
-    "badge": "3D",
-    "badgeColor": "orange",
+    "badge": "EM BREVE",
+    "badgeColor": "purple",
     "icon": "🦖",
     "image": "images/products/pet_dino_hd.png",
     "name": "Pet Dinossauro 3D",
     "description": "Um companheiro pré-histórico com animações customizadas e efeitos sonoros.",
     "price": 29.9,
-    "command": "mcpets spawn dino {player} false"
+    "command": "mcpets spawn dino {player} false",
+    "isComingSoon": true
   },
   {
     "id": "pet-cubee",
     "cat": "Pets",
-    "badge": "MÁGICO",
-    "badgeColor": "gold",
+    "badge": "EM BREVE",
+    "badgeColor": "purple",
     "icon": "🧊",
     "image": "images/products/pet_cubee_hd.png",
     "name": "Pet Cubee Mágico",
     "description": "Cubinho flutuante que segue você com partículas de luz e animações suaves.",
     "price": 34.9,
-    "command": "mcpets spawn cubee_magico {player} false"
+    "command": "mcpets spawn cubee_magico {player} false",
+    "isComingSoon": true
   },
   {
     "id": "cosmetic-fire",
@@ -715,7 +717,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Livro: Fundição Instantânea",
     "description": "Encantamento ExcellentEnchants para ferramentas. Funde automaticamente minérios brutos em barras e areia em vidro diretamente ao quebrar o bloco.",
     "price": 3.9,
-    "command": "excellentenchants:ee book give {player} smelter 1",
+    "command": "excellentenchants:ee book smelter 1 {player}",
     "perksList": [
       "Funde minérios instantaneamente ao quebrar",
       "Economiza carvão e tempo de fornalhas",
@@ -731,8 +733,8 @@ const DEFAULT_PRODUCTS = [
     "image": "images/products/livro_decapitator.png",
     "name": "Livro: Decapitador",
     "description": "Encantamento ExcellentEnchants para machados e espadas. Chance de decepar e dropar as cabeças raras de monstros e jogadores derrotados no PvP e PvE.",
-    "price": 3.9,
-    "command": "excellentenchants:ee book give {player} decapitator 1",
+    "price": 3.5,
+    "command": "excellentenchants:ee book decapitator 1 {player}",
     "perksList": [
       "Chance de dropar cabeças de monstros e jogadores",
       "Excelente para troféus e colecionáveis raros",
@@ -749,7 +751,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Livro: Túnel I (Mineração 3x3)",
     "description": "Encantamento ExcellentEnchants lendário. Escave blocos em uma área cúbica de 3x3 com picaretas e pás com extrema velocidade.",
     "price": 4.5,
-    "command": "excellentenchants:ee book give {player} tunnel 1",
+    "command": "excellentenchants:ee book tunnel 1 {player}",
     "perksList": [
       "Escavação e quebra em área de 3x3 blocos",
       "Acelera aberturas de minas e construção de bases",
@@ -766,7 +768,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Livro: Minerador de Veios",
     "description": "Encantamento ExcellentEnchants para picaretas. Minere instantaneamente todo o veio conectado de diamantes, ouro, ferro ou netherite de uma só vez.",
     "price": 4.5,
-    "command": "excellentenchants:ee book give {player} veinminer 1",
+    "command": "excellentenchants:ee book veinminer 1 {player}",
     "perksList": [
       "Quebra toda a veia mineral conectada instantaneamente",
       "Economiza minutos em cada jazida de minério encontrada",
@@ -782,8 +784,8 @@ const DEFAULT_PRODUCTS = [
     "image": "images/products/livro_vampire.png",
     "name": "Livro: Vampirismo",
     "description": "Encantamento ExcellentEnchants para espadas. Drena a vitalidade dos seus inimigos a cada golpe desferido, recuperando sua vida em combates difíceis.",
-    "price": 4.5,
-    "command": "excellentenchants:ee book give {player} vampire 1",
+    "price": 4.9,
+    "command": "excellentenchants:ee book vampire 1 {player}",
     "perksList": [
       "Roubo de vida e cura constante a cada golpe",
       "Vantagem indispensável em masmorras e chefões",
@@ -795,12 +797,12 @@ const DEFAULT_PRODUCTS = [
     "cat": "Encantamentos",
     "badge": "SUPREMO",
     "badgeColor": "gold",
-    "icon": "📦",
+    "icon": "📖",
     "image": "images/products/livro_silkspawner.png",
     "name": "Livro: Caçador de Almas (Spawners)",
-    "description": "Encantamento supremo ExcellentEnchants para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
-    "price": 50.0,
-    "command": "excellentenchants:ee book give {player} silk_spawner 1",
+    "description": "Encantamento ExcellentEnchants supremo para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
+    "price": 50,
+    "command": "excellentenchants:ee book silk_spawner 1 {player}",
     "perksList": [
       "Coleta e transporte de Gaiolas de Monstros (Spawners)",
       "Monte suas farms automáticas onde quiser",
@@ -817,7 +819,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /back",
     "description": "Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou ao ponto onde morreu.",
     "price": 6.9,
-    "command": "crazyvouchers:voucher give Back_Command 1 {player}",
+    "command": "crazyvouchers give Back_Command 1 {player}; lp user {player} permission set essentials.back true",
     "perksList": [
       "Acesso definitivo ao comando /back no Survival",
       "Volte ao local exato de mortes ou teleportes",
@@ -834,7 +836,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /feed",
     "description": "Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver, sem precisar carregar comida.",
     "price": 8.9,
-    "command": "crazyvouchers:voucher give Feed_Command 1 {player}",
+    "command": "crazyvouchers give Feed_Command 1 {player}; lp user {player} permission set essentials.feed true",
     "perksList": [
       "Acesso definitivo ao comando /feed",
       "Recupere a saturação e fome com 1 comando",
@@ -851,7 +853,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /heal",
     "description": "Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique durante suas jornadas.",
     "price": 12.9,
-    "command": "crazyvouchers:voucher give Heal_Command 1 {player}",
+    "command": "crazyvouchers give Heal_Command 1 {player}; lp user {player} permission set essentials.heal true",
     "perksList": [
       "Acesso definitivo ao comando /heal",
       "Cura instantânea de todos os seus corações",
@@ -868,11 +870,29 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /repair",
     "description": "Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis de XP ou materiais na bigorna.",
     "price": 14.9,
-    "command": "crazyvouchers:voucher give Repair_Command 1 {player}",
+    "command": "crazyvouchers give Repair_Command 1 {player}; lp user {player} permission set essentials.repair.hand true",
     "perksList": [
       "Acesso definitivo ao comando /repair no Survival",
       "Repara armas, armaduras e ferramentas sem gastar XP",
       "Ativação imediata via /resgatar"
+    ]
+  },
+  {
+    "id": "enchant-treefeller",
+    "cat": "Encantamentos",
+    "badge": "LENHADOR",
+    "badgeColor": "green",
+    "icon": "🪓",
+    "image": "images/products/livro_treefeller.png",
+    "name": "Livro: Lenhador (Árvores Inteiras)",
+    "description": "Encantamento ExcellentEnchants para machados. Derruba uma árvore inteira instantaneamente ao quebrar apenas um bloco do tronco de madeira.",
+    "price": 4.5,
+    "oldPrice": 24.9,
+    "command": "excellentenchants:ee book treefeller 1 {player}",
+    "perksList": [
+      "Derruba toda a árvore e folhagens de uma só vez",
+      "Economiza tempo precioso coletando madeira no Survival",
+      "Compatível com todos os machados (ferro, diamante e netherite)"
     ]
   }
 ];
@@ -970,6 +990,7 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
     'key-superior': 14.90,
     'key-combo': 24.90,
     'enchant-silkspawner': 50.00,
+    'enchant-treefeller': 4.50,
     'voucher-skin': 9.99,
     'voucher-skin-aleatoria': 9.99,
     'cmd-fly': 4.90,
@@ -1231,10 +1252,10 @@ const DEFAULT_SETTINGS = {
   apiToken: process.env.PLUGIN_API_TOKEN || 'ravok_sec_99a8b7c6d5e4',
   adminUser: 'guiilew',
   adminPassword: process.env.ADMIN_PASSWORD || '000e2ecd4a',
-  goalMode: 'manual',
-  goalManualPercent: 0,
-  metaVendasValor: 2000,
-  metaVendasBase: 0,
+  goalMode: 'auto',
+  goalManualPercent: 11,
+  metaVendasValor: 300,
+  metaVendasBase: 33,
   mpPublicKey: '',
   mpAccessToken: '',
   discordInviteUrl: 'https://discord.gg',
@@ -1412,18 +1433,19 @@ function normalizeStreamer(s) {
 function computeGoalStatus() {
   const s = (db && db.settings) ? db.settings : DEFAULT_SETTINGS;
   const orders = (db && Array.isArray(db.orders)) ? db.orders : [];
-  const goalMode = s.goalMode === 'auto' ? 'auto' : 'manual';
+  const goalMode = s.goalMode === 'manual' ? 'manual' : 'auto';
   const manualPercent = Math.min(100, Math.max(0, Math.round(Number(s.goalManualPercent || 0))));
-  const targetGoal = Math.max(1, Number(s.metaVendasValor || 2000));
-  const baseSales = Math.max(0, Number(s.metaVendasBase || 0));
+  const targetGoal = Math.max(1, Number(s.metaVendasValor || 300));
+  const baseSales = Math.max(33.00, Number(s.metaVendasBase || 33.00));
 
   const approvedTotal = orders
     .filter(o => ['aprovado', 'approved', 'paid', 'completed', 'entregue'].includes(String(o.status || '').toLowerCase()))
     .reduce((acc, o) => acc + Number(o.total || 0), 0);
 
-  const totalArrecadado = Math.max(0, baseSales + approvedTotal);
+  // Mantém no mínimo os R$ 33,00 confirmados ontem, somando novos pedidos aprovados
+  const totalArrecadado = Math.max(baseSales, approvedTotal);
   const autoPercent = Math.min(100, Math.round((totalArrecadado / targetGoal) * 100));
-  const percent = goalMode === 'manual' ? manualPercent : autoPercent;
+  const percent = (goalMode === 'manual' && manualPercent > 0) ? manualPercent : autoPercent;
   const falta = Math.max(0, targetGoal - totalArrecadado);
 
   return {
@@ -3938,6 +3960,125 @@ app.delete('/api/admin/delivery/:id', (req, res) => {
   res.json({ success: true, removed: initialLen !== db.pendingDeliveries.length });
 });
 
+// ----------------------------------------------------
+// CRIAÇÃO DE PEDIDO MANUAL VIA WHATSAPP / PIX DIRETO
+// ----------------------------------------------------
+app.post('/api/orders/manual', (req, res) => {
+  const { nick, items, total, coupon, notes } = req.body || {};
+  if (!nick || !nick.trim()) {
+    return res.status(400).json({ error: 'Nick do jogador é obrigatório.' });
+  }
+  const cleanNick = nick.trim();
+  const orderId = 'RV-' + Math.floor(1000 + Math.random() * 9000);
+  const cleanItems = Array.isArray(items) ? items.map(item => {
+    const prod = (db.products || []).find(p => String(p.id) === String(item.id));
+    return {
+      id: item.id,
+      name: item.name || (prod ? prod.name : 'Item Ravok'),
+      price: Number(item.price) || (prod ? prod.price : 0),
+      quantity: Number(item.quantity) || 1,
+      cat: item.cat || (prod ? prod.cat : 'Loja'),
+      command: (prod && prod.command) || item.command || ''
+    };
+  }) : [];
+  const finalTotal = typeof total === 'number' && total >= 0 ? total : cleanItems.reduce((acc, i) => acc + (i.price * i.quantity), 0);
+  const newOrder = {
+    id: orderId,
+    externalReference: orderId,
+    nick: cleanNick,
+    player: cleanNick,
+    items: cleanItems,
+    total: Number(finalTotal.toFixed(2)),
+    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
+    createdAt: new Date().toISOString(),
+    status: 'pendente_admin',
+    paymentMethod: 'pix_manual',
+    coupon: coupon || '',
+    notes: notes || 'Aguardando validação do comprovante Pix pelo Admin via WhatsApp/Discord',
+    delivery_status: 'aguardando_aprovacao',
+    delivered: false
+  };
+  db.orders = db.orders || [];
+  db.orders.unshift(newOrder);
+  saveDb(db);
+  console.log('[Manual Order] Novo pedido criado:', newOrder.id, 'para', cleanNick, 'Total:', finalTotal);
+  res.json({
+    success: true,
+    orderId,
+    order: newOrder,
+    message: 'Pedido registrado com sucesso! Envie o comprovante ao Administrador para liberação no /resgatar.'
+  });
+});
+
+// ----------------------------------------------------
+// APROVAÇÃO 1-CLIQUE PELO ADMIN (LIBERAÇÃO NO /resgatar)
+// ----------------------------------------------------
+app.post('/api/admin/orders/:id/approve', (req, res) => {
+  const orderId = String(req.params.id);
+  db.orders = db.orders || [];
+  const order = db.orders.find(o => String(o.id) === orderId || String(o.externalReference) === orderId);
+  if (!order) {
+    return res.status(404).json({ error: 'Pedido não encontrado.' });
+  }
+  order.status = 'aprovado';
+  order.approved_at = new Date().toISOString();
+  order.delivery_status = 'pendente';
+  order.delivered = false;
+  db.pendingDeliveries = db.pendingDeliveries || [];
+  const createdDeliveries = [];
+  if (Array.isArray(order.items)) {
+    order.items.forEach((item, idx) => {
+      const prod = (db.products || []).find(p => String(p.id) === String(item.id));
+      const rawCmd = (prod && prod.command) || item.command || '';
+      const cleanCmd = rawCmd.replace(/{player}|{nick}/gi, order.nick);
+      const qty = Number(item.quantity) || 1;
+      for (let q = 0; q < qty; q++) {
+        const dItem = {
+          id: generateSafeId(),
+          orderId: order.id,
+          nick: order.nick,
+          product_name: item.name || (prod ? prod.name : 'Item Ravok'),
+          category: item.cat || (prod ? prod.cat : 'Loja'),
+          command: cleanCmd,
+          gui_icon: (prod && prod.guiIcon) || 'CHEST',
+          status: 'pending',
+          created_at: new Date().toISOString()
+        };
+        db.pendingDeliveries.unshift(dItem);
+        createdDeliveries.push(dItem);
+      }
+    });
+  }
+  saveDb(db);
+  console.log('[Order Approve] Pedido aprovado:', order.id, 'Entregas geradas:', createdDeliveries.length);
+  res.json({
+    success: true,
+    message: 'Pedido #' + order.id + ' aprovado com sucesso! ' + createdDeliveries.length + ' item(ns) liberado(s) na fila do /resgatar.',
+    order,
+    createdDeliveries,
+    goal: computeGoalStatus()
+  });
+});
+
+app.post('/api/admin/orders/:id/mark-delivered', (req, res) => {
+  const orderId = String(req.params.id);
+  db.orders = db.orders || [];
+  const order = db.orders.find(o => String(o.id) === orderId || String(o.externalReference) === orderId);
+  if (order) {
+    order.delivery_status = 'entregue';
+    order.delivered = true;
+    order.delivered_at = new Date().toISOString();
+  }
+  db.pendingDeliveries = db.pendingDeliveries || [];
+  db.pendingDeliveries.forEach(d => {
+    if (String(d.orderId) === orderId) {
+      d.status = 'delivered';
+      d.delivered_at = new Date().toISOString();
+    }
+  });
+  saveDb(db);
+  res.json({ success: true, message: 'Pedido #' + orderId + ' marcado como entregue!' });
+});
 // Listagem de Pedidos (Admin)
 app.get('/api/admin/orders', (req, res) => {
   res.json(db.orders || []);

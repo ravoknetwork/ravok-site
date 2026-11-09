@@ -100,16 +100,16 @@ body {
 }
 
 .nav-item:hover {
-  background: rgba(0, 212, 255, 0.08);
+  background: rgba(255, 193, 7, 0.10);
   color: var(--ink);
   border-color: rgba(216, 67, 21, 0.2);
 }
 
 .nav-item.active {
-  background: linear-gradient(135deg, rgba(0, 212, 255, 0.15), rgba(29, 78, 216, 0.2));
+  background: linear-gradient(135deg, rgba(255, 193, 7, 0.18), rgba(216, 67, 21, 0.28));
   color: var(--blue);
   border-color: var(--blue);
-  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.15);
+  box-shadow: 0 4px 18px rgba(255, 193, 7, 0.25);
 }
 
 .admin-user {
@@ -124,7 +124,7 @@ body {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--ravok-accent-cyan), var(--ravok-accent-blue));
+  background: linear-gradient(135deg, #D84315 0%, #FF8F00 50%, #FFC107 100%);
   display: grid;
   place-items: center;
   color: #030816;
@@ -267,7 +267,7 @@ h2 {
 
 /* Botões */
 .btn-primary {
-  background: linear-gradient(135deg, var(--ravok-accent-cyan), var(--ravok-accent-blue));
+  background: linear-gradient(135deg, #D84315 0%, #FF8F00 50%, #FFC107 100%);
   color: var(--ravok-text-inverse, #1A0E0A);
   border: 0;
   border-radius: var(--ravok-radius-pill, 9999px);
@@ -278,7 +278,7 @@ h2 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: var(--ravok-glow-cyan);
+  box-shadow: 0 4px 20px rgba(216, 67, 21, 0.4);
   transition: all 0.2s ease;
   text-decoration: none;
 }
@@ -362,12 +362,12 @@ h2 {
 }
 
 .data-table tr:hover td {
-  background: rgba(0, 212, 255, 0.03);
+  background: rgba(255, 193, 7, 0.04);
 }
 
 .data-table code {
-  background: rgba(0, 212, 255, 0.08);
-  border: 1px solid rgba(0, 212, 255, 0.18);
+  background: rgba(255, 193, 7, 0.10);
+  border: 1px solid rgba(255, 193, 7, 0.25);
   color: var(--blue-bright);
   padding: 3px 6px;
   border-radius: 5px;
@@ -387,7 +387,7 @@ h2 {
 
 .badge-success {
   background: rgba(255, 193, 7, 0.15);
-  color: var(--ravok-accent-cyan);
+  color: var(--amber-gold);
   border: 1px solid rgba(255, 193, 7, 0.3);
 }
 
@@ -405,7 +405,7 @@ h2 {
 
 .badge-post {
   background: rgba(255, 193, 7, 0.2);
-  color: var(--ravok-accent-cyan);
+  color: var(--amber-gold);
   font-weight: 800;
 }
 
@@ -661,7 +661,7 @@ dialog::backdrop {
   position: fixed;
   bottom: 25px;
   right: 25px;
-  background: linear-gradient(135deg, var(--ravok-accent-cyan), var(--ravok-accent-blue));
+  background: linear-gradient(135deg, #D84315 0%, #FF8F00 50%, #FFC107 100%);
   color: var(--ravok-text-inverse, #030816);
   padding: 14px 22px;
   border-radius: var(--ravok-radius-sm, 14px);
@@ -700,4 +700,31 @@ dialog::backdrop {
   .gallery-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+}
+
+/* Estilo Moderno dos Stat Cards e Painéis Ravok Outonal */
+.stat-card {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 193, 7, 0.05);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 193, 7, 0.4);
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #8B0000, #D84315, #FFC107, #D84315);
+}
+.panel {
+  border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 25px rgba(216, 67, 21, 0.5), 0 0 15px rgba(255, 193, 7, 0.3);
 }

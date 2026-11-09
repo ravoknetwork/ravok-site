@@ -500,31 +500,33 @@ const DEFAULT_PRODUCTS = [
       "Compatível com espadas, picaretas e machados",
       "Não perde ao morrer"
     ],
-    "command": "crazyvouchers:voucher give Random_Toolskin 1 {player}"
+    "command": "crazyvouchers give Random_Toolskin 1 {player}"
   },
   {
     "id": "pet-dino",
     "cat": "Pets",
-    "badge": "3D",
-    "badgeColor": "orange",
+    "badge": "EM BREVE",
+    "badgeColor": "purple",
     "icon": "🦖",
     "image": "images/products/pet_dino_hd.png",
     "name": "Pet Dinossauro 3D",
     "description": "Um companheiro pré-histórico com animações customizadas e efeitos sonoros.",
     "price": 29.9,
-    "command": "mcpets spawn dino {player} false"
+    "command": "mcpets spawn dino {player} false",
+    "isComingSoon": true
   },
   {
     "id": "pet-cubee",
     "cat": "Pets",
-    "badge": "MÁGICO",
-    "badgeColor": "gold",
+    "badge": "EM BREVE",
+    "badgeColor": "purple",
     "icon": "🧊",
     "image": "images/products/pet_cubee_hd.png",
     "name": "Pet Cubee Mágico",
     "description": "Cubinho flutuante que segue você com partículas de luz e animações suaves.",
     "price": 34.9,
-    "command": "mcpets spawn cubee_magico {player} false"
+    "command": "mcpets spawn cubee_magico {player} false",
+    "isComingSoon": true
   },
   {
     "id": "cosmetic-fire",
@@ -560,7 +562,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Livro: Fundição Instantânea",
     "description": "Encantamento ExcellentEnchants para ferramentas. Funde automaticamente minérios brutos em barras e areia em vidro diretamente ao quebrar o bloco.",
     "price": 3.9,
-    "command": "excellentenchants:ee book give {player} smelter 1",
+    "command": "excellentenchants:ee book smelter 1 {player}",
     "perksList": [
       "Funde minérios instantaneamente ao quebrar",
       "Economiza carvão e tempo de fornalhas",
@@ -576,8 +578,8 @@ const DEFAULT_PRODUCTS = [
     "image": "images/products/livro_decapitator.png",
     "name": "Livro: Decapitador",
     "description": "Encantamento ExcellentEnchants para machados e espadas. Chance de decepar e dropar as cabeças raras de monstros e jogadores derrotados no PvP e PvE.",
-    "price": 3.9,
-    "command": "excellentenchants:ee book give {player} decapitator 1",
+    "price": 3.5,
+    "command": "excellentenchants:ee book decapitator 1 {player}",
     "perksList": [
       "Chance de dropar cabeças de monstros e jogadores",
       "Excelente para troféus e colecionáveis raros",
@@ -594,7 +596,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Livro: Túnel I (Mineração 3x3)",
     "description": "Encantamento ExcellentEnchants lendário. Escave blocos em uma área cúbica de 3x3 com picaretas e pás com extrema velocidade.",
     "price": 4.5,
-    "command": "excellentenchants:ee book give {player} tunnel 1",
+    "command": "excellentenchants:ee book tunnel 1 {player}",
     "perksList": [
       "Escavação e quebra em área de 3x3 blocos",
       "Acelera aberturas de minas e construção de bases",
@@ -611,7 +613,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Livro: Minerador de Veios",
     "description": "Encantamento ExcellentEnchants para picaretas. Minere instantaneamente todo o veio conectado de diamantes, ouro, ferro ou netherite de uma só vez.",
     "price": 4.5,
-    "command": "excellentenchants:ee book give {player} veinminer 1",
+    "command": "excellentenchants:ee book veinminer 1 {player}",
     "perksList": [
       "Quebra toda a veia mineral conectada instantaneamente",
       "Economiza minutos em cada jazida de minério encontrada",
@@ -627,8 +629,8 @@ const DEFAULT_PRODUCTS = [
     "image": "images/products/livro_vampire.png",
     "name": "Livro: Vampirismo",
     "description": "Encantamento ExcellentEnchants para espadas. Drena a vitalidade dos seus inimigos a cada golpe desferido, recuperando sua vida em combates difíceis.",
-    "price": 4.5,
-    "command": "excellentenchants:ee book give {player} vampire 1",
+    "price": 4.9,
+    "command": "excellentenchants:ee book vampire 1 {player}",
     "perksList": [
       "Roubo de vida e cura constante a cada golpe",
       "Vantagem indispensável em masmorras e chefões",
@@ -640,12 +642,12 @@ const DEFAULT_PRODUCTS = [
     "cat": "Encantamentos",
     "badge": "SUPREMO",
     "badgeColor": "gold",
-    "icon": "📦",
+    "icon": "📖",
     "image": "images/products/livro_silkspawner.png",
     "name": "Livro: Caçador de Almas (Spawners)",
-    "description": "Encantamento supremo ExcellentEnchants para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
-    "price": 50.0,
-    "command": "excellentenchants:ee book give {player} silk_spawner 1",
+    "description": "Encantamento ExcellentEnchants supremo para picaretas. Permite quebrar, coletar e transportar Gaiolas de Monstros (Spawners) intactas para sua fazenda!",
+    "price": 50,
+    "command": "excellentenchants:ee book silk_spawner 1 {player}",
     "perksList": [
       "Coleta e transporte de Gaiolas de Monstros (Spawners)",
       "Monte suas farms automáticas onde quiser",
@@ -662,7 +664,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /back",
     "description": "Voucher de liberação permanente do comando /back. Retorne instantaneamente ao local do seu último teleporte ou ao ponto onde morreu.",
     "price": 6.9,
-    "command": "crazyvouchers:voucher give Back_Command 1 {player}",
+    "command": "crazyvouchers give Back_Command 1 {player}; lp user {player} permission set essentials.back true",
     "perksList": [
       "Acesso definitivo ao comando /back no Survival",
       "Volte ao local exato de mortes ou teleportes",
@@ -679,7 +681,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /feed",
     "description": "Voucher de liberação permanente do comando /feed. Sacie instantaneamente sua barra de fome onde estiver, sem precisar carregar comida.",
     "price": 8.9,
-    "command": "crazyvouchers:voucher give Feed_Command 1 {player}",
+    "command": "crazyvouchers give Feed_Command 1 {player}; lp user {player} permission set essentials.feed true",
     "perksList": [
       "Acesso definitivo ao comando /feed",
       "Recupere a saturação e fome com 1 comando",
@@ -696,7 +698,7 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /heal",
     "description": "Voucher de liberação permanente do comando /heal. Restaure toda a sua vida e corações com 1 clique durante suas jornadas.",
     "price": 12.9,
-    "command": "crazyvouchers:voucher give Heal_Command 1 {player}",
+    "command": "crazyvouchers give Heal_Command 1 {player}; lp user {player} permission set essentials.heal true",
     "perksList": [
       "Acesso definitivo ao comando /heal",
       "Cura instantânea de todos os seus corações",
@@ -713,11 +715,29 @@ const DEFAULT_PRODUCTS = [
     "name": "Comando /repair",
     "description": "Voucher de liberação permanente do comando /repair. Conserte o item equipado em sua mão sem gastar níveis de XP ou materiais na bigorna.",
     "price": 14.9,
-    "command": "crazyvouchers:voucher give Repair_Command 1 {player}",
+    "command": "crazyvouchers give Repair_Command 1 {player}; lp user {player} permission set essentials.repair.hand true",
     "perksList": [
       "Acesso definitivo ao comando /repair no Survival",
       "Repara armas, armaduras e ferramentas sem gastar XP",
       "Ativação imediata via /resgatar"
+    ]
+  },
+  {
+    "id": "enchant-treefeller",
+    "cat": "Encantamentos",
+    "badge": "LENHADOR",
+    "badgeColor": "green",
+    "icon": "🪓",
+    "image": "images/products/livro_treefeller.png",
+    "name": "Livro: Lenhador (Árvores Inteiras)",
+    "description": "Encantamento ExcellentEnchants para machados. Derruba uma árvore inteira instantaneamente ao quebrar apenas um bloco do tronco de madeira.",
+    "price": 4.5,
+    "oldPrice": 24.9,
+    "command": "excellentenchants:ee book treefeller 1 {player}",
+    "perksList": [
+      "Derruba toda a árvore e folhagens de uma só vez",
+      "Economiza tempo precioso coletando madeira no Survival",
+      "Compatível com todos os machados (ferro, diamante e netherite)"
     ]
   }
 ];
@@ -944,6 +964,7 @@ function upgradeClientProducts(list) {
     'key-superior': 14.90,
     'key-combo': 24.90,
     'enchant-silkspawner': 50.00,
+    'enchant-treefeller': 4.50,
     'voucher-skin': 9.99,
     'voucher-skin-aleatoria': 9.99,
     'cmd-fly': 4.90,
@@ -1184,7 +1205,7 @@ const CATEGORY_META = {
   'Encantamentos': { iconImg: 'images/icons/enchantedbook_32.png', icon: '📖', label: 'Encantamentos' },
   'Comandos': { iconImg: 'images/icons/feather_32.png', icon: '🔧', label: 'Comandos & Permissões' },
   'Vouchers': { iconImg: 'images/icons/toolskins_32.png', icon: '📜', label: 'Vouchers & Skins' },
-  'Pets': { iconImg: 'images/icons/sword_32.png', icon: '🐾', label: 'Mascotes 3D' },
+  'Pets': { iconImg: 'images/icons/sword_32.png', icon: '🐾', label: 'Pets (Em Breve)' },
   'Cosméticos': { iconImg: 'images/icons/cosmetics_32.png', icon: '⚔️', label: 'Cosméticos & Armas' }
 };
 
@@ -1203,7 +1224,7 @@ function renderProducts() {
   products = getProducts();
   const CATEGORY_ORDER = ['Todos', 'VIPs', 'Coins', 'Chaves', 'Encantamentos', 'Comandos', 'Vouchers', 'Pets', 'Cosméticos'];
   const availableCats = new Set(products.map(p => p.cat));
-  const rawCategories = ['Todos', ...CATEGORY_ORDER.filter(c => c !== 'Todos' && availableCats.has(c))];
+  const rawCategories = ['Todos', ...CATEGORY_ORDER.filter(c => c !== 'Todos')];
   availableCats.forEach(c => {
     if (!rawCategories.includes(c)) rawCategories.push(c);
   });
@@ -1274,14 +1295,18 @@ function renderProducts() {
                 <span class="rw-card-price" style="color:var(--amber-gold); font-size:15px; font-weight:800; text-shadow:0 0 10px rgba(255,193,7,0.5);">✨ Valor Inestimável</span>
               ` : `
                 <span class="rw-card-price-label">a partir de</span>
-                <span class="rw-card-price">${money(p.price)}</span>
+                ${p.isComingSoon ? `<span class="rw-card-price" style="color:var(--amber-gold); font-size:14px; font-weight:800;">⏳ EM BREVE</span>` : `<span class="rw-card-price">${money(p.price)}</span>`}
                 ${p.oldPrice ? `<span class="rw-card-old-price">${money(p.oldPrice)}</span>` : ''}
               `}
             </div>
             ${p.inestimavel || p.price === 0 ? `
               <button type="button" class="rw-buy-btn" style="background:linear-gradient(135deg, rgba(255,193,7,0.15), rgba(216,67,21,0.25)); border:1px solid var(--amber-gold); color:var(--amber-gold);" onclick="openProductDetails('${p.id}')">Rank Especial</button>
             ` : `
+              ${p.isComingSoon ? `
+              <button type="button" class="rw-buy-btn" style="background:rgba(255,193,7,0.08); border:1px dashed rgba(255,193,7,0.5); color:var(--amber-gold); cursor:not-allowed;" disabled>🔒 Em Breve</button>
+            ` : `
               <button type="button" class="rw-buy-btn" data-add="${p.id}">Comprar</button>
+            `}
             `}
           </div>
         </article>
@@ -2169,6 +2194,95 @@ function stopOrderPolling() {
 }
 
 // Checkout com Mercado Pago / Pix
+
+// ====================================================
+// CHECKOUT MANUAL COM ADMINISTRADOR (WHATSAPP / PIX DIRETO)
+// ====================================================
+if (by('#checkoutAdmin')) by('#checkoutAdmin').onclick = async () => {
+  if (!cart.length) {
+    return toast('Adicione pelo menos um produto à sacola.');
+  }
+  const player = localStorage.getItem('ravokPlayer');
+  if (!player) {
+    closeAll();
+    const pModal = by('#playerDialog');
+    if (pModal) pModal.showModal();
+    return toast('Informe seu Nick do Minecraft para vincular ao pedido.');
+  }
+
+  const total = getCartTotal();
+  const orderId = 'RV-' + Math.floor(1000 + Math.random() * 9000);
+  const itemsText = cart.map(i => '• ' + i.name + ' (x' + (i.quantity || 1) + ') - ' + money(i.price * (i.quantity || 1))).join('\n');
+  const pixKey = 'contato@ravok.network';
+
+  // Registrar pedido manual no backend
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      await fetch('/api/orders/manual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: orderId,
+          nick: player,
+          items: cart,
+          total: total,
+          coupon: appliedCoupon ? appliedCoupon.code : ''
+        })
+      });
+    } catch (e) {
+      console.warn('Registro offline do pedido.');
+    }
+  }
+
+  // Prepara mensagem formatada para WhatsApp
+  const msg = [
+    '🏰 *NOVO PEDIDO - RAVOK NETWORK*',
+    '📋 *Pedido:* #' + orderId,
+    '👤 *Nick no Servidor:* ' + player,
+    '🛍️ *Itens:*',
+    itemsText,
+    '💰 *Total a Pagar:* ' + money(total),
+    '🔑 *Chave Pix:* ' + pixKey,
+    '',
+    'Segue o comprovante do pagamento para liberação no comando */resgatar* dentro do servidor!'
+  ].join('\n');
+
+  // Preenche dados no modal informativo do Admin
+  if (by('#adminOrderNick')) by('#adminOrderNick').textContent = player;
+  if (by('#adminOrderTotal')) by('#adminOrderTotal').textContent = money(total);
+  if (by('#adminOrderId')) by('#adminOrderId').textContent = '#' + orderId;
+  if (by('#adminOrderItems')) {
+    by('#adminOrderItems').innerHTML = cart.map(i => '<div style="display:flex; justify-content:space-between; font-size:13px; padding:4px 0;"><span>' + escapeHtml(i.name) + ' x' + (i.quantity||1) + '</span><strong style="color:var(--amber-gold);">' + money(i.price * (i.quantity||1)) + '</strong></div>').join('');
+  }
+  if (by('#adminOrderPixKey')) by('#adminOrderPixKey').value = pixKey;
+
+  const waBtn = by('#adminOrderWaBtn');
+  if (waBtn) {
+    const encoded = encodeURIComponent(msg);
+    waBtn.href = 'https://api.whatsapp.com/send?phone=5511999999999&text=' + encoded;
+    waBtn.target = '_blank';
+  }
+
+  // Copia chave Pix
+  try {
+    await navigator.clipboard.writeText(pixKey);
+    toast('✓ Chave Pix copiada para a área de transferência!');
+  } catch (err) {}
+
+  closeAll();
+  const modal = by('#adminOrderModal');
+  if (modal) {
+    modal.showModal();
+  } else {
+    window.open('https://api.whatsapp.com/send?phone=5511999999999&text=' + encodeURIComponent(msg), '_blank');
+  }
+
+  // Limpa sacola após envio do pedido
+  cart = [];
+  saveCart();
+  renderCart();
+};
+
 if (by('#checkout')) by('#checkout').onclick = async () => {
   if (!cart.length) {
     return toast('Adicione pelo menos um produto à sacola.');
@@ -2488,7 +2602,7 @@ function applyGoalUI(goalData) {
 }
 
 async function loadSalesGoal() {
-  let goalData = { percent: 0 };
+  let goalData = { percent: 11, totalArrecadado: 33, targetGoal: 300 };
 
   try {
     const cached = localStorage.getItem('ravok_goal_v1');

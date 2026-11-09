@@ -1040,7 +1040,7 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
     }
   });
 
-  const BANNED = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin']);
+  const BANNED = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword']);
   return mapped.filter(p => p && !delSet.has(String(p.id)) && !BANNED.has(String(p.id)));
 }
 

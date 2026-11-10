@@ -1,5 +1,5 @@
 {
-  "updatedAt": 1794265720026,
+  "updatedAt": 1794268886747,
   "deletedProductIds": [],
   "products": [
     {
@@ -472,13 +472,14 @@
       "image": "images/products/cmd_fly_hd.png",
       "name": "Tempo de Fly (30 Minutos)",
       "description": "30 minutos de voo livre (/fly). É cumulativo! Se você comprar mais de uma vez ou estocar antes de acabar o tempo, o tempo é somado automaticamente no servidor.",
-      "price": 4.9,
+      "price": 9.9,
       "command": "darfly {player} 30m",
       "perksList": [
         "30 minutos de voo livre (/fly) no Survival",
         "100% Acumulativo (estoca tempo comprando mais)",
         "Ativação imediata via /resgatar usando /darfly"
-      ]
+      ],
+      "oldPrice": 19.9
     },
     {
       "id": "mystery-pets",

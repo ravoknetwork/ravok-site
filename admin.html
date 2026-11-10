@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Unbounded:wght@700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-  <link rel="stylesheet" href="tokens.css?v=4.2">
+  <link rel="stylesheet" href="tokens.css?v=4.3">
   <link rel="stylesheet" href="admin.css?v=4.0">
 </head>
 <body>
@@ -343,7 +343,7 @@
                 </tr>
               </thead>
               <tbody id="heroSlideTableBody">
-                <!-- Preenchido via admin.js?v=4.2 -->
+                <!-- Preenchido via admin.js?v=4.3 -->
               </tbody>
             </table>
           </div>
@@ -1693,7 +1693,7 @@
         </div>
         <div class="form-group">
           <label>Preço (R$):</label>
-          <input type="number" id="prodPrice" step="0.10" required placeholder="19.90">
+          <input type="text" inputmode="decimal" id="prodPrice" required placeholder="Ex.: 9.90 ou 9,90">
         </div>
       </div>
       <div class="form-row">
@@ -1718,7 +1718,7 @@
       </div>
       <div class="form-group">
         <label>Comando no Servidor (use {player} para o nick):</label>
-        <input type="text" id="prodCommand" required placeholder="Ex.: lp user {player} parent set knight">
+        <input type="text" id="prodCommand" placeholder="Ex.: lp user {player} parent set knight">
       </div>
       <div class="form-group">
         <label>Descrição:</label>
@@ -2077,6 +2077,6 @@
 
   <div class="toast" id="adminToast"></div>
 
-  <script src="admin.js?v=4.2"></script>
+  <script src="admin.js?v=4.3"></script>
 </body>
 </html>

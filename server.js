@@ -630,7 +630,7 @@ const DEFAULT_PRODUCTS = [
     "image": "images/products/cmd_fly_hd.png",
     "name": "Tempo de Fly (30 Minutos)",
     "description": "30 minutos de voo livre (/fly). É cumulativo! Se você comprar mais de uma vez ou estocar antes de acabar o tempo, o tempo é somado automaticamente no servidor.",
-    "price": 4.9,
+    "price": 9.9,
     "command": "darfly {player} 30m",
     "perksList": [
       "30 minutos de voo livre (/fly) no Survival",
@@ -931,7 +931,7 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
     'key-combo': 24.90,
     'enchant-silkspawner': 50.00,
     'enchant-treefeller': 4.50,
-    'cmd-fly': 4.90,
+    'cmd-fly': 9.90,
     'cmd-back': 6.90,
     'cmd-feed': 8.90,
     'cmd-heal': 12.90,
@@ -962,6 +962,12 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
   const mapped = list.filter(p => p && !delSet.has(String(p.id))).map(raw => {
     if (!raw || typeof raw !== 'object') return null;
     const p = { ...raw };
+    if (p.customEdited) {
+      if (!p.prefixImg && typeof OFFICIAL_PREFIX_IMGS !== 'undefined' && OFFICIAL_PREFIX_IMGS[p.id]) {
+        p.prefixImg = OFFICIAL_PREFIX_IMGS[p.id];
+      }
+      return p;
+    }
     if (p.id === 'vip-outono') {
       p.id = 'vip-vendaval';
       p.name = 'VIP VENDAVAL';

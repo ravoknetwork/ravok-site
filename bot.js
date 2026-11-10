@@ -51,6 +51,27 @@ const DB_FILE = path.join(DATA_DIR, 'db.json');
 const API_BASE = process.env.API_URL || 'https://ravok-site.vercel.app';
 const SERVER_IP = 'jogar.ravok.network';
 
+const SMALL_CAPS_MAP = {
+  'ᴀ': 'a', 'ʙ': 'b', 'ᴄ': 'c', 'ᴅ': 'd', 'ᴇ': 'e', 'ꜰ': 'f', 'ɢ': 'g',
+  'ʜ': 'h', 'ɪ': 'i', 'ᴊ': 'j', 'ᴋ': 'k', 'ʟ': 'l', 'ᴍ': 'm', 'ɴ': 'n',
+  'ᴏ': 'o', 'ᴘ': 'p', 'ꞯ': 'q', 'ǫ': 'q', 'ʀ': 'r', 'ꜱ': 's', 'ᴤ': 's',
+  'ᴛ': 't', 'ᴜ': 'u', 'ᴠ': 'v', 'ᴡ': 'w', 'ʏ': 'y', 'ᴢ': 'z'
+};
+
+function normalizeDiscordName(name) {
+  if (!name) return '';
+  let mapped = '';
+  for (const ch of String(name)) {
+    mapped += SMALL_CAPS_MAP[ch] || ch;
+  }
+  return mapped
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+}
+
+let persistedSaveTimer = null;
 function getDbSettings() {
   try {
     if (fs.existsSync(DB_FILE)) {
@@ -79,16 +100,36 @@ function saveDbAtomic(data) {
   }
 }
 
-
 let inMemorySettings = null;
 let lastSettingsSyncTime = 0;
 const lastRenamedMap = new Map();
+const panelPushLocks = new Map();
+
+function persistResolvedSetting(key, value) {
+  if (!key || !value) return;
+  const s = getSettings();
+  if (s[key] === value) return;
+  s[key] = value;
+  inMemorySettings = s;
+  if (persistedSaveTimer) clearTimeout(persistedSaveTimer);
+  persistedSaveTimer = setTimeout(() => {
+    try {
+      let db = {};
+      if (fs.existsSync(DB_FILE)) {
+        try { db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8')); } catch (e) {}
+      }
+      db.settings = { ...(db.settings || {}), ...inMemorySettings };
+      saveDbAtomic(db);
+    } catch (e) {}
+  }, 1500);
+}
 
 async function syncSettingsFromApi(force = false) {
   const now = Date.now();
   if (!force && inMemorySettings && (now - lastSettingsSyncTime) < 30000) {
     return inMemorySettings;
   }
+  const localSettings = getDbSettings();
   try {
     const res = await fetch(`${API_BASE}/api/sync-state`, {
       headers: { 'Accept': 'application/json' },
@@ -98,14 +139,24 @@ async function syncSettingsFromApi(force = false) {
     if (res && res.ok) {
       const state = await res.json();
       if (state && state.settings && typeof state.settings === 'object') {
-        const merged = { ...getDbSettings(), ...state.settings };
+        const merged = { ...localSettings, ...(inMemorySettings || {}) };
+        // Só sobrescreve com valores não-vazios vindos da API para não apagar IDs ou token locais
+        for (const [k, v] of Object.entries(state.settings)) {
+          if (k === 'discordBotToken' || k === 'discordBotClientId') {
+            if (v && !merged[k]) merged[k] = v;
+            continue;
+          }
+          if (v !== '' && v !== null && v !== undefined) {
+            merged[k] = v;
+          }
+        }
         if (state.goal) {
-          merged.metaVendasValor = state.goal.targetGoal || merged.metaVendasValor;
-          merged.metaVendasBase = state.goal.baseGoal || merged.metaVendasBase;
+          if (state.goal.targetGoal) merged.metaVendasValor = state.goal.targetGoal;
+          if (state.goal.baseGoal !== undefined) merged.metaVendasBase = state.goal.baseGoal;
         }
         inMemorySettings = merged;
         lastSettingsSyncTime = now;
-        
+
         try {
           let db = {};
           if (fs.existsSync(DB_FILE)) {
@@ -115,62 +166,77 @@ async function syncSettingsFromApi(force = false) {
           db.updatedAt = state.updatedAt || Date.now();
           saveDbAtomic(db);
         } catch (e) {}
-        logBot('info', '🔄 Configurações e canais do Discord sincronizados da API oficial.');
+        logBot('info', '🔄 Configurações e metas sincronizadas da API oficial.');
         return inMemorySettings;
       }
     }
   } catch (err) {
     // Falha silenciosa de rede, continua com dados locais
   }
-  inMemorySettings = getDbSettings();
+  if (!inMemorySettings) inMemorySettings = localSettings;
   lastSettingsSyncTime = now;
   return inMemorySettings;
 }
 
 function getSettings() {
-  if (inMemorySettings) return inMemorySettings;
-  return getDbSettings();
+  if (!inMemorySettings) {
+    inMemorySettings = getDbSettings();
+  }
+  return inMemorySettings;
 }
 
 // ----------------------------------------------------
-// RESOLVER INTELIGENTE DE CANAIS (ID OU AUTO-DESCOBERTA)
+// RESOLVER INTELIGENTE DE CANAIS (ID OU AUTO-DESCOBERTA UNICODE)
 // ----------------------------------------------------
 async function resolveChannel(channelKey, keywords = [], type = 'text') {
   const settings = getSettings();
-  const configuredId = settings[channelKey] || process.env[channelKey];
+  const configuredId = (channelKey ? (settings[channelKey] || process.env[channelKey]) : null);
 
   if (configuredId) {
     const cleanId = String(configuredId).trim();
-    let ch = client.channels.cache.get(cleanId);
-    if (!ch) {
-      ch = await client.channels.fetch(cleanId).catch(() => null);
+    if (cleanId) {
+      let ch = client.channels.cache.get(cleanId);
+      if (!ch) {
+        ch = await client.channels.fetch(cleanId).catch(() => null);
+      }
+      if (ch) {
+        const isVoice = type === 'voice';
+        const isCategory = type === 'category';
+        const typeOk = isCategory ? ch.type === ChannelType.GuildCategory : (isVoice ? ch.type === ChannelType.GuildVoice : ch.isTextBased());
+        if (typeOk) return ch;
+      }
     }
-    if (ch) return ch;
   }
 
   if (!keywords || !keywords.length) return null;
 
   for (const guild of client.guilds.cache.values()) {
-    const channels = guild.channels.cache;
+    let channels = guild.channels.cache;
+    if (channels.size < 3) {
+      try { channels = await guild.channels.fetch(); } catch (e) {}
+    }
     const isVoice = type === 'voice';
     const isCategory = type === 'category';
 
-    const match = channels.find(c => {
-      if (isCategory && c.type !== ChannelType.GuildCategory) return false;
-      if (isVoice && c.type !== ChannelType.GuildVoice) return false;
-      if (!isCategory && !isVoice && c.type !== ChannelType.GuildText && c.type !== ChannelType.GuildAnnouncement) return false;
-
-      const cName = c.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-      return keywords.some(k => {
-        const cleanK = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+    // Prioriza match exato ou sequencial pela ordem de keywords (mais específico primeiro)
+    for (const kw of keywords) {
+      const cleanK = normalizeDiscordName(kw);
+      if (!cleanK) continue;
+      const match = channels.find(c => {
+        if (!c) return false;
+        if (isCategory && c.type !== ChannelType.GuildCategory) return false;
+        if (isVoice && c.type !== ChannelType.GuildVoice) return false;
+        if (!isCategory && !isVoice && c.type !== ChannelType.GuildText && c.type !== ChannelType.GuildAnnouncement) return false;
+        const cName = normalizeDiscordName(c.name);
         return cName.includes(cleanK);
       });
-    });
-
-    if (match) {
-      logBot('info', `[Canais] Auto-descoberta: "${channelKey}" vinculado automaticamente a #${match.name} (${match.id})`);
-      settings[channelKey] = match.id;
-      return match;
+      if (match) {
+        if (channelKey) {
+          logBot('info', `[Canais] Auto-descoberta: "${channelKey}" -> #${match.name} (${match.id})`);
+          persistResolvedSetting(channelKey, match.id);
+        }
+        return match;
+      }
     }
   }
 
@@ -178,12 +244,11 @@ async function resolveChannel(channelKey, keywords = [], type = 'text') {
 }
 
 // ----------------------------------------------------
-// RESOLVER INTELIGENTE DE CARGOS (ID OU AUTO-DESCOBERTA)
+// RESOLVER INTELIGENTE DE CARGOS (ID OU AUTO-DESCOBERTA UNICODE)
 // ----------------------------------------------------
 async function resolveRole(roleKey, keywords = [], guild = null) {
   const settings = getSettings();
-  const configuredId = settings[roleKey] || process.env[roleKey];
-
+  const configuredId = roleKey ? (settings[roleKey] || process.env[roleKey]) : null;
   const searchGuild = guild || client.guilds.cache.first();
   if (!searchGuild) return null;
 
@@ -195,21 +260,29 @@ async function resolveRole(roleKey, keywords = [], guild = null) {
 
   if (!keywords || !keywords.length) return null;
 
-  const match = searchGuild.roles.cache.find(r => {
-    const rName = r.name.toLowerCase().replace(/[^a-z0-9]/g, '');
-    return keywords.some(k => {
-      const cleanK = k.toLowerCase().replace(/[^a-z0-9]/g, '');
-      return rName.includes(cleanK);
-    });
-  });
-
-  if (match) {
-    logBot('info', `[Cargos] Auto-descoberta: "${roleKey}" vinculado automaticamente a @${match.name} (${match.id})`);
-    settings[roleKey] = match.id;
-    return match;
+  for (const kw of keywords) {
+    const cleanK = normalizeDiscordName(kw);
+    if (!cleanK) continue;
+    const match = searchGuild.roles.cache.find(r => normalizeDiscordName(r.name).includes(cleanK));
+    if (match) {
+      if (roleKey) {
+        logBot('info', `[Cargos] Auto-descoberta: "${roleKey}" -> @${match.name} (${match.id})`);
+        persistResolvedSetting(roleKey, match.id);
+      }
+      return match;
+    }
   }
 
   return null;
+}
+
+function getStaffRoles(guild) {
+  if (!guild) return [];
+  return Array.from(guild.roles.cache.filter(r => {
+    if (r.managed || r.id === guild.id) return false;
+    const norm = normalizeDiscordName(r.name);
+    return /staff|equipe|suporte|moderador|helper|administrador|admin|gerente|oraculo|fundador/.test(norm);
+  }).values());
 }
 
 // ----------------------------------------------------
@@ -217,7 +290,7 @@ async function resolveRole(roleKey, keywords = [], guild = null) {
 // ----------------------------------------------------
 async function sendStaffReport({ title, description, fields = [], color = 0x55E6D8, author = null, footer = null }) {
   try {
-    const channel = await resolveChannel('discordBotChannelRelatorios', ['relatorios', 'relatorio', 'staff-logs', 'logs-staff', 'logs', 'auditoria']);
+    const channel = await resolveChannel('discordBotChannelRelatorios', ['relatorios', 'relatorio', 'stafflogs', 'logsstaff', 'auditoria', 'logs'], 'text');
     if (!channel || !channel.isTextBased()) return;
 
     const embed = new EmbedBuilder()
@@ -237,6 +310,26 @@ async function sendStaffReport({ title, description, fields = [], color = 0x55E6
   }
 }
 
+async function syncCountingNumber() {
+  try {
+    const settings = getSettings();
+    const ch = await resolveChannel('discordBotChannelContagem', ['contagem', 'counting', 'numeros'], 'text');
+    if (!ch || !ch.isTextBased()) return;
+    const msgs = await ch.messages.fetch({ limit: 15 }).catch(() => null);
+    if (!msgs) return;
+    for (const msg of msgs.values()) {
+      const txt = (msg.content || '').trim();
+      if (/^\d+$/.test(txt)) {
+        const val = parseInt(txt, 10);
+        if (!settings.countingCurrentNumber || val > Number(settings.countingCurrentNumber)) {
+          persistResolvedSetting('countingCurrentNumber', val);
+          logBot('info', `🔢 Contagem sincronizada automaticamente em #${ch.name}: último número #${val}`);
+        }
+        break;
+      }
+    }
+  } catch (e) {}
+}
 
 // ----------------------------------------------------
 // CONSULTA ROBUSTA AO VIVO DO SERVIDOR MINECRAFT (SEM DEPENDER DE LOCALHOST)
@@ -247,7 +340,7 @@ let mcStatusCache = {
 };
 
 async function fetchMinecraftStatus(forceFresh = false) {
-  const settings = getDbSettings();
+  const settings = getSettings();
   const serverIp = (settings.serverIp || settings.minecraftIp || process.env.MINECRAFT_IP || SERVER_IP).trim();
   const now = Date.now();
 
@@ -475,7 +568,8 @@ client.on('ready', async () => {
   try {
     await client.application.commands.set(commands);
     for (const guild of client.guilds.cache.values()) {
-      await guild.commands.set(commands).catch(() => {});
+      // Remove comandos locais de guilda para evitar duplicacao com comandos globais
+      await guild.commands.set([]).catch(() => {});
     }
     logBot('info', `✓ ${commands.length} Comandos Slash registrados com sucesso em todas as guildas! (/status, /ip, /loja, /perfil, /vincular, /kayzel, /sugestao, /confissao, /testwelcome, /limpar, /clear)`);
   } catch (err) {
@@ -487,8 +581,9 @@ client.on('ready', async () => {
   presenceInterval = setInterval(updateBotPresence, 45000);
 
   if (statusChannelsInterval) clearInterval(statusChannelsInterval);
-  // Sincronizar imediatamente canais e configurações da API
-  syncSettingsFromApi().then(() => {
+  // Sincronizar imediatamente configurações, número da contagem e canais de status
+  syncSettingsFromApi(true).then(async () => {
+    await syncCountingNumber().catch(() => {});
     syncServerStatusChannels().catch(e => logBot('error', `Falha ao sincronizar canais de status: ${e.message}`));
   }).catch(() => {});
 
@@ -562,6 +657,36 @@ client.on('interactionCreate', async (interaction) => {
       return await handleModalSubmit(interaction);
     }
 
+    if (interaction.isStringSelectMenu()) {
+      if (interaction.customId === 'sys_live_dropdown') {
+        const modal = new ModalBuilder()
+          .setCustomId('modal_live')
+          .setTitle('Anunciar Transmissão ao Vivo');
+
+        const titInput = new TextInputBuilder()
+          .setCustomId('live_titulo')
+          .setLabel('Título da sua live')
+          .setPlaceholder('Ex: Jogando na Ravok Network ao vivo!')
+          .setStyle(TextInputStyle.Short)
+          .setMaxLength(80)
+          .setRequired(true);
+
+        const urlInput = new TextInputBuilder()
+          .setCustomId('live_url')
+          .setLabel('Link da Live (Twitch ou YouTube)')
+          .setPlaceholder('https://twitch.tv/... ou https://youtube.com/live/...')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(true);
+
+        modal.addComponents(
+          new ActionRowBuilder().addComponents(titInput),
+          new ActionRowBuilder().addComponents(urlInput)
+        );
+        return await interaction.showModal(modal);
+      }
+      return;
+    }
+
     if (!interaction.isChatInputCommand()) return;
 
   const { commandName } = interaction;
@@ -572,7 +697,7 @@ client.on('interactionCreate', async (interaction) => {
     try {
       const data = await fetchMinecraftStatus(true);
       const isOnline = Boolean(data.online);
-      const settings = getDbSettings();
+      const settings = getSettings();
       const storeUrl = (settings.apiUrl || process.env.API_URL || 'https://loja.ravok.network').replace(/\/$/, '');
 
       const embed = new EmbedBuilder()
@@ -621,7 +746,7 @@ client.on('interactionCreate', async (interaction) => {
   if (commandName === 'ip') {
     const data = await fetchMinecraftStatus();
     const isOnline = Boolean(data.online);
-    const settings = getDbSettings();
+    const settings = getSettings();
     const storeUrl = (settings.apiUrl || process.env.API_URL || 'https://loja.ravok.network').replace(/\/$/, '');
 
     const embed = new EmbedBuilder()
@@ -673,10 +798,15 @@ client.on('interactionCreate', async (interaction) => {
       new ButtonBuilder()
         .setLabel('Abrir Loja Oficial ↗')
         .setStyle(ButtonStyle.Link)
-        .setURL(API_BASE)
+        .setURL(API_BASE),
+      new ButtonBuilder()
+        .setCustomId('sys_ticket_compra')
+        .setLabel('Finalizar Compra no Discord')
+        .setStyle(ButtonStyle.Success)
+        .setEmoji('💳')
     );
 
-    await interaction.reply({ embeds: [embed], components: [row] });
+    return await interaction.reply({ embeds: [embed], components: [row] });
   }
 
   // COMANDO: /perfil <nick>
@@ -819,7 +949,7 @@ client.on('interactionCreate', async (interaction) => {
       // Atribuição de cargos no Discord
       const given = [];
       if (interaction.guild && interaction.member) {
-        const settings = getDbSettings();
+        const settings = getSettings();
         const rVinc = settings.discordBotRoleVinculado ? interaction.guild.roles.cache.get(settings.discordBotRoleVinculado) : null;
         const rAcess = settings.discordBotRoleAcesso ? interaction.guild.roles.cache.get(settings.discordBotRoleAcesso) : null;
         if (rVinc) { await interaction.member.roles.add(rVinc).catch(() => {}); given.push(rVinc.name); }
@@ -849,7 +979,7 @@ client.on('interactionCreate', async (interaction) => {
   }
 
   // COMANDO: /kayzel
-  if (commandName === 'kayzel' || commandName === 'kayzel') {
+  if (commandName === 'kayzel' || commandName === 'silvie') {
     const pergunta = interaction.options.getString('pergunta');
     await interaction.deferReply();
     try {
@@ -948,7 +1078,7 @@ client.on('interactionCreate', async (interaction) => {
   if (commandName === 'testwelcome') {
     await interaction.deferReply({ ephemeral: true });
     try {
-      const settings = getDbSettings();
+      const settings = getSettings();
       let bgImage = settings.welcomeBgUrl;
       if (!bgImage) {
         const localBg = path.join(__dirname, 'public', 'welcome-bg.png');
@@ -977,38 +1107,35 @@ client.on('interactionCreate', async (interaction) => {
 
   // COMANDO: /limpar ou /clear (Moderação / Limpar Chat)
   if (commandName === 'limpar' || commandName === 'clear') {
+    await interaction.deferReply({ ephemeral: true });
+
     if (!interaction.guild || !interaction.channel || !interaction.channel.isTextBased()) {
-      return await interaction.reply({
-        content: '❌ Este comando só pode ser utilizado em canais de texto dentro do servidor.',
-        ephemeral: true
+      return await interaction.editReply({
+        content: '❌ Este comando só pode ser utilizado em canais de texto dentro do servidor.'
       });
     }
 
-    const member = interaction.member;
-    const isStaff = member && member.permissions && (
-      member.permissions.has(PermissionFlagsBits.ManageMessages) ||
-      member.permissions.has(PermissionFlagsBits.Administrator)
+    const perms = interaction.memberPermissions || (interaction.member && interaction.member.permissions);
+    const isStaff = perms && typeof perms.has === 'function' && (
+      perms.has(PermissionFlagsBits.ManageMessages) ||
+      perms.has(PermissionFlagsBits.Administrator)
     );
 
     if (!isStaff) {
-      return await interaction.reply({
-        content: '❌ **Acesso Negado!** Você precisa da permissão **Gerenciar Mensagens** ou Administrador para limpar o chat.',
-        ephemeral: true
+      return await interaction.editReply({
+        content: '❌ **Acesso Negado!** Você precisa da permissão **Gerenciar Mensagens** ou Administrador para limpar o chat.'
       });
     }
 
     const botMember = interaction.guild.members.me;
     if (!botMember || !botMember.permissionsIn(interaction.channel).has(PermissionFlagsBits.ManageMessages)) {
-      return await interaction.reply({
-        content: '❌ **Permissão Faltando!** O bot precisa da permissão **Gerenciar Mensagens** neste canal para poder apagar mensagens.',
-        ephemeral: true
+      return await interaction.editReply({
+        content: '❌ **Permissão Faltando!** O bot precisa da permissão **Gerenciar Mensagens** neste canal para poder apagar mensagens.'
       });
     }
 
     const requestedAmount = interaction.options.getInteger('quantidade') || 100;
     const clampedAmount = Math.max(1, Math.min(100, requestedAmount));
-
-    await interaction.deferReply({ ephemeral: true });
 
     try {
       const deleted = await interaction.channel.bulkDelete(clampedAmount, true);
@@ -1032,14 +1159,27 @@ client.on('interactionCreate', async (interaction) => {
         .setTimestamp();
 
       await interaction.editReply({ embeds: [embed] });
+      await sendStaffReport({
+        title: '🧹 Limpeza de Chat (/clear)',
+        description: `${interaction.user} apagou **${totalDeleted}** mensagens em ${interaction.channel}.`,
+        color: 0x00d4ff
+      }).catch(() => {});
       logBot('info', `🧹 ${totalDeleted} mensagens apagadas por ${interaction.user.tag} em #${interaction.channel.name}`);
     } catch (err) {
       logBot('error', `Falha ao apagar mensagens em #${interaction.channel.name}: ${err.message}`);
       await interaction.editReply({ content: `❌ Falha ao limpar mensagens: ${err.message}` });
     }
+    return;
   }
   } catch (globalErr) {
-    console.warn('[Bot] [WARN] Erro capturado em interactionCreate:', globalErr.message);
+    console.warn('[Bot] [WARN] Erro capturado em interactionCreate:', globalErr && globalErr.message ? globalErr.message : globalErr);
+    try {
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ content: '❌ Ocorreu um erro ao processar este comando. Tente novamente em instantes.' }).catch(() => {});
+      } else {
+        await interaction.reply({ content: '❌ Ocorreu um erro ao processar este comando.', ephemeral: true }).catch(() => {});
+      }
+    } catch (e) {}
   }
 });
 
@@ -1049,6 +1189,24 @@ client.on('interactionCreate', async (interaction) => {
 async function handleButtonInteraction(interaction) {
   try {
     const { customId } = interaction;
+
+  // 0. LEGADO: Ver IP e Status (#ip-do-servidor)
+  if (customId === 'btn_ip_fixo') {
+    const data = await fetchMinecraftStatus();
+    const isOnline = Boolean(data.online);
+    const embed = new EmbedBuilder()
+      .setTitle('🌐 Conexão Oficial • Ravok Network')
+      .setColor(isOnline ? 0x00FFCC : 0xef4444)
+      .setDescription('Conecte-se em Java ou Bedrock utilizando o endereço oficial abaixo!')
+      .addFields(
+        { name: '☕ IP Java Edition', value: `\`${data.ip}\``, inline: true },
+        { name: '📱 IP Bedrock / PE', value: `\`${data.ip}\` (Porta \`26575\`)`, inline: true },
+        { name: '📌 Status Agora', value: isOnline ? `🟢 Online (${data.players.online} jogadores)` : '🔴 Offline / Manutenção', inline: false }
+      )
+      .setFooter({ text: 'Kayzel • Ravok Network' })
+      .setTimestamp();
+    return await interaction.reply({ embeds: [embed], ephemeral: true });
+  }
 
   // 1. TICKET: Abrir Ticket
   // 1.1. TICKET COMPRA: Abrir Atendimento de Compra Pix
@@ -1333,6 +1491,13 @@ async function handleButtonInteraction(interaction) {
   }
   } catch (btnErr) {
     console.warn('[Bot] [WARN] Erro em handleButtonInteraction:', btnErr.message);
+    try {
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ content: '❌ Erro ao processar botão.' }).catch(() => {});
+      } else {
+        await interaction.reply({ content: '❌ Erro ao processar botão.', ephemeral: true }).catch(() => {});
+      }
+    } catch (e) {}
   }
 }
 
@@ -1342,7 +1507,7 @@ async function handleButtonInteraction(interaction) {
 async function handleModalSubmit(interaction) {
   try {
     const { customId, guild } = interaction;
-    const settings = getDbSettings();
+    const settings = getSettings();
 
   // 1. MODAL TICKET GERAL
   if (customId === 'modal_ticket') {
@@ -1355,16 +1520,17 @@ async function handleModalSubmit(interaction) {
 
     const nick = interaction.fields.getTextInputValue('ticket_nick').trim();
     const problema = interaction.fields.getTextInputValue('ticket_problema').trim();
-    const category = await resolveChannel('discordBotCategoryTickets', ['tickets', 'ticket', 'atendimento', 'suporte'], 'category');
-    const staffRole = await resolveRole('discordBotRoleStaff', ['staff', 'equipe', 'suporte', 'mod', 'admin', 'gerente'], guild);
+    const category = await resolveChannel('discordBotCategoryTickets', ['tickets', 'ticket', 'atendimento'], 'category');
+    const staffRoles = getStaffRoles(guild);
+    const staffRole = staffRoles[0] || await resolveRole('discordBotRoleStaff', ['staff', 'equipe', 'suporte', 'mod', 'admin', 'gerente'], guild);
 
     const overwrites = [
       { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
       { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] },
       { id: client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ManageMessages] }
     ];
-    if (staffRole) {
-      overwrites.push({ id: staffRole.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] });
+    for (const sr of (staffRoles.length ? staffRoles : (staffRole ? [staffRole] : []))) {
+      overwrites.push({ id: sr.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] });
     }
 
     try {
@@ -1432,16 +1598,17 @@ async function handleModalSubmit(interaction) {
     const itens = interaction.fields.getTextInputValue('compra_itens').trim();
     const obs = interaction.fields.getTextInputValue('compra_obs') ? interaction.fields.getTextInputValue('compra_obs').trim() : '';
 
-    const category = await resolveChannel('discordBotCategoryCompras', ['compras', 'pedidos', 'loja', 'tickets', 'suporte'], 'category');
-    const staffRole = await resolveRole('discordBotRoleStaff', ['staff', 'equipe', 'suporte', 'mod', 'admin', 'gerente'], guild);
+    const category = await resolveChannel('discordBotCategoryCompras', ['compras', 'pedidos', 'loja', 'tickets'], 'category');
+    const staffRoles = getStaffRoles(guild);
+    const staffRole = staffRoles[0] || await resolveRole('discordBotRoleStaff', ['staff', 'equipe', 'suporte', 'mod', 'admin', 'gerente'], guild);
 
     const overwrites = [
       { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
       { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] },
       { id: client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ManageMessages] }
     ];
-    if (staffRole) {
-      overwrites.push({ id: staffRole.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] });
+    for (const sr of (staffRoles.length ? staffRoles : (staffRole ? [staffRole] : []))) {
+      overwrites.push({ id: sr.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] });
     }
 
     try {
@@ -1521,16 +1688,17 @@ async function handleModalSubmit(interaction) {
     const nomeIdade = interaction.fields.getTextInputValue('recrut_nome_idade').trim();
     const exp = interaction.fields.getTextInputValue('recrut_exp').trim();
     const motivo = interaction.fields.getTextInputValue('recrut_motivo').trim();
-    const category = await resolveChannel('discordBotCategoryRecrutamento', ['recrutamento', 'staff-form', 'candidaturas', 'recrut'], 'category');
-    const staffRole = await resolveRole('discordBotRoleStaff', ['staff', 'equipe', 'suporte', 'mod', 'admin', 'gerente'], guild);
+    const category = await resolveChannel('discordBotCategoryRecrutamento', ['candidaturas', 'recrutamento', 'staffform', 'recrut'], 'category');
+    const staffRoles = getStaffRoles(guild);
+    const staffRole = staffRoles[0] || await resolveRole('discordBotRoleStaff', ['staff', 'equipe', 'suporte', 'mod', 'admin', 'gerente'], guild);
 
     const overwrites = [
       { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
       { id: interaction.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] },
       { id: client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ManageMessages] }
     ];
-    if (staffRole) {
-      overwrites.push({ id: staffRole.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] });
+    for (const sr of (staffRoles.length ? staffRoles : (staffRole ? [staffRole] : []))) {
+      overwrites.push({ id: sr.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] });
     }
 
     try {
@@ -1670,14 +1838,19 @@ async function handleModalSubmit(interaction) {
     } catch (e) {}
 
     const given = [];
-    if (interaction.guild) {
-      const rVinc = settings.discordBotRoleVinculado ? interaction.guild.roles.cache.get(settings.discordBotRoleVinculado) : null;
-      const rAcess = settings.discordBotRoleAcesso ? interaction.guild.roles.cache.get(settings.discordBotRoleAcesso) : null;
+    if (interaction.guild && interaction.member) {
+      const rVinc = await resolveRole('discordBotRoleVinculado', ['vinculado'], interaction.guild);
+      const rAcess = await resolveRole('discordBotRoleAcesso', ['acesso', 'membro'], interaction.guild);
       if (rVinc) { await interaction.member.roles.add(rVinc).catch(() => {}); given.push(rVinc.name); }
       if (rAcess) { await interaction.member.roles.add(rAcess).catch(() => {}); given.push(rAcess.name); }
     }
 
     await interaction.reply({ content: `🌿 Tudo certo! Sua conta **${nick}** foi vinculada com sucesso! ${given.length ? `Cargos liberados: **${given.join(', ')}** 💙` : ''}`, ephemeral: true });
+    await sendStaffReport({
+      title: '🔗 Conta Vinculada via Painel',
+      description: `${interaction.user} vinculou o nick **${nick}**.`,
+      color: 0x00FFCC
+    }).catch(() => {});
     logBot('info', `🔗 ${interaction.user.tag} vinculou com sucesso o nick ${nick}`);
     return;
   }
@@ -1686,8 +1859,7 @@ async function handleModalSubmit(interaction) {
   if (customId === 'modal_feedback') {
     const titulo = interaction.fields.getTextInputValue('feedback_titulo').trim();
     const msg = interaction.fields.getTextInputValue('feedback_msg').trim();
-    const channelId = settings.discordBotChannelFeedbacks || interaction.channelId;
-    const channel = client.channels.cache.get(channelId) || interaction.channel;
+    const channel = await resolveChannel('discordBotChannelFeedbacks', ['feedbacks', 'feedback', 'avaliacoes'], 'text') || interaction.channel;
 
     const embed = new EmbedBuilder()
       .setTitle(`⭐ Feedback: ${titulo}`)
@@ -1699,6 +1871,12 @@ async function handleModalSubmit(interaction) {
     const sent = await channel.send({ embeds: [embed] });
     await sent.react('⭐').catch(() => {});
     await interaction.reply({ content: '💙 Muito obrigado pelo seu feedback sobre o servidor!', ephemeral: true });
+    await sendStaffReport({
+      title: '⭐ Novo Feedback Recebido',
+      description: `${interaction.user} enviou avaliação em ${channel}.`,
+      fields: [{ name: titulo, value: msg }],
+      color: 0xf39c12
+    }).catch(() => {});
     logBot('info', `Feedback recebido de ${interaction.user.tag}`);
     await empurrarPainel('feedback', channel.id).catch(() => {});
     return;
@@ -1712,8 +1890,7 @@ async function handleModalSubmit(interaction) {
       return interaction.reply({ content: '❌ Envie um link válido começando com http:// ou https://', ephemeral: true });
     }
 
-    const channelId = settings.discordBotChannelVideos || interaction.channelId;
-    const channel = client.channels.cache.get(channelId) || interaction.channel;
+    const channel = await resolveChannel('discordBotChannelVideos', ['videos', 'enviarlive', 'midias'], 'text') || interaction.channel;
 
     const embed = new EmbedBuilder()
       .setTitle(`🎬 ${titulo}`)
@@ -1728,6 +1905,12 @@ async function handleModalSubmit(interaction) {
 
     await channel.send({ embeds: [embed], components: [row] });
     await interaction.reply({ content: '🌿 Seu vídeo foi divulgado com sucesso!', ephemeral: true });
+    await sendStaffReport({
+      title: '🎬 Vídeo Divulgado',
+      description: `${interaction.user} divulgou **${titulo}** em ${channel}.`,
+      fields: [{ name: 'URL', value: url }],
+      color: 0xe74c3c
+    }).catch(() => {});
     logBot('info', `Vídeo divulgado por ${interaction.user.tag}: ${titulo}`);
     await empurrarPainel('video', channel.id).catch(() => {});
     return;
@@ -1741,8 +1924,7 @@ async function handleModalSubmit(interaction) {
       return interaction.reply({ content: '❌ Envie um link válido começando com http:// ou https://', ephemeral: true });
     }
 
-    const channelId = settings.discordBotChannelLives || interaction.channelId;
-    const channel = client.channels.cache.get(channelId) || interaction.channel;
+    const channel = await resolveChannel('discordBotChannelLives', ['lives', 'enviarlive', 'stream'], 'text') || interaction.channel;
 
     const embed = new EmbedBuilder()
       .setTitle(`🔴 Estamos ao Vivo no Ravok!`)
@@ -1757,12 +1939,25 @@ async function handleModalSubmit(interaction) {
 
     await channel.send({ content: '@everyone', embeds: [embed], components: [row] });
     await interaction.reply({ content: '🌿 Sua live foi anunciada para toda a comunidade!', ephemeral: true });
+    await sendStaffReport({
+      title: '🔴 Live Anunciada',
+      description: `${interaction.user} iniciou transmissão **${titulo}** em ${channel}.`,
+      fields: [{ name: 'URL', value: url }],
+      color: 0xe74c3c
+    }).catch(() => {});
     logBot('info', `Live anunciada por ${interaction.user.tag}: ${titulo}`);
     await empurrarPainel('video', channel.id).catch(() => {});
     return;
   }
   } catch (modalErr) {
     console.warn('[Bot] [WARN] Erro em handleModalSubmit:', modalErr.message);
+    try {
+      if (interaction.deferred || interaction.replied) {
+        await interaction.editReply({ content: '❌ Erro ao processar formulário.' }).catch(() => {});
+      } else {
+        await interaction.reply({ content: '❌ Erro ao processar formulário.', ephemeral: true }).catch(() => {});
+      }
+    } catch (e) {}
   }
 }
 
@@ -1856,7 +2051,7 @@ client.on('guildMemberAdd', async (member) => {
 // MOTOR DE INTELIGÊNCIA ARTIFICIAL — KAYZEL AI
 // ----------------------------------------------------
 async function askKayzelAI(promptText, authorName = 'Aventureiro') {
-  const settings = getDbSettings();
+  const settings = getSettings();
   const apiKey = (settings.aiApiKey || '').trim();
   const systemPrompt = settings.aiPrompt || 'Você é Kayzel, a assistente oficial da Ravok Network. Ajude os aventureiros com simpatia e clareza em português do Brasil.';
   const model = settings.aiModel || 'gemini-1.5-flash';
@@ -1958,10 +2153,10 @@ async function askKayzelAI(promptText, authorName = 'Aventureiro') {
 client.on('messageCreate', async (message) => {
   if (message.author.bot || !message.guild) return;
 
-  const settings = getDbSettings();
+  const settings = getSettings();
 
   const contentStr = typeof message.content === 'string' ? message.content : '';
-  if (!contentStr) return;
+  if (!contentStr && (!message.attachments || message.attachments.size === 0)) return;
 
   // COMANDOS PREFIXO DE TESTE RÁPIDO PARA ADMINS (!testwelcome, !boasvindas, !welcome)
   const rawMsg = contentStr.trim().toLowerCase();
@@ -2104,9 +2299,15 @@ client.on('messageCreate', async (message) => {
       }
     } catch (e) {}
 
+    // Aviso rápido temporário no canal de contagem
+    try {
+      const warnMsg = await message.channel.send(`⚠️ ${message.author}, sequência incorreta! O próximo número válido é **${ultimo + 1}**.`);
+      setTimeout(() => warnMsg.delete().catch(() => {}), 6000);
+    } catch (e) {}
+
     // Notificar canal de punições (#punicoes)
-    const canalPunicoes = await resolveChannel('discordBotChannelPunicoes', ['punicoes', 'punicao', 'punicaos', 'warns', 'avisos'], 'text');
-    if (canalPunicoes && canalPunicoes.isTextBased()) {
+    const canalPunicoes = await resolveChannel('discordBotChannelPunicoes', ['punicoes', 'punicao', 'warns', 'avisos'], 'text');
+    if (canalPunicoes && canalPunicoes.isTextBased() && canalPunicoes.id !== message.channel.id) {
       try {
         const punicaoEmbed = new EmbedBuilder()
           .setTitle('⚠️ Quebra de Sequência na Contagem!')
@@ -2244,7 +2445,8 @@ client.on('messageCreate', async (message) => {
   }
 
   // 1. Reações automáticas no canal de memes
-  if (settings.memeReactionsEnabled !== false && settings.discordBotChannelMemes && message.channel.id === String(settings.discordBotChannelMemes)) {
+  const memesCh = await resolveChannel('discordBotChannelMemes', ['memes', 'midias', 'fotos', 'prints'], 'text');
+  if (settings.memeReactionsEnabled !== false && memesCh && message.channel.id === memesCh.id) {
     if (message.attachments.size > 0 || /(?:https?:\/\/)\S+\.(?:png|jpg|jpeg|gif|webp)/i.test(message.content)) {
       try {
         await message.react('👍');
@@ -2272,6 +2474,12 @@ client.on('messageCreate', async (message) => {
           await message.delete();
           await message.author.send('⚠️ Links só são permitidos nos canais dedicados de vídeos, memes ou para membros da Staff do Ravok Network! 💙').catch(() => {});
           logBot('warn', `Link removido de ${message.author.tag} em #${message.channel.name}`);
+          await sendStaffReport({
+            title: '🔗 Anti-Link: Mensagem Removida',
+            description: `${message.author} enviou um link não autorizado em ${message.channel}.`,
+            fields: [{ name: 'Conteúdo', value: contentStr.slice(0, 300) || '[Link]' }],
+            color: 0xe67e22
+          }).catch(() => {});
           return;
         } catch (e) {}
       }
@@ -2280,7 +2488,15 @@ client.on('messageCreate', async (message) => {
 
   // 3. Manter Painel Interativo sempre no Fim do Canal (empurrar_botao)
   const activePanels = settings.activePanels || {};
-  const panelInfo = activePanels[String(message.channel.id)];
+  let panelInfo = activePanels[String(message.channel.id)];
+  if (!panelInfo) {
+    const chNorm = normalizeDiscordName(message.channel.name);
+    if (chNorm.includes('confissoes') || chNorm.includes('confissao')) panelInfo = { type: 'confissoes' };
+    else if (chNorm.includes('sugestoes') || chNorm.includes('sugestao')) panelInfo = { type: 'sugestoes' };
+    else if (chNorm.includes('feedback')) panelInfo = { type: 'feedback' };
+    else if (chNorm.includes('abrirticket')) panelInfo = { type: 'tickets' };
+    else if (chNorm.includes('recrutamento')) panelInfo = { type: 'recrutamento' };
+  }
   if (panelInfo && panelInfo.type) {
     const isStaff = message.member && (
       message.member.permissions.has(PermissionFlagsBits.ManageMessages) ||
@@ -2406,12 +2622,9 @@ async function notifySale(order) {
 
 // Disparar anúncio de feedback
 async function notifyFeedback(feedback) {
-  const settings = getDbSettings();
-  const channelId = settings.discordBotChannelFeedbacks;
-  if (!channelId || !client.isReady()) return false;
-
+  if (!client.isReady()) return false;
   try {
-    const channel = await client.channels.fetch(channelId);
+    const channel = await resolveChannel('discordBotChannelFeedbacks', ['feedbacks', 'feedback', 'avaliacoes'], 'text');
     if (!channel || !channel.isTextBased()) return false;
 
     const embed = new EmbedBuilder()
@@ -2440,7 +2653,7 @@ async function notifyFeedback(feedback) {
 let isStarting = false;
 
 async function startBot(tokenOverride) {
-  const settings = getDbSettings();
+  const settings = getSettings();
   const token = tokenOverride || settings.discordBotToken || process.env.DISCORD_BOT_TOKEN;
 
   if (!token) {
@@ -2466,9 +2679,29 @@ async function startBot(tokenOverride) {
     logBot('info', `Autenticação bem-sucedida! Sessão iniciada como ${client.user.tag}`);
     return { success: true, user: client.user.tag };
   } catch (err) {
+    const msg = err && err.message ? err.message : String(err);
+    // Fallback automático caso algum intent privilegiado não esteja liberado no Discord Portal
+    if (/disallowed intent/i.test(msg) && client.options && client.options.intents) {
+      try {
+        logBot('warn', 'Intents privilegiados não liberados no portal; reconectando com intents padrão...');
+        client.options.intents = new (require('discord.js').IntentsBitField)([
+          GatewayIntentBits.Guilds,
+          GatewayIntentBits.GuildMessages,
+          GatewayIntentBits.GuildMessageReactions
+        ]);
+        await client.login(token);
+        isStarting = false;
+        logBot('info', `Autenticação (modo padrão) bem-sucedida como ${client.user.tag}`);
+        return { success: true, user: client.user.tag };
+      } catch (fbErr) {
+        isStarting = false;
+        logBot('error', `Falha ao autenticar (fallback): ${fbErr.message}`);
+        return { success: false, error: fbErr.message };
+      }
+    }
     isStarting = false;
-    logBot('error', `Falha ao autenticar no Discord: ${err.message}`);
-    return { success: false, error: err.message };
+    logBot('error', `Falha ao autenticar no Discord: ${msg}`);
+    return { success: false, error: msg };
   }
 }
 
@@ -2592,7 +2825,7 @@ async function testFeedbackNotification() {
 // Enviar boas-vindas simuladas para testar o canal com 1 clique
 async function testWelcomeNotification(targetUser) {
   if (!client.isReady()) throw new Error('O bot precisa estar online.');
-  const settings = getDbSettings();
+  const settings = getSettings();
   const welcomeChannelId = settings.discordBotChannelBoasVindas;
   if (!welcomeChannelId) throw new Error('Canal de boas-vindas não configurado no painel.');
   const channel = client.channels.cache.get(String(welcomeChannelId)) || await client.channels.fetch(String(welcomeChannelId)).catch(() => null);
@@ -2632,7 +2865,7 @@ async function syncCommands() {
   }
   await client.application.commands.set(commands);
   for (const guild of client.guilds.cache.values()) {
-    await guild.commands.set(commands).catch(() => {});
+    await guild.commands.set([]).catch(() => {});
   }
   logBot('info', `⚡ ${commands.length} Comandos Slash sincronizados com a API global e guildas do Discord!`);
   return { success: true, count: commands.length };
@@ -2680,7 +2913,7 @@ function clearLogs() {
 // ----------------------------------------------------
 async function publishPanel(type, targetChannelId) {
   if (!client.isReady()) throw new Error('O bot precisa estar online.');
-  const settings = getDbSettings();
+  const settings = getSettings();
   let channelId = targetChannelId;
   let embed, row;
 
@@ -2689,7 +2922,7 @@ async function publishPanel(type, targetChannelId) {
   }
 
   if (type === 'tickets') {
-    channelId = channelId || settings.discordBotCategoryTickets || settings.discordBotChannelGeral;
+    channelId = channelId || settings.discordBotChannelTickets || (await resolveChannel('discordBotChannelTickets', ['abrirticket', 'suporte', 'tickets'], 'text'))?.id || settings.discordBotChannelGeral;
     embed = new EmbedBuilder()
       .setTitle('🎫 ﹒𝗧𝗶𝗰𝗸𝗲𝘁 𝗱𝗲 𝗦𝘂𝗽𝗼𝗿𝘁𝗲 • Ravok Network')
       .setDescription('⊱⋅ ───── ❴ • ✦ ʀᴀᴠᴏᴋ ѕᴜᴘᴘᴏʀᴛ ✦ • ❵ ───── ⋅⊰\n\nPrecisa de ajuda? A gente resolve! 🛠️\n\nClicando abaixo, você pode:\n📌 Tirar dúvidas sobre o servidor\n⚠️ Reportar problemas, bugs ou denúncias\n💬 Falar direto com a nossa equipe\n\nAssim que abrir, um membro da Staff vai te atender.\n\n💡 Atendimento direto, rápido e humanizado.\n\n⊱⋅ ───── ❴ • ✦ ✦ ✦ • ❵ ───── ⋅⊰\n👇 Clique no botão abaixo para abrir seu atendimento:')
@@ -2701,7 +2934,7 @@ async function publishPanel(type, targetChannelId) {
       new ButtonBuilder().setCustomId('sys_ticket_compra').setLabel('Finalizar Compra / Pix').setStyle(ButtonStyle.Success).setEmoji('💳')
     );
   } else if (type === 'recrutamento') {
-    channelId = channelId || settings.discordBotCategoryRecrutamento || settings.discordBotChannelGeral;
+    channelId = channelId || settings.discordBotChannelRecrutamento || (await resolveChannel('discordBotChannelRecrutamento', ['recrutamento', 'candidatura'], 'text'))?.id || settings.discordBotChannelGeral;
     embed = new EmbedBuilder()
       .setTitle('🛡️ ﹒𝗥𝗲𝗰𝗿𝘂𝘁𝗮𝗺𝗲𝗻𝘁𝗼 • Ravok Staff')
       .setDescription('⊱⋅ ───── ❴ • ✦ ᴄᴏʀᴇ ʀᴀᴠᴏᴋ ✦ • ❵ ───── ⋅⊰\n\nQuer entrar para a equipe? Aqui é onde você se prova! 👑\n\nClicando abaixo, você pode se candidatar.\n\nA gente procura:\n🧠 Responsabilidade e maturidade\n💬 Boa comunicação\n⚡ Atividade e dedicação no servidor\n\n💡 Não é só um cargo… é compromisso com os jogadores.\n\n⊱⋅ ───── ❴ • ✦ ✦ ✦ • ❵ ───── ⋅⊰\n👇 Clique no botão abaixo para preencher seu formulário:')
@@ -2820,8 +3053,14 @@ async function publishPanel(type, targetChannelId) {
     throw new Error(`Tipo de painel desconhecido: ${type}`);
   }
 
-  const channel = client.channels.cache.get(String(channelId));
-  if (!channel) throw new Error(`Canal ID ${channelId} não encontrado no Discord.`);
+  // Cooldown de 5s para evitar spam ao empurrar painel rapidamente
+  const lastPush = panelPushLocks.get(String(channelId)) || 0;
+  if (Date.now() - lastPush < 5000) return { success: true, skipped: 'debounce' };
+  panelPushLocks.set(String(channelId), Date.now());
+
+  let channel = client.channels.cache.get(String(channelId));
+  if (!channel) channel = await client.channels.fetch(String(channelId)).catch(() => null);
+  if (!channel || !channel.isTextBased()) throw new Error(`Canal de texto ID ${channelId} não encontrado ou inválido.`);
 
   if (type === 'loja' && channel.name !== '┊・🛒・ʟᴏᴊᴀ・ᴏꜰɪᴄɪᴀʟ') {
     try {
@@ -2837,6 +3076,17 @@ async function publishPanel(type, targetChannelId) {
       const oldMsg = await channel.messages.fetch(currentPanel.messageId);
       if (oldMsg) await oldMsg.delete();
     } catch (e) {}
+  } else {
+    // Limpa painel anterior publicado por este bot (mesmo antes de registrar activePanels)
+    try {
+      const recent = await channel.messages.fetch({ limit: 8 });
+      for (const m of recent.values()) {
+        if (m.author && m.author.id === client.user.id && m.components && m.components.length > 0) {
+          const hasSysBtn = m.components.some(r => (r.components || []).some(c => String(c.customId || '').startsWith('sys_')));
+          if (hasSysBtn) await m.delete().catch(() => {});
+        }
+      }
+    } catch (e) {}
   }
   
   const payload = { embeds: [embed] };
@@ -2847,8 +3097,11 @@ async function publishPanel(type, targetChannelId) {
   try {
     const raw = fs.readFileSync(DB_FILE, 'utf8');
     const db = JSON.parse(raw);
+    db.settings = db.settings || {};
     db.settings.activePanels = db.settings.activePanels || {};
     db.settings.activePanels[String(channelId)] = { messageId: newMsg.id, type };
+    inMemorySettings = inMemorySettings || {};
+    inMemorySettings.activePanels = db.settings.activePanels;
     saveDbAtomic(db);
   } catch (e) {}
 
@@ -2861,7 +3114,7 @@ const empurrarPainel = publishPanel;
 // Atribuir cargos de conta vinculada para um membro pelo ID ou Tag
 async function assignLinkedRoles(discordIdOrTag) {
   if (!client.isReady() || !discordIdOrTag) return false;
-  const settings = getDbSettings();
+  const settings = getSettings();
   const roleVinculadoId = settings.discordBotRoleVinculado;
   const roleAcessoId = settings.discordBotRoleAcesso;
   if (!roleVinculadoId && !roleAcessoId) return false;
@@ -2898,7 +3151,7 @@ async function assignLinkedRoles(discordIdOrTag) {
 // ----------------------------------------------------
 
 function calculateSalesGoal() {
-  const settings = getDbSettings();
+  const settings = getSettings();
   let orders = [];
   try {
     const raw = fs.readFileSync(DB_FILE, 'utf8');
@@ -3000,10 +3253,11 @@ async function syncServerStatusChannels() {
         continue;
       }
 
+      const prevName = channel.name;
       await channel.setName(item.targetName);
       lastRenamedMap.set(channel.id, now);
-      logBot('info', `📊 Canal "${channel.name}" atualizado para: "${item.targetName}"`);
-      results.push({ id: channel.id, oldName: channel.name, newName: item.targetName, updated: true });
+      logBot('info', `📊 Canal "${prevName}" atualizado para: "${item.targetName}"`);
+      results.push({ id: channel.id, oldName: prevName, newName: item.targetName, updated: true });
     } catch (err) {
       logBot('warn', `Não foi possível renomear canal ${channel.id} (${item.targetName}): ${err.message}`);
       results.push({ id: channel.id, error: err.message });
@@ -3025,7 +3279,7 @@ async function syncServerStatusChannels() {
 // Publicar ou atualizar embed oficial da Meta de Vendas
 async function publishMetaPanel(targetChannelId) {
   if (!client.isReady()) throw new Error('O bot precisa estar online.');
-  const settings = getDbSettings();
+  const settings = getSettings();
   let channelId = targetChannelId || settings.discordBotChannelMetaVendas; if (!channelId) { const resCh = await resolveChannel('discordBotChannelMetaVendas', ['meta', 'arrecadado', 'meta-vendas'], 'voice') || await resolveChannel('discordBotChannelMetaTexto', ['meta-chat', 'meta'], 'text'); if (resCh) channelId = resCh.id; }
 
   let channel = client.channels.cache.get(String(channelId));
@@ -3127,6 +3381,7 @@ async function publishStorePanel(targetChannelId) {
 }
 
 module.exports = {
+  normalizeDiscordName,
   resolveChannel,
   resolveRole,
   sendStaffReport,

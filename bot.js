@@ -1646,7 +1646,7 @@ async function handleModalSubmit(interaction) {
         permissionOverwrites: overwrites
       });
 
-      const pixKey = settings.pixChave || 'ravoknetwork@gmail.com';
+      const pixKey = settings.pixChave || 'staff@ravok.network';
       const pixTitular = settings.pixTitular || 'Ravok Network';
 
       const embed = new EmbedBuilder()
@@ -3435,7 +3435,7 @@ async function createPurchaseTicketForSiteOrder(payload = {}) {
     ? items.map(i => `• **${i.name || 'Item'}** (x${i.quantity || 1}) — R$ ${Number((i.price || 0) * (i.quantity || 1)).toFixed(2).replace('.', ',')}`).join('\n')
     : '• Itens diversos da Loja';
   const totalFormatted = `R$ ${Number(total || 0).toFixed(2).replace('.', ',')}`;
-  const pixKey = settings.pixChave || 'contato@ravok.network';
+  const pixKey = settings.pixChave || 'staff@ravok.network';
 
   let createdChannel = null;
   if (targetMember) {

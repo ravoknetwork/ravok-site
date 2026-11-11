@@ -812,6 +812,7 @@
   "settings": {
     "apiUrl": "https://ravok-site.vercel.app",
     "apiToken": "ravok_sec_99a8b7c6d5e4",
+    "pixChave": "staff@ravok.network",
     "adminUser": "guiilew",
     "adminPassword": "000e2ecd4a",
     "goalMode": "auto",

@@ -2202,6 +2202,25 @@ function stopOrderPolling() {
 
 let cachedDiscordTicketUrl = 'https://discord.gg/nBNjvvxzf6';
 let cachedDiscordInviteUrl = 'https://discord.gg/qpQt8peGdz';
+let cachedPixKey = 'staff@ravok.network';
+
+function persistOrderToLocalStorage(orderObj) {
+  if (!orderObj || !orderObj.id) return;
+  try {
+    const cleanId = String(orderObj.id).trim();
+    const savedOrds = JSON.parse(localStorage.getItem('ravok_orders') || '[]');
+    const cleanSaved = Array.isArray(savedOrds)
+      ? savedOrds.filter(o => o && String(o.id).trim() !== cleanId)
+      : [];
+    cleanSaved.unshift(orderObj);
+    localStorage.setItem('ravok_orders', JSON.stringify(cleanSaved.slice(0, 150)));
+
+    const delOrds = JSON.parse(localStorage.getItem('ravok_deleted_orders_v1') || '[]');
+    if (Array.isArray(delOrds)) {
+      localStorage.setItem('ravok_deleted_orders_v1', JSON.stringify(delOrds.filter(d => String(d).trim() !== cleanId)));
+    }
+  } catch (e) {}
+}
 
 // ====================================================
 // CHECKOUT MANUAL VIA DISCORD TICKET (CATEGORIA COMPRAS)
@@ -2223,10 +2242,27 @@ async function handleDiscordCheckout() {
   const cartSnapshot = cart.map(i => ({ ...i }));
   let orderId = 'RV-' + Math.floor(1000 + Math.random() * 9000);
   const itemsText = cartSnapshot.map(i => '• ' + i.name + ' (x' + (i.quantity || 1) + ') - ' + money(i.price * (i.quantity || 1))).join('\n');
-  const pixKey = 'contato@ravok.network';
+  const pixKey = cachedPixKey || 'staff@ravok.network';
   let ticketTargetUrl = cachedDiscordTicketUrl || cachedDiscordInviteUrl || 'https://discord.gg/nBNjvvxzf6';
   let ticketAutoCreated = false;
   const savedDiscordUser = localStorage.getItem('ravokDiscordUser') || '';
+
+  const draftOrder = {
+    id: orderId,
+    externalReference: orderId,
+    nick: player,
+    player: player,
+    items: cartSnapshot,
+    total: Number(total.toFixed(2)),
+    date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
+    createdAt: new Date().toISOString(),
+    status: 'pendente_admin',
+    paymentMethod: 'discord_ticket',
+    coupon: activeCoupon ? activeCoupon.code : '',
+    delivery_status: 'aguardando_aprovacao',
+    delivered: false
+  };
+  persistOrderToLocalStorage(draftOrder);
 
   // Preenche dados iniciais no modal do Discord antes de abrir
   if (by('#dcOrderNick')) by('#dcOrderNick').textContent = player;
@@ -2271,18 +2307,9 @@ async function handleDiscordCheckout() {
         } else if (data.discordInviteUrl) {
           ticketTargetUrl = data.discordInviteUrl;
         }
-        try {
-          const savedOrds = JSON.parse(localStorage.getItem('ravok_orders') || '[]');
-          const cleanSaved = Array.isArray(savedOrds) ? savedOrds.filter(o => String(o.id) !== String(orderId)) : [];
-          if (data.order) {
-            cleanSaved.unshift(data.order);
-            localStorage.setItem('ravok_orders', JSON.stringify(cleanSaved.slice(0, 100)));
-          }
-          const delOrds = JSON.parse(localStorage.getItem('ravok_deleted_orders_v1') || '[]');
-          if (Array.isArray(delOrds)) {
-            localStorage.setItem('ravok_deleted_orders_v1', JSON.stringify(delOrds.filter(d => String(d) !== String(orderId))));
-          }
-        } catch (lsErr) {}
+        if (data.order) {
+          persistOrderToLocalStorage(data.order);
+        }
       } else if (data && data.error) {
         toast('Aviso: ' + data.error);
       }
@@ -2437,6 +2464,19 @@ if (by('#checkout')) by('#checkout').onclick = async () => {
       const data = await res.json();
       if (res.ok && data.success) {
         currentCheckoutOrder = data;
+        persistOrderToLocalStorage(data.order || {
+          id: data.orderId,
+          nick: player,
+          player: player,
+          items: cart.map(i => ({ ...i })),
+          total: Number(total.toFixed(2)),
+          date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
+          createdAt: new Date().toISOString(),
+          status: 'pendente',
+          paymentMethod: 'pix',
+          delivery_status: 'aguardando_aprovacao',
+          delivered: false
+        });
         by('#checkoutOrderId').textContent = `#${data.orderId}`;
         by('#pixCopiaColaInput').value = data.pixCopiaCola || '';
         
@@ -2651,6 +2691,11 @@ async function syncWithBackend() {
       if (state.discordTicketUrl) {
         cachedDiscordTicketUrl = state.discordTicketUrl;
         if (by('#btnOpenDiscordTicket')) by('#btnOpenDiscordTicket').href = state.discordTicketUrl;
+      }
+      const nextPixKey = (state.settings && state.settings.pixChave) || state.pixChave;
+      if (nextPixKey) {
+        cachedPixKey = String(nextPixKey).trim();
+        if (by('#dcOrderPixKey')) by('#dcOrderPixKey').value = cachedPixKey;
       }
       return;
     }

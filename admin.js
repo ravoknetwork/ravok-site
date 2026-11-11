@@ -1055,13 +1055,14 @@ function getAdminAuthHeaders(extra = {}) {
   return token ? { ...extra, 'x-admin-token': token } : { ...extra };
 }
 
-function saveAdminSnapshot(serverUpdatedAt) {
+function saveAdminSnapshot(serverUpdatedAt, force = false) {
   try {
     const goalRaw = JSON.parse(localStorage.getItem('ravok_goal_v1') || '{}');
     const apiRaw = JSON.parse(localStorage.getItem('ravok_api_settings') || '{}');
     const discRaw = JSON.parse(localStorage.getItem('ravok_discord_settings') || '{}');
     const snap = {
       updatedAt: Number(serverUpdatedAt) || Date.now(),
+      force: Boolean(force),
       deletedProductIds: getDeletedProductIds(),
       products: upgradeClientProducts(getStoredProducts()),
       slides: getStoredSlides(),
@@ -1323,7 +1324,9 @@ async function syncAdminFromBackend() {
         const localOrders = getStoredOrders();
         const mergedOrders = mergeClientOrders(serverOrders, localOrders, deletedOrderIds);
         localStorage.setItem('ravok_orders', JSON.stringify(mergedOrders));
-        if (mergedOrders.length > serverOrders.length) needPushSnapshot = true;
+        if (mergedOrders.length > serverOrders.length || JSON.stringify(mergedOrders) !== JSON.stringify(serverOrders)) {
+          needPushSnapshot = true;
+        }
       }
     }
     if (dRes.ok) {
@@ -1332,10 +1335,13 @@ async function syncAdminFromBackend() {
         const localDelivs = getStoredPendingDeliveries();
         const mergedDelivs = mergeClientDeliveries(serverDelivs, localDelivs, deletedOrderIds);
         localStorage.setItem('ravok_pending_deliveries', JSON.stringify(mergedDelivs));
+        if (mergedDelivs.length > serverDelivs.length || JSON.stringify(mergedDelivs) !== JSON.stringify(serverDelivs)) {
+          needPushSnapshot = true;
+        }
       }
     }
     if (needPushSnapshot) {
-      saveAdminSnapshot();
+      saveAdminSnapshot(Date.now(), true);
     }
     if (setRes.ok) {
       const set = await setRes.json();
@@ -1353,7 +1359,9 @@ async function syncAdminFromBackend() {
         channelAnuncios: set.discordBotChannelAnuncios || ''
       }));
     }
-
+  } catch (e) {
+    console.log('Operando com armazenamento local no painel.');
+  } finally {
     refreshDashboard();
     renderProductsTable();
     renderSliderTable();
@@ -1361,8 +1369,6 @@ async function syncAdminFromBackend() {
     renderFeedbacksTable();
     renderOrdersTable();
     renderServerTab();
-  } catch (e) {
-    console.log('Operando com armazenamento local no painel.');
   }
 }
 
@@ -4142,7 +4148,7 @@ window.approveAdminOrder = async (orderId) => {
 
       for (let q = 0; q < qty; q++) {
         deliveries.unshift({
-          id: 'del-' + o.id + '-' + (idx + 1) + '-' + (q + 1),
+          id: Math.floor(10000000 + Math.random() * 89999999) + idx * 100 + q,
           orderId: o.id,
           nick: o.nick,
           product_name: item.name || prod.name || 'Item Ravok',
@@ -4158,7 +4164,7 @@ window.approveAdminOrder = async (orderId) => {
 
   localStorage.setItem('ravok_orders', JSON.stringify(orders));
   localStorage.setItem('ravok_pending_deliveries', JSON.stringify(deliveries));
-  saveAdminSnapshot(serverUpdatedAt);
+  saveAdminSnapshot(serverUpdatedAt, true);
   renderOrdersTable();
   refreshDashboard();
   if (typeof renderServerTab === 'function') renderServerTab();
@@ -4539,7 +4545,7 @@ function setupManualSale() {
       toast(`✓ Venda manual #${localOrderId} registrada com sucesso para ${nick}!`);
     }
 
-    saveAdminSnapshot(serverUpdatedAt);
+    saveAdminSnapshot(serverUpdatedAt, true);
     notifyPublicSite('orders');
     modal.close();
     renderOrdersTable();
@@ -4553,6 +4559,21 @@ setupAdminGoalControls();
 setupManualSale();
 refreshDashboard();
 renderProductsTable();
+renderOrdersTable();
+renderServerTab();
+
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('storage', (ev) => {
+    if (ev && (ev.key === 'ravok_orders' || ev.key === 'ravok_pending_deliveries')) {
+      renderOrdersTable();
+      renderServerTab();
+      refreshDashboard();
+    }
+  });
+  window.addEventListener('focus', () => {
+    syncAdminFromBackend();
+  });
+}
 renderImageGallery();
 renderHeroSlidesTable();
 renderSliderTable();

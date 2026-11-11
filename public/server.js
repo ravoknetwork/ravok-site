@@ -1247,6 +1247,7 @@ function buildSafeBridgeSettings(s = {}) {
   backfillBotChannelDefaults(clean);
   return {
     serverIp: clean.serverIp || clean.minecraftIp || 'jogar.ravok.network',
+    pixChave: clean.pixChave || 'staff@ravok.network',
     discordInviteUrl: normalizeDiscordInviteUrl(clean.discordInviteUrl),
     discordTicketUrl: DISCORD_TICKET_INVITE_URL,
     discordBotClientId: clean.discordBotClientId || VERIFIED_DISCORD_DEFAULTS.discordBotClientId,
@@ -1389,18 +1390,36 @@ function mergeOrdersSafely(dbOrders, snapOrders, deletedOrderIds = []) {
   return Array.from(byId.values());
 }
 
+function coerceNumericDeliveryId(val) {
+  if (typeof val === 'number' && Number.isFinite(val) && val > 0) {
+    return Math.floor(val);
+  }
+  const str = String(val || '').trim();
+  if (/^\d+$/.test(str)) {
+    const n = Number(str);
+    if (Number.isSafeInteger(n) && n > 0) return n;
+  }
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash * 31) + str.charCodeAt(i)) % 89999999;
+  }
+  return 10000000 + Math.abs(hash);
+}
+
 function mergeDeliveriesSafely(dbDelivs, snapDelivs) {
   const byId = new Map();
   const ingest = (d) => {
     if (!d || d.id === undefined || d.id === null) return;
-    const idKey = String(d.id).trim();
+    const numericId = coerceNumericDeliveryId(d.id);
+    const idKey = String(numericId);
+    const normalized = { ...d, id: numericId };
     const prev = byId.get(idKey);
     if (!prev) {
-      byId.set(idKey, d);
+      byId.set(idKey, normalized);
       return;
     }
-    const delivered = prev.status === 'delivered' || d.status === 'delivered';
-    byId.set(idKey, { ...prev, ...d, status: delivered ? 'delivered' : 'pending', delivered_at: prev.delivered_at || d.delivered_at });
+    const delivered = prev.status === 'delivered' || normalized.status === 'delivered';
+    byId.set(idKey, { ...prev, ...normalized, id: numericId, status: delivered ? 'delivered' : 'pending', delivered_at: prev.delivered_at || normalized.delivered_at });
   };
   (Array.isArray(snapDelivs) ? snapDelivs : []).forEach(ingest);
   (Array.isArray(dbDelivs) ? dbDelivs : []).forEach(ingest);
@@ -1410,6 +1429,7 @@ function mergeDeliveriesSafely(dbDelivs, snapDelivs) {
 const DEFAULT_SETTINGS = {
   apiUrl: process.env.API_URL || 'https://ravok-site.vercel.app',
   apiToken: process.env.PLUGIN_API_TOKEN || 'ravok_sec_99a8b7c6d5e4',
+  pixChave: 'staff@ravok.network',
   adminUser: 'guiilew',
   adminPassword: process.env.ADMIN_PASSWORD || '000e2ecd4a',
   goalMode: 'auto',
@@ -1620,8 +1640,17 @@ function computeGoalStatus() {
 
 // Suporte opcional a persistência em nuvem via Vercel KV / Upstash Redis REST
 function getKvConfig() {
-  const url = (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '').trim();
-  const token = (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
+  let url = (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '').trim();
+  let token = (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
+  if (!url || !token) {
+    const keys = Object.keys(process.env);
+    const urlKey = keys.find(k => /(?:KV|REDIS|UPSTASH).*_REST_API_URL$|_REDIS_REST_URL$/i.test(k) && process.env[k]);
+    const tokKey = keys.find(k => /(?:KV|REDIS|UPSTASH).*_REST_API_TOKEN$|_REDIS_REST_TOKEN$/i.test(k) && process.env[k]);
+    if (urlKey && tokKey) {
+      url = String(process.env[urlKey] || '').trim();
+      token = String(process.env[tokKey] || '').trim();
+    }
+  }
   return { url: url.replace(/\/$/, ''), token };
 }
 
@@ -1889,6 +1918,7 @@ app.get('/api/sync-state', async (req, res) => {
     goal: computeGoalStatus(),
     discordInviteUrl: normalizeDiscordInviteUrl(db.settings && db.settings.discordInviteUrl),
     discordTicketUrl: DISCORD_TICKET_INVITE_URL,
+    pixChave: (db.settings && db.settings.pixChave) || 'staff@ravok.network',
     settings: buildSafeBridgeSettings(db.settings)
   });
 });
@@ -4180,6 +4210,7 @@ app.post('/api/checkout/pix', async (req, res) => {
       return res.json({
         success: true,
         orderId: newOrder.id,
+        order: newOrder,
         status: 'pendente',
         pixCopiaCola: newOrder.pixCopiaCola,
         pixQrBase64: newOrder.pixQrBase64,
@@ -4212,6 +4243,7 @@ app.post('/api/checkout/pix', async (req, res) => {
   res.json({
     success: true,
     orderId: newOrder.id,
+    order: newOrder,
     status: 'pendente',
     pixCopiaCola: newOrder.pixCopiaCola,
     isSimulated: true
@@ -4365,21 +4397,22 @@ app.get('/api/delivery/pending', async (req, res) => {
     return res.status(400).json({ error: 'Parâmetro nick é obrigatório.' });
   }
 
+  const cleanNick = String(nick).trim().toLowerCase();
   if (rememberKnownPlayer(db, nick, { source: 'resgatar' })) {
     await saveDbNow(db, true);
   }
 
   const items = (db.pendingDeliveries || []).filter(
-    d => d.status === 'pending' && d.nick.toLowerCase() === nick.toLowerCase()
+    d => String(d.status || 'pending').toLowerCase() === 'pending' && String(d.nick || '').trim().toLowerCase() === cleanNick
   );
 
   res.json({
     pending: items.map(i => ({
-      id: i.id,
-      category: i.category,
-      command: i.command,
-      product_name: i.product_name,
-      gui_icon: i.gui_icon
+      id: coerceNumericDeliveryId(i.id),
+      category: i.category || 'Itens',
+      command: i.command || '',
+      product_name: i.product_name || 'Item Ravok',
+      gui_icon: i.gui_icon || 'CHEST'
     }))
   });
 });
@@ -4395,11 +4428,13 @@ app.post('/api/delivery/confirm', async (req, res) => {
   const { orderId, nick } = req.body || {};
   console.log(`[Delivery] Recebida confirmação para nick="${nick}", orderId="${orderId}"`);
 
+  const cleanNick = String(nick || '').trim().toLowerCase();
   const item = (db.pendingDeliveries || []).find(d => {
-    const matchNick = !nick || d.nick.toLowerCase() === nick.toLowerCase();
+    const matchNick = !cleanNick || String(d.nick || '').trim().toLowerCase() === cleanNick;
     if (!matchNick) return false;
     return (
       String(d.id) === String(orderId) ||
+      String(coerceNumericDeliveryId(d.id)) === String(orderId) ||
       String(d.orderId) === String(orderId) ||
       (d.id | 0) === Number(orderId) ||
       d.id == orderId ||
@@ -5441,6 +5476,7 @@ app.get('/api/health', (req, res) => {
     time: new Date().toISOString(),
     uptime: process.uptime(),
     kvConfigured: Boolean(url && token),
+    discordEnvConfigured: Boolean(process.env.DISCORD_BOT_TOKEN),
     storageEnvKeys,
     kvDiag,
     stats: {

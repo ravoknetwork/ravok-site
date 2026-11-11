@@ -1247,7 +1247,8 @@ function buildSafeBridgeSettings(s = {}) {
   backfillBotChannelDefaults(clean);
   return {
     serverIp: clean.serverIp || clean.minecraftIp || 'jogar.ravok.network',
-    discordInviteUrl: clean.discordInviteUrl || 'https://discord.gg',
+    discordInviteUrl: normalizeDiscordInviteUrl(clean.discordInviteUrl),
+    discordTicketUrl: DISCORD_TICKET_INVITE_URL,
     discordBotClientId: clean.discordBotClientId || VERIFIED_DISCORD_DEFAULTS.discordBotClientId,
     welcomeBgUrl: clean.welcomeBgUrl !== undefined ? clean.welcomeBgUrl : 'images/gallery/por_do_sol_canyon.png',
     welcomeEnabled: clean.welcomeEnabled !== false,
@@ -1289,6 +1290,123 @@ function buildSafeBridgeSettings(s = {}) {
   };
 }
 
+const DISCORD_TICKET_INVITE_URL = 'https://discord.gg/nBNjvvxzf6';
+const DISCORD_DEFAULT_INVITE_URL = 'https://discord.gg/qpQt8peGdz';
+
+function normalizeDiscordInviteUrl(raw) {
+  const v = String(raw || '').trim();
+  if (!v || v === 'https://discord.gg' || v === 'https://discord.gg/' || v.toLowerCase() === 'https://discord.gg/ravok') {
+    return DISCORD_DEFAULT_INVITE_URL;
+  }
+  return v;
+}
+
+const KNOWN_SERVER_PLAYERS = [{"nick": "Guiilew", "lastSeen": 1793027005694, "source": "authme"}, {"nick": "tulio82", "lastSeen": 1792741934468, "source": "authme"}, {"nick": "THE_brennusgodd", "lastSeen": 1792710359918, "source": "authme"}, {"nick": "Formius_saas", "lastSeen": 1792623556273, "source": "authme"}, {"nick": "Loberty_One", "lastSeen": 1792442535762, "source": "authme"}, {"nick": "Brunaplxrg07", "lastSeen": 1792278092145, "source": "authme"}, {"nick": "oRamal", "lastSeen": 1792277698228, "source": "authme"}, {"nick": "Luanss757", "lastSeen": 1792249503179, "source": "authme"}, {"nick": "Euunick", "lastSeen": 1792237613530, "source": "authme"}, {"nick": "ocaqueado", "lastSeen": 1792078808729, "source": "authme"}, {"nick": "Mendezin", "lastSeen": 1792027892399, "source": "authme"}, {"nick": "webtrafico", "lastSeen": 1791828891920, "source": "authme"}, {"nick": "Deblayd", "lastSeen": 1791666427220, "source": "authme"}, {"nick": "Sayi0", "lastSeen": 1791398902126, "source": "authme"}, {"nick": "Theusma", "lastSeen": 1791181467919, "source": "authme"}, {"nick": "BSwww", "lastSeen": 1790903623960, "source": "authme"}, {"nick": "Mathkskdaj", "lastSeen": 1790897455610, "source": "authme"}, {"nick": "Luans757", "lastSeen": 1790790780677, "source": "authme"}, {"nick": "SchneiderBobo", "lastSeen": 1790776737727, "source": "authme"}, {"nick": ".ZeuS4540", "lastSeen": 1790733595427, "source": "authme"}, {"nick": "Marquin044", "lastSeen": 1790695016128, "source": "authme"}, {"nick": "wesley_op511", "lastSeen": 1790674516878, "source": "authme"}, {"nick": ".Guiilew", "lastSeen": 1790648800335, "source": "authme"}, {"nick": ".Vickvaporube1", "lastSeen": 1790556542479, "source": "authme"}, {"nick": "ViniblocksDH", "lastSeen": 1790442492614, "source": "authme"}, {"nick": "sbdias251", "lastSeen": 1790123289013, "source": "authme"}, {"nick": "Raywzli", "lastSeen": 1790122973801, "source": "authme"}, {"nick": "Craule", "lastSeen": 1790049867866, "source": "authme"}, {"nick": "REIZINHOOF", "lastSeen": 1790042423616, "source": "authme"}, {"nick": "LaurinhaS", "lastSeen": 1789996748038, "source": "authme"}, {"nick": "yukied3", "lastSeen": 1789995360888, "source": "authme"}, {"nick": "Bryanodo13", "lastSeen": 1789881387038, "source": "authme"}, {"nick": "Kiminayoo", "lastSeen": 1789881359188, "source": "authme"}, {"nick": "Twii_alex", "lastSeen": 1789714935926, "source": "authme"}, {"nick": "THE_brennugodd", "lastSeen": 1789699092976, "source": "authme"}, {"nick": "eobrenno_", "lastSeen": 1789690496636, "source": "authme"}, {"nick": "Fransuya", "lastSeen": 1789519458209, "source": "authme"}, {"nick": ".Yukiii_sz", "lastSeen": 1789237517297, "source": "authme"}, {"nick": ".TheBoT9461", "lastSeen": 1789237175497, "source": "authme"}, {"nick": "XvoidZ01", "lastSeen": 1789184073360, "source": "authme"}, {"nick": "Inleving", "lastSeen": 1789005226716, "source": "authme"}];
+
+function rememberKnownPlayer(dbObj, nick, extra = {}) {
+  const clean = String(nick || '').trim();
+  if (!clean || clean.length < 2 || clean.length > 20) return false;
+  if (['debuguser', 'avaliador_ravok'].includes(clean.toLowerCase())) return false;
+  dbObj.knownPlayers = dbObj.knownPlayers || {};
+  const key = clean.toLowerCase();
+  const prev = dbObj.knownPlayers[key] || {};
+  const nextSeen = Number(extra.lastSeen) || Date.now();
+  const changed = !dbObj.knownPlayers[key] || dbObj.knownPlayers[key].nick !== clean;
+  dbObj.knownPlayers[key] = {
+    nick: clean,
+    lastSeen: Math.max(Number(prev.lastSeen || 0), nextSeen),
+    source: extra.source || prev.source || 'server'
+  };
+  return changed;
+}
+
+function ensureKnownPlayersSeeded(dbObj) {
+  if (!dbObj || typeof dbObj !== 'object') return false;
+  dbObj.knownPlayers = dbObj.knownPlayers || {};
+  let changed = false;
+  for (const kp of KNOWN_SERVER_PLAYERS) {
+    if (!dbObj.knownPlayers[kp.nick.toLowerCase()]) {
+      dbObj.knownPlayers[kp.nick.toLowerCase()] = { ...kp };
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+function buildKnownPlayersList(dbObj) {
+  const map = new Map();
+  const upsert = (nick, ts, source, extra = {}) => {
+    const clean = String(nick || '').trim();
+    if (!clean || ['debuguser'].includes(clean.toLowerCase())) return;
+    const key = clean.toLowerCase();
+    const cur = map.get(key) || { nick: clean, lastSeen: 0, source: source || 'server', linked: false, ordersCount: 0 };
+    if (clean !== clean.toLowerCase()) cur.nick = clean;
+    if (Number(ts || 0) > cur.lastSeen) cur.lastSeen = Number(ts);
+    if (extra.linked) cur.linked = true;
+    if (extra.ordersInc) cur.ordersCount += extra.ordersInc;
+    if (source) cur.source = cur.source === 'server' ? source : cur.source;
+    map.set(key, cur);
+  };
+
+  KNOWN_SERVER_PLAYERS.forEach(p => upsert(p.nick, p.lastSeen, p.source));
+  Object.values((dbObj && dbObj.knownPlayers) || {}).forEach(p => upsert(p.nick, p.lastSeen, p.source));
+  Object.values((dbObj && dbObj.playerSync) || {}).forEach(p => upsert(p.nick, p.last_sync ? new Date(p.last_sync).getTime() : 0, 'player-sync'));
+  Object.values((dbObj && dbObj.playerAccounts) || {}).forEach(p => upsert(p.nick, p.lastLogin ? new Date(p.lastLogin).getTime() : 0, 'site-account'));
+  ((dbObj && dbObj.linkedAccounts) || []).forEach(l => upsert(l.nick, l.linked_at ? new Date(l.linked_at).getTime() : 0, 'linked', { linked: true }));
+  ((dbObj && dbObj.orders) || []).forEach(o => upsert(o.nick, o.createdAt ? new Date(o.createdAt).getTime() : 0, 'order', { ordersInc: 1 }));
+
+  return Array.from(map.values()).sort((a, b) => (b.lastSeen - a.lastSeen) || a.nick.localeCompare(b.nick));
+}
+
+function mergeOrdersSafely(dbOrders, snapOrders, deletedOrderIds = []) {
+  const delSet = new Set((deletedOrderIds || []).map(String));
+  const byId = new Map();
+  const isApprovedLike = (o) => ['aprovado', 'approved', 'paid', 'completed', 'entregue'].includes(String((o && o.status) || '').toLowerCase());
+  const ingest = (o) => {
+    if (!o || o.id === undefined || o.id === null) return;
+    const idKey = String(o.id).trim();
+    if (!idKey || delSet.has(idKey)) return;
+    const prev = byId.get(idKey);
+    if (!prev) {
+      byId.set(idKey, o);
+      return;
+    }
+    const keepNewStatus = isApprovedLike(o) && !isApprovedLike(prev);
+    const keepNewDelivered = Boolean(o.delivered || o.delivery_status === 'entregue');
+    byId.set(idKey, {
+      ...prev,
+      ...o,
+      status: keepNewStatus ? o.status : (isApprovedLike(prev) ? prev.status : o.status),
+      approved_at: prev.approved_at || o.approved_at,
+      delivered: Boolean(prev.delivered || keepNewDelivered),
+      delivery_status: (prev.delivery_status === 'entregue' || keepNewDelivered)
+        ? 'entregue'
+        : ((isApprovedLike(prev) || isApprovedLike(o)) && prev.delivery_status === 'aguardando_aprovacao' ? 'pendente' : (prev.delivery_status || o.delivery_status))
+    });
+  };
+  (Array.isArray(snapOrders) ? snapOrders : []).forEach(ingest);
+  (Array.isArray(dbOrders) ? dbOrders : []).forEach(ingest);
+  return Array.from(byId.values());
+}
+
+function mergeDeliveriesSafely(dbDelivs, snapDelivs) {
+  const byId = new Map();
+  const ingest = (d) => {
+    if (!d || d.id === undefined || d.id === null) return;
+    const idKey = String(d.id).trim();
+    const prev = byId.get(idKey);
+    if (!prev) {
+      byId.set(idKey, d);
+      return;
+    }
+    const delivered = prev.status === 'delivered' || d.status === 'delivered';
+    byId.set(idKey, { ...prev, ...d, status: delivered ? 'delivered' : 'pending', delivered_at: prev.delivered_at || d.delivered_at });
+  };
+  (Array.isArray(snapDelivs) ? snapDelivs : []).forEach(ingest);
+  (Array.isArray(dbDelivs) ? dbDelivs : []).forEach(ingest);
+  return Array.from(byId.values());
+}
+
 const DEFAULT_SETTINGS = {
   apiUrl: process.env.API_URL || 'https://ravok-site.vercel.app',
   apiToken: process.env.PLUGIN_API_TOKEN || 'ravok_sec_99a8b7c6d5e4',
@@ -1300,7 +1418,7 @@ const DEFAULT_SETTINGS = {
   metaVendasBase: 33,
   mpPublicKey: '',
   mpAccessToken: '',
-  discordInviteUrl: 'https://discord.gg',
+  discordInviteUrl: DISCORD_DEFAULT_INVITE_URL,
   discordWebhookUrl: '',
   discordBotToken: '',
   welcomeBgUrl: 'images/gallery/por_do_sol_canyon.png',
@@ -1580,6 +1698,7 @@ async function readLatestDbFromCloudKv(force = false) {
       db = { ...db, ...remoteDb };
       db.settings = { ...DEFAULT_SETTINGS, ...(db.settings || {}) };
       backfillBotChannelDefaults(db.settings);
+      ensureKnownPlayersSeeded(db);
       saveDb(db, false);
     }
   }
@@ -1595,7 +1714,7 @@ app.use(async (req, res, next) => {
   if (req.path.startsWith('/api/')) {
     const { url, token } = getKvConfig();
     if (url && token) {
-      if (!cloudKvHydrated || req.path.startsWith('/api/admin/bot/') || req.path.startsWith('/api/bot/')) {
+      if (!cloudKvHydrated || req.path.startsWith('/api/admin/bot/') || req.path.startsWith('/api/bot/') || req.path.startsWith('/api/admin/orders') || req.path.startsWith('/api/admin/deliveries') || req.path.startsWith('/api/orders') || req.path.startsWith('/api/delivery/')) {
         await readLatestDbFromCloudKv(false);
       }
     }
@@ -1628,6 +1747,8 @@ function loadDb() {
         parsed.voteArena.dailyQuestClaims = [];
       }
       parsed.playerAccounts = parsed.playerAccounts || {};
+      parsed.deletedOrderIds = Array.isArray(parsed.deletedOrderIds) ? parsed.deletedOrderIds : [];
+      ensureKnownPlayersSeeded(parsed);
       parsed.settings = { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) };
       backfillBotChannelDefaults(parsed.settings);
       if (!parsed.settings.apiUrl || parsed.settings.apiUrl.includes('localhost') || parsed.settings.apiUrl.includes('198.1.195.214') || parsed.settings.apiUrl.includes('loja.ravok.network')) {
@@ -1682,6 +1803,8 @@ function loadDb() {
     streamers: JSON.parse(JSON.stringify(DEFAULT_STREAMERS)),
     settings: JSON.parse(JSON.stringify(DEFAULT_SETTINGS)),
     playerSync: {},
+    knownPlayers: {},
+    deletedOrderIds: [],
     verifyCodes: {},
     linkedAccounts: [],
     voteArena: JSON.parse(JSON.stringify(DEFAULT_VOTE_ARENA))
@@ -1746,13 +1869,15 @@ app.get('/api/sync-state', async (req, res) => {
     streamers: (db.streamers || []).map(normalizeStreamer).filter(Boolean),
     feedbacks: db.feedbacks || [],
     goal: computeGoalStatus(),
-    discordInviteUrl: (db.settings && db.settings.discordInviteUrl) || 'https://discord.gg',
+    discordInviteUrl: normalizeDiscordInviteUrl(db.settings && db.settings.discordInviteUrl),
+    discordTicketUrl: DISCORD_TICKET_INVITE_URL,
     settings: buildSafeBridgeSettings(db.settings)
   });
 });
 
-// Re-hidratação inteligente de snapshot do Painel Admin (protege contra cold-starts serverless)
-app.post('/api/admin/restore-snapshot', (req, res) => {
+// Re-hidratação inteligente de snapshot do Painel Admin (protege contra cold-starts serverless sem perder pedidos)
+app.post('/api/admin/restore-snapshot', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const snap = req.body || {};
   const clientUpdatedAt = Number(snap.updatedAt || 0);
   const serverUpdatedAt = Number(db.updatedAt || 0);
@@ -1785,19 +1910,19 @@ app.post('/api/admin/restore-snapshot', (req, res) => {
   if (Array.isArray(snap.slides)) db.slides = sanitizeSlides(snap.slides);
   if (Array.isArray(snap.streamers)) db.streamers = snap.streamers.map(normalizeStreamer).filter(Boolean);
   if (Array.isArray(snap.feedbacks)) db.feedbacks = snap.feedbacks;
-  if (Array.isArray(snap.orders) && snap.orders.length >= (db.orders || []).length) {
-    db.orders = snap.orders;
+  if (Array.isArray(snap.orders)) {
+    db.orders = mergeOrdersSafely(db.orders, snap.orders, db.deletedOrderIds);
   }
-  if (Array.isArray(snap.pendingDeliveries) && snap.pendingDeliveries.length >= (db.pendingDeliveries || []).length) {
-    db.pendingDeliveries = snap.pendingDeliveries;
+  if (Array.isArray(snap.pendingDeliveries)) {
+    db.pendingDeliveries = mergeDeliveriesSafely(db.pendingDeliveries, snap.pendingDeliveries);
   }
   if (snap.settings && typeof snap.settings === 'object') {
     db.settings = { ...db.settings, ...snap.settings };
   }
 
   db.updatedAt = Math.max(Date.now(), clientUpdatedAt);
-  saveDb(db, false);
-  saveDbToCloudKv(db).catch(() => {});
+  await saveDbNow(db, false);
+  await saveDbToCloudKvNow(db);
 
   res.json({
     success: true,
@@ -3958,6 +4083,7 @@ app.post('/api/coupons/validate', (req, res) => {
 // MERCADO PAGO: CHECKOUT PIX & WEBHOOK
 // ----------------------------------------------------
 app.post('/api/checkout/pix', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const { nick, items, total } = req.body;
   if (!nick || !items || !items.length) {
     return res.status(400).json({ error: 'Dados incompletos do pedido.' });
@@ -4004,7 +4130,8 @@ app.post('/api/checkout/pix', async (req, res) => {
 
       db.orders = db.orders || [];
       db.orders.unshift(newOrder);
-      saveDb(db);
+      rememberKnownPlayer(db, nick, { source: 'checkout' });
+      await saveDbNow(db, true);
 
       return res.json({
         success: true,
@@ -4035,7 +4162,8 @@ app.post('/api/checkout/pix', async (req, res) => {
 
   db.orders = db.orders || [];
   db.orders.unshift(newOrder);
-  saveDb(db);
+  rememberKnownPlayer(db, nick, { source: 'checkout' });
+  await saveDbNow(db, true);
 
   res.json({
     success: true,
@@ -4047,17 +4175,20 @@ app.post('/api/checkout/pix', async (req, res) => {
 });
 
 // SIMULAR APROVAÇÃO (Para desenvolvimento e testes rápidos)
-app.post('/api/orders/:id/simulate-approve', (req, res) => {
+app.post('/api/orders/:id/simulate-approve', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const orderId = Number(req.params.id);
   const order = (db.orders || []).find(o => o.id === orderId);
   if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   approveOrderAndEnqueueDelivery(order);
+  await saveDbNow(db, true);
   res.json({ success: true, message: 'Pedido aprovado e itens enviados para o /resgatar!' });
 });
 
 // STATUS DO PEDIDO (Polling automático do frontend com verificação ativa no Mercado Pago)
 app.get('/api/orders/:id/status', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const orderId = Number(req.params.id);
   const order = (db.orders || []).find(o => o.id === orderId);
   if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
@@ -4076,6 +4207,7 @@ app.get('/api/orders/:id/status', async (req, res) => {
 
       if (paymentInfo.status === 'approved') {
         approveOrderAndEnqueueDelivery(order);
+        await saveDbNow(db, true);
         return res.json({ status: 'aprovado', orderId: order.id, justApproved: true });
       }
     } catch (e) {
@@ -4100,9 +4232,11 @@ app.post('/api/webhooks/mercadopago', async (req, res) => {
     const paymentInfo = await payment.get({ id: paymentId });
 
     if (paymentInfo.status === 'approved') {
-      const order = (db.orders || []).find(o => o.mpPaymentId == paymentId);
-      if (order && order.status !== 'aprovado') {
-        approveOrderAndEnqueueDelivery(order);
+      await readLatestDbFromCloudKv(true);
+      const freshOrder = (db.orders || []).find(o => o.mpPaymentId == paymentId);
+      if (freshOrder && freshOrder.status !== 'aprovado') {
+        approveOrderAndEnqueueDelivery(freshOrder);
+        await saveDbNow(db, true);
       }
     }
   } catch (err) {
@@ -4177,13 +4311,18 @@ function approveOrderAndEnqueueDelivery(order) {
 // ----------------------------------------------------
 
 // 1. Obter itens pendentes para o /resgatar
-app.get('/api/delivery/pending', (req, res) => {
+app.get('/api/delivery/pending', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const { nick, key } = req.query;
   if (!key || key !== db.settings.apiToken) {
     return res.status(401).json({ error: 'Token de segurança inválido.' });
   }
   if (!nick) {
     return res.status(400).json({ error: 'Parâmetro nick é obrigatório.' });
+  }
+
+  if (rememberKnownPlayer(db, nick, { source: 'resgatar' })) {
+    await saveDbNow(db, true);
   }
 
   const items = (db.pendingDeliveries || []).filter(
@@ -4202,13 +4341,14 @@ app.get('/api/delivery/pending', (req, res) => {
 });
 
 // 2. Confirmar resgate executado pelo plugin
-app.post('/api/delivery/confirm', (req, res) => {
+app.post('/api/delivery/confirm', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const { key } = req.query;
   if (!key || key !== db.settings.apiToken) {
     return res.status(401).json({ error: 'Token de segurança inválido.' });
   }
 
-  const { orderId, nick } = req.body;
+  const { orderId, nick } = req.body || {};
   console.log(`[Delivery] Recebida confirmação para nick="${nick}", orderId="${orderId}"`);
 
   const item = (db.pendingDeliveries || []).find(d => {
@@ -4226,14 +4366,23 @@ app.post('/api/delivery/confirm', (req, res) => {
   if (item) {
     item.status = 'delivered';
     item.delivered_at = new Date().toISOString();
-    saveDb(db);
+    if (item.orderId) {
+      const order = (db.orders || []).find(o => String(o.id) === String(item.orderId));
+      if (order) {
+        const related = (db.pendingDeliveries || []).filter(d => String(d.orderId) === String(item.orderId));
+        if (related.length > 0 && related.every(d => d.status === 'delivered')) {
+          order.delivery_status = 'entregue';
+          order.delivered = true;
+          order.delivered_at = new Date().toISOString();
+        }
+      }
+    }
+    await saveDbNow(db, true);
     console.log(`[Delivery] Item ID ${item.id} (${item.product_name}) marcado como entregue para ${item.nick}!`);
     return res.json({ success: true, message: 'Item confirmado como resgatado.' });
   }
 
-  console.warn(`[Delivery] Item não encontrado para orderId="${orderId}", nick="${nick}". Fila atual:`, 
-    (db.pendingDeliveries || []).map(p => ({ id: p.id, nick: p.nick, status: p.status }))
-  );
+  console.warn(`[Delivery] Item não encontrado para orderId="${orderId}", nick="${nick}".`);
   res.status(404).json({ error: 'Item não encontrado na fila.' });
 });
 
@@ -4268,9 +4417,10 @@ app.post('/api/verify/generate', (req, res) => {
   res.json({ code });
 });
 
-// 4. Sincronizar dados do jogador via /ravoksync (PlaceholderAPI)
-app.post('/api/player-sync', (req, res) => {
-  const { token, nick, rankings } = req.body;
+// 4. Sincronizar dados do jogador via /ravoksync (PlaceholderAPI) ou join do servidor
+app.post('/api/player-sync', async (req, res) => {
+  await readLatestDbFromCloudKv(false);
+  const { token, nick, rankings } = req.body || {};
   if (!token || token !== db.settings.apiToken) {
     return res.status(401).json({ error: 'Token de segurança inválido.' });
   }
@@ -4286,9 +4436,37 @@ app.post('/api/player-sync', (req, res) => {
     votes: Number((rankings && rankings.votes) || 0),
     last_sync: new Date().toISOString()
   };
-  saveDb(db);
+  rememberKnownPlayer(db, nick, { source: 'server-sync' });
+  await saveDbNow(db, true);
 
   res.json({ success: true });
+});
+
+// Sincronização em lote de jogadores históricos/online enviada pelo plugin Minecraft
+app.post('/api/players/sync-batch', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  const { token, players } = req.body || {};
+  if (!token || token !== db.settings.apiToken) {
+    return res.status(401).json({ error: 'Token de segurança inválido.' });
+  }
+  let added = 0;
+  if (Array.isArray(players)) {
+    for (const p of players) {
+      const nick = typeof p === 'string' ? p : (p && p.nick);
+      const lastSeen = typeof p === 'object' && p ? Number(p.lastSeen || 0) : 0;
+      if (rememberKnownPlayer(db, nick, { lastSeen, source: 'plugin-batch' })) added++;
+    }
+  }
+  await saveDbNow(db, true);
+  res.json({ success: true, count: Object.keys(db.knownPlayers || {}).length, added });
+});
+
+// Listar jogadores conhecidos que já logaram no servidor (para Venda Manual no Admin)
+app.get('/api/admin/players', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  ensureKnownPlayersSeeded(db);
+  const list = buildKnownPlayersList(db);
+  res.json({ success: true, players: list });
 });
 
 // ====================================================
@@ -4606,12 +4784,14 @@ app.post('/api/player/link', (req, res) => {
 });
 
 // Fila de entregas completa (Admin)
-app.get('/api/admin/deliveries', (req, res) => {
+app.get('/api/admin/deliveries', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   res.json(db.pendingDeliveries || []);
 });
 
-app.post('/api/admin/delivery/test', (req, res) => {
-  const { nick, productId } = req.body;
+app.post('/api/admin/delivery/test', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  const { nick, productId } = req.body || {};
   const prod = (db.products || []).find(p => String(p.id) === String(productId));
   if (!prod || !nick) {
     return res.status(400).json({ error: 'Nick e produto válidos são obrigatórios.' });
@@ -4623,7 +4803,7 @@ app.post('/api/admin/delivery/test', (req, res) => {
     nick: nick.trim(),
     product_name: prod.name,
     category: prod.cat || 'Itens',
-    command: (prod.command || 'say Entregue {player}').replace('{player}', nick.trim()),
+    command: (prod.command || 'say Entregue {player}').replace(/{player}|{nick}/gi, nick.trim()),
     gui_icon: prod.guiIcon || 'CHEST',
     status: 'pending',
     created_at: new Date().toISOString()
@@ -4631,12 +4811,14 @@ app.post('/api/admin/delivery/test', (req, res) => {
 
   db.pendingDeliveries = db.pendingDeliveries || [];
   db.pendingDeliveries.unshift(deliveryItem);
-  saveDb(db);
+  rememberKnownPlayer(db, nick, { source: 'delivery-test' });
+  await saveDbNow(db, true);
 
-  res.json({ success: true, item: deliveryItem });
+  res.json({ success: true, item: deliveryItem, updatedAt: db.updatedAt });
 });
 
-app.post('/api/admin/delivery/:id/redeem', (req, res) => {
+app.post('/api/admin/delivery/:id/redeem', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const targetId = String(req.params.id);
   const item = (db.pendingDeliveries || []).find(d => String(d.id) === targetId);
   if (!item) return res.status(404).json({ error: 'Item não encontrado.' });
@@ -4656,59 +4838,40 @@ app.post('/api/admin/delivery/:id/redeem', (req, res) => {
     }
   }
 
-  saveDb(db);
+  await saveDbNow(db, true);
   res.json({ success: true, message: 'Item marcado como entregue.', updatedAt: db.updatedAt });
 });
 
-// Marcar pedido completo como entregue (Admin)
-app.post('/api/admin/orders/:id/mark-delivered', (req, res) => {
-  const { id } = req.params;
-  const targetId = String(id).trim();
-  const order = (db.orders || []).find(o => String(o.id).trim() === targetId);
-  if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
-
-  order.delivery_status = 'entregue';
-  order.delivered = true;
-  order.delivered_at = new Date().toISOString();
-
-  (db.pendingDeliveries || []).forEach(d => {
-    if (String(d.orderId).trim() === targetId) {
-      d.status = 'delivered';
-      d.delivered_at = new Date().toISOString();
-    }
-  });
-
-  saveDb(db);
-  res.json({ success: true, message: `Pedido #${id} marcado como entregue.`, order, updatedAt: db.updatedAt });
-});
-
-app.delete('/api/admin/delivery/clear-delivered', (req, res) => {
+app.delete('/api/admin/delivery/clear-delivered', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   db.pendingDeliveries = (db.pendingDeliveries || []).filter(d => d.status === 'pending');
-  saveDb(db);
-  res.json({ success: true });
+  await saveDbNow(db, true);
+  res.json({ success: true, updatedAt: db.updatedAt });
 });
 
 // Excluir entrega individual da fila
-app.delete('/api/admin/delivery/:id', (req, res) => {
+app.delete('/api/admin/delivery/:id', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const id = req.params.id;
   const initialLen = (db.pendingDeliveries || []).length;
   db.pendingDeliveries = (db.pendingDeliveries || []).filter(d => String(d.id) !== String(id));
-  saveDb(db);
-  res.json({ success: true, removed: initialLen !== db.pendingDeliveries.length });
+  await saveDbNow(db, true);
+  res.json({ success: true, removed: initialLen !== db.pendingDeliveries.length, updatedAt: db.updatedAt });
 });
 
 // ----------------------------------------------------
 // CRIAÇÃO DE PEDIDO MANUAL VIA DISCORD TICKET (COMPRAS) / PIX DIRETO
 // ----------------------------------------------------
-app.post('/api/orders/manual', (req, res) => {
-  const { nick, items, total, coupon, notes, paymentMethod, id } = req.body || {};
-  if (!nick || !nick.trim()) {
+app.post('/api/orders/manual', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  const { nick, items, total, coupon, notes, paymentMethod, id, discordTag } = req.body || {};
+  if (!nick || !String(nick).trim()) {
     return res.status(400).json({ error: 'Nick do jogador é obrigatório.' });
   }
-  const cleanNick = nick.trim();
+  const cleanNick = String(nick).trim();
   const orderId = (typeof id === 'string' && id.startsWith('RV-')) ? id : ('RV-' + Math.floor(1000 + Math.random() * 9000));
   const cleanItems = Array.isArray(items) ? items.map(item => {
-    const prod = (db.products || []).find(p => String(p.id) === String(item.id));
+    const prod = (db.products || []).find(p => String(p.id) === String(item.id)) || (DEFAULT_PRODUCTS || []).find(p => String(p.id) === String(item.id));
     return {
       id: item.id,
       name: item.name || (prod ? prod.name : 'Item Ravok'),
@@ -4735,37 +4898,122 @@ app.post('/api/orders/manual', (req, res) => {
     delivery_status: 'aguardando_aprovacao',
     delivered: false
   };
-  db.orders = db.orders || [];
+  db.deletedOrderIds = (db.deletedOrderIds || []).filter(d => String(d).trim() !== String(orderId).trim());
+  db.orders = (db.orders || []).filter(o => String(o.id) !== String(orderId));
   db.orders.unshift(newOrder);
-  saveDb(db);
-  console.log('[Discord Ticket Order] Novo pedido criado:', newOrder.id, 'para', cleanNick, 'Total:', finalTotal, 'Método:', newOrder.paymentMethod);
+  rememberKnownPlayer(db, cleanNick, { source: 'discord-checkout' });
+  await saveDbNow(db, true);
+
+  let ticketChannelUrl = null;
+  let ticketChannelId = null;
+  const linked = (db.linkedAccounts || []).find(l => l.nick && l.nick.toLowerCase() === cleanNick.toLowerCase());
+  const ticketPayload = {
+    orderId,
+    nick: cleanNick,
+    items: cleanItems,
+    total: newOrder.total,
+    discordId: linked && linked.discordId ? String(linked.discordId) : null,
+    discordTag: (discordTag && String(discordTag).trim()) || (linked && linked.discordTag) || '',
+    notes: newOrder.notes
+  };
+
+  try {
+    if (isLocalBotOnline() && typeof bot.createPurchaseTicketForSiteOrder === 'function') {
+      const ticketRes = await bot.createPurchaseTicketForSiteOrder(ticketPayload);
+      ticketChannelUrl = ticketRes && ticketRes.ticketChannelUrl;
+      ticketChannelId = ticketRes && ticketRes.ticketChannelId;
+    } else {
+      const hb = await getBridgeHeartbeat();
+      const hbOnline = Boolean(hb && hb.status && hb.status.online && (Date.now() - Number(hb.receivedAt || 0)) < HEARTBEAT_TTL_MS);
+      const token = getEffectiveDiscordToken(hb);
+      if (hbOnline && (ticketPayload.discordId || ticketPayload.discordTag)) {
+        // Quando usuário possui vínculo Discord, aguarda criação automática do canal #compra-<nick>
+        const task = await enqueueBridgeTask('create-purchase-ticket', ticketPayload);
+        const deadline = Date.now() + 4500;
+        while (Date.now() < deadline) {
+          await new Promise(r => setTimeout(r, 300));
+          const updated = await getBridgeTaskResult(task.id);
+          if (updated && updated.status === 'done' && updated.result) {
+            ticketChannelUrl = updated.result.ticketChannelUrl || null;
+            ticketChannelId = updated.result.ticketChannelId || null;
+            break;
+          }
+          if (updated && updated.status === 'error') break;
+        }
+      } else {
+        if (hbOnline) {
+          await enqueueBridgeTask('create-purchase-ticket', ticketPayload).catch(() => {});
+        }
+        if (token) {
+          const relCh = getVerifiedChannelId('discordBotChannelRelatorios');
+          const itemsSummary = cleanItems.map(i => `• **${i.name}** (x${i.quantity})`).join('\n') || '• Itens da Loja';
+          await discordRestRequest(token, 'POST', `/channels/${relCh}/messages`, {
+            embeds: [{
+              title: `🛒 Novo Pedido Aguardando Ticket (#${orderId})`,
+              description: `O jogador **${cleanNick}** gerou um pedido pelo site para finalizar na categoria Compras!`,
+              color: 0xFFB703,
+              fields: [
+                { name: '🎮 Nick Minecraft', value: `\`${cleanNick}\``, inline: true },
+                { name: '💰 Valor Total', value: `R$ ${Number(newOrder.total).toFixed(2).replace('.', ',')}`, inline: true },
+                { name: '🛒 Itens', value: itemsSummary, inline: false }
+              ],
+              footer: { text: 'Ravok Network • Checkout Discord' },
+              timestamp: new Date().toISOString()
+            }]
+          }).catch(() => {});
+        }
+      }
+    }
+  } catch (ticketErr) {
+    console.warn('[Discord Ticket Order] Aviso ao notificar Discord:', ticketErr.message);
+  }
+
+  console.log('[Discord Ticket Order] Novo pedido criado:', newOrder.id, 'para', cleanNick, 'Total:', finalTotal);
   res.json({
     success: true,
     orderId,
     order: newOrder,
-    message: 'Pedido registrado com sucesso! Abra seu ticket na categoria Compras do Discord para liberação no /resgatar.'
+    ticketChannelUrl,
+    ticketChannelId,
+    discordTicketUrl: DISCORD_TICKET_INVITE_URL,
+    discordInviteUrl: normalizeDiscordInviteUrl(db.settings && db.settings.discordInviteUrl),
+    updatedAt: db.updatedAt,
+    message: ticketChannelUrl
+      ? 'Ticket de compra criado automaticamente no Discord e pedido registrado!'
+      : 'Pedido registrado com sucesso! Abra seu ticket na categoria Compras do Discord para liberação no /resgatar.'
   });
 });
 
 // ----------------------------------------------------
 // APROVAÇÃO 1-CLIQUE PELO ADMIN (LIBERAÇÃO NO /resgatar)
 // ----------------------------------------------------
-app.post('/api/admin/orders/:id/approve', (req, res) => {
-  const orderId = String(req.params.id);
+app.post('/api/admin/orders/:id/approve', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  const orderId = String(req.params.id).trim();
   db.orders = db.orders || [];
-  const order = db.orders.find(o => String(o.id) === orderId || String(o.externalReference) === orderId);
+  let order = db.orders.find(o => String(o.id).trim() === orderId || String(o.externalReference || '').trim() === orderId);
+
+  const delSet = new Set((db.deletedOrderIds || []).map(String));
+  if (!order && req.body && req.body.order && !delSet.has(orderId)) {
+    order = { ...req.body.order, id: req.body.order.id || orderId };
+    db.orders.unshift(order);
+  }
+
   if (!order) {
     return res.status(404).json({ error: 'Pedido não encontrado.' });
   }
+
   order.status = 'aprovado';
-  order.approved_at = new Date().toISOString();
-  order.delivery_status = 'pendente';
-  order.delivered = false;
+  order.approved_at = order.approved_at || new Date().toISOString();
+  order.delivery_status = order.delivered ? 'entregue' : 'pendente';
+  order.delivered = Boolean(order.delivered);
+
   db.pendingDeliveries = db.pendingDeliveries || [];
   const createdDeliveries = [];
-  if (Array.isArray(order.items)) {
-    order.items.forEach((item, idx) => {
-      const prod = (db.products || []).find(p => String(p.id) === String(item.id));
+  const alreadyHasDeliveries = db.pendingDeliveries.some(d => String(d.orderId).trim() === String(order.id).trim());
+  if (!alreadyHasDeliveries && Array.isArray(order.items)) {
+    order.items.forEach((item) => {
+      const prod = (db.products || []).find(p => String(p.id) === String(item.id)) || (DEFAULT_PRODUCTS || []).find(p => String(p.id) === String(item.id));
       const rawCmd = (prod && prod.command) || item.command || '';
       const cleanCmd = rawCmd.replace(/{player}|{nick}/gi, order.nick);
       const qty = Number(item.quantity) || 1;
@@ -4786,67 +5034,102 @@ app.post('/api/admin/orders/:id/approve', (req, res) => {
       }
     });
   }
-  saveDb(db);
+
+  rememberKnownPlayer(db, order.nick, { source: 'order-approve' });
+  await saveDbNow(db, true);
+
+  if (isLocalBotOnline() && typeof bot.notifySale === 'function') {
+    bot.notifySale(order).catch(() => {});
+  } else {
+    getBridgeHeartbeat().then(hb => {
+      const tok = getEffectiveDiscordToken(hb);
+      if (tok) return sendSaleRest(tok, order);
+    }).catch(() => {});
+  }
+
   console.log('[Order Approve] Pedido aprovado:', order.id, 'Entregas geradas:', createdDeliveries.length);
   res.json({
     success: true,
     message: 'Pedido #' + order.id + ' aprovado com sucesso! ' + createdDeliveries.length + ' item(ns) liberado(s) na fila do /resgatar.',
     order,
     createdDeliveries,
-    goal: computeGoalStatus()
+    orders: db.orders,
+    pendingDeliveries: db.pendingDeliveries,
+    goal: computeGoalStatus(),
+    updatedAt: db.updatedAt
   });
 });
 
-app.post('/api/admin/orders/:id/mark-delivered', (req, res) => {
-  const orderId = String(req.params.id);
+// Marcar pedido completo como entregue (Admin)
+app.post('/api/admin/orders/:id/mark-delivered', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  const orderId = String(req.params.id).trim();
   db.orders = db.orders || [];
-  const order = db.orders.find(o => String(o.id) === orderId || String(o.externalReference) === orderId);
-  if (order) {
-    order.delivery_status = 'entregue';
-    order.delivered = true;
-    order.delivered_at = new Date().toISOString();
-  }
+  const order = db.orders.find(o => String(o.id).trim() === orderId || String(o.externalReference || '').trim() === orderId);
+  if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
+
+  order.delivery_status = 'entregue';
+  order.delivered = true;
+  order.delivered_at = new Date().toISOString();
+
   db.pendingDeliveries = db.pendingDeliveries || [];
   db.pendingDeliveries.forEach(d => {
-    if (String(d.orderId) === orderId) {
+    if (String(d.orderId).trim() === orderId) {
       d.status = 'delivered';
       d.delivered_at = new Date().toISOString();
     }
   });
-  saveDb(db);
-  res.json({ success: true, message: 'Pedido #' + orderId + ' marcado como entregue!' });
+  await saveDbNow(db, true);
+  res.json({
+    success: true,
+    message: `Pedido #${orderId} marcado como entregue!`,
+    order,
+    orders: db.orders,
+    pendingDeliveries: db.pendingDeliveries,
+    updatedAt: db.updatedAt
+  });
 });
+
 // Listagem de Pedidos (Admin)
-app.get('/api/admin/orders', (req, res) => {
+app.get('/api/admin/orders', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   res.json(db.orders || []);
 });
 
 // Excluir pedido individual
-app.delete('/api/admin/orders/:id', (req, res) => {
-  const id = req.params.id;
+app.delete('/api/admin/orders/:id', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  const id = String(req.params.id).trim();
   const initialLen = (db.orders || []).length;
-  db.orders = (db.orders || []).filter(o => String(o.id) !== String(id));
-  saveDb(db);
-  res.json({ success: true, removed: initialLen !== db.orders.length });
+  db.deletedOrderIds = Array.from(new Set([...(db.deletedOrderIds || []).map(String), id]));
+  db.orders = (db.orders || []).filter(o => String(o.id).trim() !== id);
+  db.pendingDeliveries = (db.pendingDeliveries || []).filter(d => String(d.orderId || '').trim() !== id);
+  await saveDbNow(db, true);
+  res.json({ success: true, removed: initialLen !== db.orders.length, orders: db.orders, updatedAt: db.updatedAt });
 });
 
 // Limpar pedidos com nicks de teste
-app.post('/api/admin/orders/clear-tests', (req, res) => {
+app.post('/api/admin/orders/clear-tests', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const initialLen = (db.orders || []).length;
+  const removedIds = [];
   db.orders = (db.orders || []).filter(o => {
     const nick = (o.nick || '').toLowerCase();
-    return !nick.includes('teste') && !nick.includes('test') && !nick.startsWith('player_');
+    const isTest = nick.includes('teste') || nick.includes('test') || nick.startsWith('player_');
+    if (isTest && o.id !== undefined) removedIds.push(String(o.id));
+    return !isTest;
   });
-  saveDb(db);
-  res.json({ success: true, removedCount: initialLen - db.orders.length });
+  db.deletedOrderIds = Array.from(new Set([...(db.deletedOrderIds || []).map(String), ...removedIds]));
+  await saveDbNow(db, true);
+  res.json({ success: true, removedCount: initialLen - db.orders.length, orders: db.orders, updatedAt: db.updatedAt });
 });
 
-app.post('/api/admin/reload-db', (req, res) => {
+app.post('/api/admin/reload-db', async (req, res) => {
   try {
-    db = loadDb();
+    await readLatestDbFromCloudKv(true);
     res.json({
       success: true,
-      message: 'Banco recarregado do disco!',
+      message: 'Banco sincronizado com a nuvem!',
       orders: (db.orders || []).length,
       pending: (db.pendingDeliveries || []).length
     });
@@ -4856,7 +5139,8 @@ app.post('/api/admin/reload-db', (req, res) => {
 });
 
 // Venda Manual (Admin)
-app.post('/api/admin/orders/manual', (req, res) => {
+app.post('/api/admin/orders/manual', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const { nick, productId, customName, price, command, announceDiscord, enqueueDelivery } = req.body || {};
   if (!nick || !nick.trim()) {
     return res.status(400).json({ error: 'Nick do jogador é obrigatório.' });
@@ -4870,7 +5154,7 @@ app.post('/api/admin/orders/manual', (req, res) => {
   let finalPrice = parseFloat(price) || 0;
 
   if (productId && productId !== 'custom') {
-    const prod = (db.products || []).find(p => String(p.id) === String(productId));
+    const prod = (db.products || []).find(p => String(p.id) === String(productId)) || (DEFAULT_PRODUCTS || []).find(p => String(p.id) === String(productId));
     if (prod) {
       prodName = prod.name;
       cat = prod.cat || 'Itens';
@@ -4898,8 +5182,10 @@ app.post('/api/admin/orders/manual', (req, res) => {
     }],
     total: finalPrice,
     date: new Date().toLocaleDateString('pt-BR') + ' ' + new Date().toLocaleTimeString('pt-BR'),
+    createdAt: new Date().toISOString(),
     status: 'aprovado',
     delivery_status: enqueueDelivery !== false ? 'pendente' : 'entregue',
+    delivered: enqueueDelivery === false,
     paymentMethod: 'Manual (Admin)',
     approved_at: new Date().toISOString()
   };
@@ -4924,7 +5210,8 @@ app.post('/api/admin/orders/manual', (req, res) => {
     db.pendingDeliveries.unshift(deliveryItem);
   }
 
-  saveDb(db);
+  rememberKnownPlayer(db, cleanNick, { source: 'manual-sale' });
+  await saveDbNow(db, true);
 
   // Disparar anúncio de compra via Bot do Discord (local ou REST fallback)
   if (announceDiscord) {

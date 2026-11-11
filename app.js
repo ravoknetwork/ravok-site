@@ -2132,17 +2132,26 @@ document.querySelectorAll('[data-close]').forEach(b => b.onclick = closeAll);
 if (by('#openPlayer')) by('#openPlayer').onclick = () => by('#playerDialog') && by('#playerDialog').showModal();
 if (by('#voteButton')) by('#voteButton').onclick = openVoteArena;
 
+let pendingCheckoutAction = null;
+
 // Salvar Nick do Jogador
 if (by('#savePlayer')) {
   by('#savePlayer').onclick = () => {
     const n = by('#playerName').value.trim();
-    if (!/^[A-Za-z0-9_]{3,16}$/.test(n)) {
+    if (!/^\.?[A-Za-z0-9_]{3,16}$/.test(n)) {
       return toast('Informe um nick válido de Minecraft (3 a 16 caracteres).');
     }
     localStorage.setItem('ravokPlayer', n);
     updateVotePlayerDisplay(n);
+    const nextAction = pendingCheckoutAction;
+    pendingCheckoutAction = null;
     closeAll();
     toast(`Nick "${n}" salvo com sucesso!`);
+    if (nextAction === 'discord') {
+      handleDiscordCheckout();
+    } else if (nextAction === 'pix' && by('#checkout')) {
+      by('#checkout').click();
+    }
   };
 }
 
@@ -2183,8 +2192,11 @@ function stopOrderPolling() {
 
 // Checkout com Mercado Pago / Pix
 
+let cachedDiscordTicketUrl = 'https://discord.gg/nBNjvvxzf6';
+let cachedDiscordInviteUrl = 'https://discord.gg/qpQt8peGdz';
+
 // ====================================================
-// CHECKOUT MANUAL COM ADMINISTRADOR (WHATSAPP / PIX DIRETO)
+// CHECKOUT MANUAL VIA DISCORD TICKET (CATEGORIA COMPRAS)
 // ====================================================
 async function handleDiscordCheckout() {
   if (!cart.length) {
@@ -2192,6 +2204,7 @@ async function handleDiscordCheckout() {
   }
   const player = localStorage.getItem('ravokPlayer');
   if (!player) {
+    pendingCheckoutAction = 'discord';
     closeAll();
     const pModal = by('#playerDialog');
     if (pModal) pModal.showModal();
@@ -2199,14 +2212,16 @@ async function handleDiscordCheckout() {
   }
 
   const total = getCartTotal();
-  const orderId = 'RV-' + Math.floor(1000 + Math.random() * 9000);
+  let orderId = 'RV-' + Math.floor(1000 + Math.random() * 9000);
   const itemsText = cart.map(i => '• ' + i.name + ' (x' + (i.quantity || 1) + ') - ' + money(i.price * (i.quantity || 1))).join('\n');
   const pixKey = 'contato@ravok.network';
+  let ticketTargetUrl = cachedDiscordTicketUrl || cachedDiscordInviteUrl || 'https://discord.gg/nBNjvvxzf6';
+  let ticketAutoCreated = false;
 
   // Registrar pedido no backend como discord_ticket
   if (window.location.protocol.startsWith('http')) {
     try {
-      await fetch('/api/orders/manual', {
+      const res = await fetch('/api/orders/manual', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -2215,9 +2230,21 @@ async function handleDiscordCheckout() {
           items: cart,
           total: total,
           paymentMethod: 'discord_ticket',
-          coupon: appliedCoupon ? appliedCoupon.code : ''
+          coupon: activeCoupon ? activeCoupon.code : ''
         })
       });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && data.success) {
+        if (data.orderId) orderId = data.orderId;
+        if (data.ticketChannelUrl) {
+          ticketTargetUrl = data.ticketChannelUrl;
+          ticketAutoCreated = true;
+        } else if (data.discordTicketUrl) {
+          ticketTargetUrl = data.discordTicketUrl;
+        } else if (data.discordInviteUrl) {
+          ticketTargetUrl = data.discordInviteUrl;
+        }
+      }
     } catch (e) {
       console.warn('Registro offline do pedido.');
     }
@@ -2251,6 +2278,17 @@ async function handleDiscordCheckout() {
   }
   if (by('#dcOrderPixKey')) by('#dcOrderPixKey').value = pixKey;
 
+  const openTicketBtn = by('#btnOpenDiscordTicket');
+  if (openTicketBtn) {
+    openTicketBtn.href = ticketTargetUrl;
+    const labelSpan = openTicketBtn.querySelector('span');
+    if (labelSpan) {
+      labelSpan.textContent = ticketAutoCreated
+        ? 'Abrir Seu Ticket Criado no Discord ↗'
+        : 'Abrir Discord & Criar Ticket na Categoria Compras ↗';
+    }
+  }
+
   // Botão copiar dados
   const copyBtn = by('#btnCopyDcOrder');
   if (copyBtn) {
@@ -2267,20 +2305,26 @@ async function handleDiscordCheckout() {
   // Auto-copia para agilizar para o jogador
   try {
     await navigator.clipboard.writeText(discordMsg);
-    toast('✓ Dados do pedido copiados para o seu Discord!');
-  } catch (err) {}
+    toast(ticketAutoCreated
+      ? '✓ Ticket criado na categoria Compras e pedido copiado!'
+      : '✓ Pedido salvo e copiado! Clique em Abrir Discord para criar o Ticket.');
+  } catch (err) {
+    toast('✓ Pedido #' + orderId + ' registrado! Abra o Discord para enviar o comprovante.');
+  }
 
   closeAll();
   const modal = by('#discordOrderModal') || by('#adminOrderModal');
   if (modal) {
     modal.showModal();
   } else {
-    window.open('https://discord.gg/ravok', '_blank');
+    window.open(ticketTargetUrl, '_blank');
   }
 
   // Limpa sacola após envio do pedido
   cart = [];
-  appliedCoupon = null;
+  activeCoupon = null;
+  const couponInput = by('#couponInput');
+  if (couponInput) couponInput.value = '';
   const couponBadge = by('#couponAppliedBadge');
   if (couponBadge) couponBadge.style.display = 'none';
   saveCart();
@@ -2296,6 +2340,7 @@ if (by('#checkout')) by('#checkout').onclick = async () => {
   }
   const player = localStorage.getItem('ravokPlayer');
   if (!player) {
+    pendingCheckoutAction = 'pix';
     closeAll();
     by('#playerDialog').showModal();
     return toast('Primeiro informe o seu nick no Minecraft.');
@@ -2524,8 +2569,13 @@ async function syncWithBackend() {
         applyGoalUI(state.goal);
       }
 
-      if (state.discordInviteUrl && by('#discordLinkBtn')) {
-        by('#discordLinkBtn').href = state.discordInviteUrl;
+      if (state.discordInviteUrl) {
+        cachedDiscordInviteUrl = state.discordInviteUrl;
+        if (by('#discordLinkBtn')) by('#discordLinkBtn').href = state.discordInviteUrl;
+      }
+      if (state.discordTicketUrl) {
+        cachedDiscordTicketUrl = state.discordTicketUrl;
+        if (by('#btnOpenDiscordTicket')) by('#btnOpenDiscordTicket').href = state.discordTicketUrl;
       }
       return;
     }

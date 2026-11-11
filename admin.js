@@ -1313,20 +1313,13 @@ async function syncAdminFromBackend() {
     if (oRes.ok) {
       const serverOrders = await oRes.json();
       if (Array.isArray(serverOrders)) {
-        // Não sobrescrever pedidos locais se o servidor estiver vazio por cold-start e já houver pedidos no snapshot
-        const localOrders = getStoredOrders();
-        if (serverOrders.length > 0 || !localOrders.length) {
-          localStorage.setItem('ravok_orders', JSON.stringify(serverOrders));
-        }
+        localStorage.setItem('ravok_orders', JSON.stringify(serverOrders));
       }
     }
     if (dRes.ok) {
       const serverDelivs = await dRes.json();
       if (Array.isArray(serverDelivs)) {
-        const localDelivs = getStoredPendingDeliveries();
-        if (serverDelivs.length > 0 || !localDelivs.length) {
-          localStorage.setItem('ravok_pending_deliveries', JSON.stringify(serverDelivs));
-        }
+        localStorage.setItem('ravok_pending_deliveries', JSON.stringify(serverDelivs));
       }
     }
     if (setRes.ok) {
@@ -4027,11 +4020,45 @@ window.approveAdminOrder = async (orderId) => {
   }
 
   let deliveries = getStoredPendingDeliveries();
-  const prods = getProducts();
-  const prodMap = {};
-  prods.forEach(p => { prodMap[p.id] = p; });
+  let serverUpdatedAt = Date.now();
+  let approvedViaServer = false;
 
-  if (o && Array.isArray(o.items)) {
+  if (window.location.protocol.startsWith('http')) {
+    try {
+      const res = await fetch('/api/admin/orders/' + encodeURIComponent(orderId) + '/approve', {
+        method: 'POST',
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ order: o || null })
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data || !data.success) {
+        return toast('Erro: ' + ((data && data.error) || 'Não foi possível aprovar este pedido no servidor.'));
+      }
+      approvedViaServer = true;
+      serverUpdatedAt = data.updatedAt || Date.now();
+      if (Array.isArray(data.orders)) {
+        orders = data.orders;
+      }
+      if (Array.isArray(data.pendingDeliveries)) {
+        deliveries = data.pendingDeliveries;
+      } else if (Array.isArray(data.createdDeliveries) && data.createdDeliveries.length) {
+        const seen = new Set(deliveries.map(d => String(d.id)));
+        data.createdDeliveries.forEach(d => {
+          if (!seen.has(String(d.id))) deliveries.unshift(d);
+        });
+      }
+      if (data.goal) {
+        localStorage.setItem('ravok_goal_v1', JSON.stringify(data.goal));
+      }
+    } catch (e) {
+      console.warn('Falha ao aprovar no backend, salvando localmente:', e);
+    }
+  }
+
+  if (!approvedViaServer && o && Array.isArray(o.items)) {
+    const prods = getStoredProducts();
+    const prodMap = {};
+    prods.forEach(p => { prodMap[p.id] = p; });
     o.items.forEach((item, idx) => {
       const prod = prodMap[item.id] || {};
       const rawCmd = (prod && prod.command) || item.command || '';
@@ -4054,28 +4081,12 @@ window.approveAdminOrder = async (orderId) => {
     });
   }
 
-  if (window.location.protocol.startsWith('http')) {
-    try {
-      const res = await fetch('/api/admin/orders/' + encodeURIComponent(orderId) + '/approve', {
-        method: 'POST',
-        headers: getAdminAuthHeaders()
-      });
-      const data = await res.json();
-      if (data && data.createdDeliveries && data.createdDeliveries.length) {
-        // Recarrega pendentes sincronizados com o backend
-        deliveries = getStoredPendingDeliveries();
-      }
-    } catch (e) {
-      console.warn('Falha ao aprovar no backend, salvando localmente:', e);
-    }
-  }
-
   localStorage.setItem('ravok_orders', JSON.stringify(orders));
   localStorage.setItem('ravok_pending_deliveries', JSON.stringify(deliveries));
-  saveAdminSnapshot();
+  saveAdminSnapshot(serverUpdatedAt);
   renderOrdersTable();
   refreshDashboard();
-  renderServerDeliveriesTable();
+  if (typeof renderServerTab === 'function') renderServerTab();
   toast('⚡ Pedido #' + orderId + ' aprovado com sucesso! Itens liberados no /resgatar!');
 };
 
@@ -4152,20 +4163,28 @@ window.markOrderDelivered = async (orderId) => {
     }
   });
 
+  let serverUpdatedAt = Date.now();
   if (window.location.protocol.startsWith('http')) {
     try {
-      await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}/mark-delivered`, {
+      const res = await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}/mark-delivered`, {
         method: 'POST',
         headers: getAdminAuthHeaders()
       });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && data.success) {
+        if (Array.isArray(data.orders)) orders = data.orders;
+        if (Array.isArray(data.pendingDeliveries)) deliveries = data.pendingDeliveries;
+        if (data.updatedAt) serverUpdatedAt = data.updatedAt;
+      }
     } catch (e) {}
   }
 
   localStorage.setItem('ravok_orders', JSON.stringify(orders));
   localStorage.setItem('ravok_pending_deliveries', JSON.stringify(deliveries));
-  saveAdminSnapshot();
+  saveAdminSnapshot(serverUpdatedAt);
   renderOrdersTable();
   refreshDashboard();
+  if (typeof renderServerTab === 'function') renderServerTab();
   toast(`✓ Pedido #${orderId} marcado como entregue!`);
 };
 
@@ -4175,16 +4194,23 @@ window.deleteOrder = async (orderId) => {
   let orders = getStoredOrders().filter(o => String(o.id) !== String(orderId));
   localStorage.setItem('ravok_orders', JSON.stringify(orders));
 
+  let serverUpdatedAt = Date.now();
   if (window.location.protocol.startsWith('http')) {
     try {
-      await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}`, {
+      const res = await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}`, {
         method: 'DELETE',
         headers: getAdminAuthHeaders()
       });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && Array.isArray(data.orders)) {
+        orders = data.orders;
+        localStorage.setItem('ravok_orders', JSON.stringify(orders));
+        if (data.updatedAt) serverUpdatedAt = data.updatedAt;
+      }
     } catch (e) {}
   }
 
-  saveAdminSnapshot();
+  saveAdminSnapshot(serverUpdatedAt);
   renderOrdersTable();
   refreshDashboard();
   toast(`✓ Pedido #${orderId} excluído com sucesso.`);
@@ -4229,6 +4255,36 @@ function setupManualSale() {
   if (closeBtn) closeBtn.onclick = closeFn;
   if (cancelBtn) cancelBtn.onclick = closeFn;
 
+  const playerSelect = by('#manualSalePlayerSelect');
+  const playersDatalist = by('#manualSalePlayersDatalist');
+  const nickInput = by('#manualSaleNick');
+
+  const renderKnownPlayersIntoModal = (playersList) => {
+    const list = Array.isArray(playersList) ? playersList : [];
+    if (playerSelect) {
+      playerSelect.innerHTML = `<option value="">-- Jogadores que já logaram (${list.length}) — selecione ou digite abaixo --</option>` +
+        list.map(p => {
+          const nickStr = String(p.nick || '').trim();
+          const tags = [];
+          if (p.linked) tags.push('Discord vinculado');
+          if (p.ordersCount > 0) tags.push(`${p.ordersCount} compra(s)`);
+          const suffix = tags.length ? ` (${tags.join(' • ')})` : '';
+          return `<option value="${escapeHtml(nickStr)}">${escapeHtml(nickStr)}${escapeHtml(suffix)}</option>`;
+        }).join('');
+    }
+    if (playersDatalist) {
+      playersDatalist.innerHTML = list.map(p => `<option value="${escapeHtml(String(p.nick || '').trim())}"></option>`).join('');
+    }
+  };
+
+  if (playerSelect && nickInput) {
+    playerSelect.onchange = () => {
+      if (playerSelect.value) {
+        nickInput.value = playerSelect.value;
+      }
+    };
+  }
+
   openBtn.onclick = () => {
     const products = getStoredProducts();
     select.innerHTML = `
@@ -4236,13 +4292,37 @@ function setupManualSale() {
       ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-command="${(p.command || '').replace(/"/g, '&quot;')}">${p.name} — ${p.inestimavel || p.price === 0 ? 'Inestimável / R$ 0,00' : money(p.price)}</option>`).join('')}
       <option value="custom">✏️ Item / Comando Personalizado</option>
     `;
-    by('#manualSaleNick').value = '';
+    nickInput.value = '';
+    if (playerSelect) playerSelect.value = '';
     priceInput.value = '0.00';
     commandInput.value = '';
     customNameGroup.style.display = 'none';
     by('#manualSaleCustomName').value = '';
     by('#manualSaleEnqueueDelivery').checked = true;
     by('#manualSaleAnnounceDiscord').checked = true;
+
+    const orderNicks = [];
+    const seenLocal = new Set();
+    getStoredOrders().forEach(o => {
+      const k = String(o.nick || '').trim();
+      if (k && !seenLocal.has(k.toLowerCase())) {
+        seenLocal.add(k.toLowerCase());
+        orderNicks.push({ nick: k, ordersCount: 1 });
+      }
+    });
+    renderKnownPlayersIntoModal(orderNicks);
+
+    if (window.location.protocol.startsWith('http')) {
+      fetch('/api/admin/players', { headers: getAdminAuthHeaders() })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (data && Array.isArray(data.players)) {
+            renderKnownPlayersIntoModal(data.players);
+          }
+        })
+        .catch(() => {});
+    }
+
     modal.showModal();
   };
 

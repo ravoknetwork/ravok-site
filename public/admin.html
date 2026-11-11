@@ -1904,8 +1904,13 @@
     </div>
     <form id="manualSaleForm">
       <div class="form-group" style="margin-bottom: 14px;">
+        <label>Selecionar Jogador do Servidor (ou digite abaixo):</label>
+        <select id="manualSalePlayerSelect" style="width: 100%; padding: 10px; border-radius: 8px; background: #060f24; color: #fff; border: 1px solid var(--panel-border); margin-bottom: 8px;">
+          <option value="">-- Carregando jogadores que já logaram no servidor... --</option>
+        </select>
         <label>Nick do Jogador (Minecraft):</label>
-        <input type="text" id="manualSaleNick" required placeholder="Ex.: Guiileu">
+        <input type="text" id="manualSaleNick" list="manualSalePlayersDatalist" required placeholder="Ex.: Guiilew">
+        <datalist id="manualSalePlayersDatalist"></datalist>
       </div>
       <div class="form-group" style="margin-bottom: 14px;">
         <label>Produto do Catálogo:</label>

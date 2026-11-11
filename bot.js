@@ -3385,6 +3385,123 @@ async function publishMetaPanel(targetChannelId) {
 }
 
 
+async function createPurchaseTicketForSiteOrder(payload = {}) {
+  const { orderId, nick, items = [], total = 0, discordId, discordTag, notes } = payload;
+  if (!client.isReady()) throw new Error('O bot precisa estar online.');
+  const guild = typeof client.guilds.cache.first === 'function'
+    ? client.guilds.cache.first()
+    : client.guilds.cache.values().next().value;
+  if (!guild) throw new Error('Servidor Discord indisponível.');
+
+  const settings = getSettings();
+  let targetMember = null;
+  if (discordId) {
+    targetMember = guild.members.cache.get(String(discordId)) || await guild.members.fetch(String(discordId)).catch(() => null);
+  }
+  if (!targetMember && (discordTag || nick)) {
+    const queryStr = String(discordTag || nick || '').trim().replace(/^@/, '').toLowerCase();
+    if (queryStr) {
+      targetMember = guild.members.cache.find(m =>
+        m.user.username.toLowerCase() === queryStr ||
+        m.user.tag.toLowerCase() === queryStr ||
+        m.displayName.toLowerCase() === queryStr
+      ) || null;
+      if (!targetMember && guild.members.search) {
+        const found = await guild.members.search({ query: queryStr, limit: 5 }).catch(() => null);
+        if (found && found.size) {
+          targetMember = found.find(m =>
+            m.user.username.toLowerCase() === queryStr ||
+            m.displayName.toLowerCase() === queryStr
+          ) || (typeof found.first === 'function' ? found.first() : found.values().next().value);
+        }
+      }
+    }
+  }
+
+  const itemsText = Array.isArray(items) && items.length
+    ? items.map(i => `• **${i.name || 'Item'}** (x${i.quantity || 1}) — R$ ${Number((i.price || 0) * (i.quantity || 1)).toFixed(2).replace('.', ',')}`).join('\n')
+    : '• Itens diversos da Loja';
+  const totalFormatted = `R$ ${Number(total || 0).toFixed(2).replace('.', ',')}`;
+  const pixKey = settings.pixChave || 'contato@ravok.network';
+
+  let createdChannel = null;
+  if (targetMember) {
+    const existing = guild.channels.cache.find(c => c.topic === `kayzel-ticket-compra:${targetMember.id}`);
+    if (existing) {
+      createdChannel = existing;
+    } else {
+      const category = await resolveChannel('discordBotCategoryCompras', ['compras', 'pedidos', 'loja', 'tickets'], 'category');
+      const staffRoles = getStaffRoles(guild);
+      const staffRole = staffRoles[0] || await resolveRole('discordBotRoleStaff', ['staff', 'equipe', 'suporte', 'mod', 'admin', 'gerente'], guild);
+      const overwrites = [
+        { id: guild.id, deny: [PermissionFlagsBits.ViewChannel] },
+        { id: targetMember.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] },
+        { id: client.user.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ManageChannels, PermissionFlagsBits.ManageMessages] }
+      ];
+      for (const sr of (staffRoles.length ? staffRoles : (staffRole ? [staffRole] : []))) {
+        overwrites.push({ id: sr.id, allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.ReadMessageHistory] });
+      }
+      const cleanName = String(nick || targetMember.user.username).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 20) || targetMember.id;
+      createdChannel = await guild.channels.create({
+        name: `compra-${cleanName}`,
+        type: ChannelType.GuildText,
+        parent: category && category.type === ChannelType.GuildCategory ? category.id : undefined,
+        topic: `kayzel-ticket-compra:${targetMember.id}`,
+        permissionOverwrites: overwrites
+      });
+    }
+
+    const embed = new EmbedBuilder()
+      .setTitle(`🛒 Pedido #${orderId || 'RAVOK'} • Checkout da Loja`)
+      .setDescription(
+        `Olá ${targetMember}! Seu pedido foi gerado diretamente pelo site oficial da **Ravok Network** e já está registrado para liberação no \`/resgatar\`.\n\n` +
+        `🔑 **Chave Pix Oficial**: \`${pixKey}\`\n` +
+        `💰 **Total a Pagar**: **${totalFormatted}**\n\n` +
+        `📌 Envie o comprovante Pix aqui neste ticket para nossa Staff aprovar e liberar seus itens imediatamente!`
+      )
+      .setColor(0x00FFCC)
+      .addFields(
+        { name: '🎮 Nick Minecraft', value: `\`${nick || 'Não informado'}\``, inline: true },
+        { name: '🔖 Código', value: `\`#${orderId || 'RAVOK'}\``, inline: true },
+        { name: '🛒 Itens do Pedido', value: itemsText, inline: false }
+      )
+      .setFooter({ text: 'Kayzel • Categoria Compras' })
+      .setTimestamp();
+
+    const closeRow = new ActionRowBuilder().addComponents(
+      new ButtonBuilder()
+        .setCustomId('sys_ticket_close')
+        .setLabel('Encerrar Atendimento')
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji('🔒')
+    );
+
+    const staffRoles = getStaffRoles(guild);
+    const staffPing = staffRoles[0] ? `${staffRoles[0]} ` : '';
+    await createdChannel.send({ content: `${targetMember} ${staffPing}`.trim(), embeds: [embed], components: [closeRow] });
+  }
+
+  await sendStaffReport({
+    title: createdChannel ? `💳 Novo Ticket de Compra (#${orderId})` : `🛒 Novo Pedido Aguardando Ticket (#${orderId})`,
+    description: createdChannel
+      ? `Ticket criado automaticamente pelo site em ${createdChannel} para **${nick}**.`
+      : `O jogador **${nick}** iniciou uma compra pelo site (Discord ainda não vinculado).`,
+    fields: [
+      { name: '🎮 Nick Minecraft', value: `\`${nick || 'Jogador'}\``, inline: true },
+      { name: '💰 Valor Total', value: totalFormatted, inline: true },
+      { name: '🛒 Itens', value: itemsText, inline: false },
+      ...(notes ? [{ name: '📝 Obs.', value: notes, inline: false }] : [])
+    ],
+    color: 0xFFB703
+  }).catch(() => {});
+
+  return {
+    success: true,
+    ticketChannelId: createdChannel ? createdChannel.id : null,
+    ticketChannelUrl: createdChannel ? `https://discord.com/channels/${guild.id}/${createdChannel.id}` : null
+  };
+}
+
 async function executeRemoteBotTask(task) {
   const { action, payload = {} } = task || {};
   if (action === 'test-welcome') return await testWelcomeNotification();
@@ -3396,6 +3513,7 @@ async function executeRemoteBotTask(task) {
   if (action === 'sync-commands') return await syncCommands();
   if (action === 'sync-status-channels') return await syncServerStatusChannels();
   if (action === 'clear-channel-messages') return await clearChannelMessages(payload.channelId, payload.amount);
+  if (action === 'create-purchase-ticket') return await createPurchaseTicketForSiteOrder(payload);
   throw new Error(`Ação remota desconhecida: ${action}`);
 }
 
@@ -3523,6 +3641,7 @@ async function publishStorePanel(targetChannelId) {
 }
 
 module.exports = {
+  createPurchaseTicketForSiteOrder,
   resolveWelcomeBg,
   sendHeartbeatAndPollTasks,
   normalizeDiscordName,

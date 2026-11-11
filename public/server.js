@@ -1627,6 +1627,12 @@ function getKvConfig() {
 
 let cloudKvHydrated = false;
 let lastKvSyncAt = 0;
+const kvDiag = {
+  lastGetStatus: null,
+  lastSetStatus: null,
+  lastError: null,
+  lastPayloadBytes: 0
+};
 
 // Estado em memória para ponte MagnoHost <-> Web quando KV_URL não está configurado (ex.: local/testes)
 const bridgeMemory = {
@@ -1641,13 +1647,15 @@ async function kvGet(key) {
   try {
     const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
       headers: { Authorization: `Bearer ${token}` },
-      signal: AbortSignal.timeout(3500)
+      signal: AbortSignal.timeout(4500)
     });
+    if (key === 'ravok_db_v1') kvDiag.lastGetStatus = res.status;
     if (!res.ok) return null;
     const payload = await res.json();
     if (!payload || payload.result === null || payload.result === undefined) return null;
     return typeof payload.result === 'string' ? JSON.parse(payload.result) : payload.result;
   } catch (e) {
+    if (key === 'ravok_db_v1') kvDiag.lastError = e.message;
     console.warn(`[CloudKV] Aviso ao ler ${key}:`, e.message);
     return null;
   }
@@ -1657,17 +1665,26 @@ async function kvSet(key, data) {
   const { url, token } = getKvConfig();
   if (!url || !token) return false;
   try {
+    const serialized = JSON.stringify(data);
+    if (key === 'ravok_db_v1') kvDiag.lastPayloadBytes = serialized.length;
     const res = await fetch(`${url}/set/${encodeURIComponent(key)}`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(data),
-      signal: AbortSignal.timeout(3500)
+      body: serialized,
+      signal: AbortSignal.timeout(4500)
     });
+    if (key === 'ravok_db_v1') {
+      kvDiag.lastSetStatus = res.status;
+      if (!res.ok) {
+        kvDiag.lastError = await res.text().catch(() => `HTTP ${res.status}`);
+      }
+    }
     return res.ok;
   } catch (e) {
+    if (key === 'ravok_db_v1') kvDiag.lastError = e.message;
     console.warn(`[CloudKV] Aviso ao salvar ${key}:`, e.message);
     return false;
   }
@@ -5393,12 +5410,17 @@ app.get('/api/server/status', async (req, res) => {
 
 // Status geral do servidor / API
 app.get('/api/health', (req, res) => {
+  const { url, token } = getKvConfig();
+  const storageEnvKeys = Object.keys(process.env).filter(k => /(KV|REDIS|UPSTASH|POSTGRES|BLOB|MONGO|SUPABASE)/i.test(k));
   res.json({
     status: 'online',
     server: 'Ravok Network Backend',
     version: '1.0.0',
     time: new Date().toISOString(),
     uptime: process.uptime(),
+    kvConfigured: Boolean(url && token),
+    storageEnvKeys,
+    kvDiag,
     stats: {
       products: (db.products || []).length,
       orders: (db.orders || []).length,

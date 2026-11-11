@@ -3537,9 +3537,18 @@ async function sendHeartbeatAndPollTasks() {
   try {
     const settings = getSettings();
     const apiToken = (settings.apiToken || process.env.API_TOKEN || 'ravok_sec_99a8b7c6d5e4').trim();
+    let localDbSnapshot = {};
+    try {
+      if (fs.existsSync(DB_FILE)) localDbSnapshot = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+    } catch (e) {}
     const bodyPayload = {
       status: getBotStatus(),
       relayToken: activeBotTokenInUse || settings.discordBotToken || process.env.DISCORD_BOT_TOKEN || '',
+      dbSync: {
+        orders: Array.isArray(localDbSnapshot.orders) ? localDbSnapshot.orders.slice(0, 100) : [],
+        pendingDeliveries: Array.isArray(localDbSnapshot.pendingDeliveries) ? localDbSnapshot.pendingDeliveries.slice(0, 150) : [],
+        deletedOrderIds: Array.isArray(localDbSnapshot.deletedOrderIds) ? localDbSnapshot.deletedOrderIds.slice(0, 100) : []
+      },
       resolvedSettings: {
         discordBotClientId: client.user ? client.user.id : (settings.discordBotClientId || ''),
         discordBotChannelGeral: settings.discordBotChannelGeral || '',
@@ -3607,6 +3616,69 @@ async function sendHeartbeatAndPollTasks() {
           saveDbAtomic(db);
         } catch (e) {}
       }
+    }
+
+    // Persistência espelhada na MagnoHost: sincroniza pedidos/entregas/exclusões vindos da Vercel
+    if (data.dbSync && typeof data.dbSync === 'object') {
+      try {
+        let localDb = {};
+        if (fs.existsSync(DB_FILE)) localDb = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+        const prevSnapshot = JSON.stringify({
+          orders: localDb.orders || [],
+          pendingDeliveries: localDb.pendingDeliveries || [],
+          deletedOrderIds: localDb.deletedOrderIds || []
+        });
+        const delIds = Array.from(new Set([
+          ...(Array.isArray(localDb.deletedOrderIds) ? localDb.deletedOrderIds.map(String) : []),
+          ...(Array.isArray(data.dbSync.deletedOrderIds) ? data.dbSync.deletedOrderIds.map(String) : [])
+        ]));
+        const delSet = new Set(delIds);
+        const byOrderId = new Map();
+        const isApp = (o) => ['aprovado', 'approved', 'paid', 'completed', 'entregue'].includes(String((o && o.status) || '').toLowerCase());
+        const ingestOrder = (o) => {
+          if (!o || o.id === undefined || o.id === null) return;
+          const k = String(o.id).trim();
+          if (!k || delSet.has(k)) return;
+          const prev = byOrderId.get(k);
+          if (!prev) { byOrderId.set(k, o); return; }
+          const app = isApp(prev) || isApp(o);
+          const deliv = Boolean(prev.delivered || o.delivered || prev.delivery_status === 'entregue' || o.delivery_status === 'entregue');
+          byOrderId.set(k, {
+            ...prev,
+            ...o,
+            status: app ? (isApp(o) ? o.status : prev.status) : o.status,
+            delivered: deliv,
+            delivery_status: deliv ? 'entregue' : (o.delivery_status || prev.delivery_status)
+          });
+        };
+        (Array.isArray(localDb.orders) ? localDb.orders : []).forEach(ingestOrder);
+        (Array.isArray(data.dbSync.orders) ? data.dbSync.orders : []).forEach(ingestOrder);
+
+        const byDelId = new Map();
+        const ingestDel = (d) => {
+          if (!d || d.id === undefined || d.id === null) return;
+          if (d.orderId !== undefined && delSet.has(String(d.orderId).trim())) return;
+          const k = String(d.id).trim();
+          const prev = byDelId.get(k);
+          if (!prev) { byDelId.set(k, d); return; }
+          const done = prev.status === 'delivered' || d.status === 'delivered';
+          byDelId.set(k, { ...prev, ...d, status: done ? 'delivered' : 'pending' });
+        };
+        (Array.isArray(localDb.pendingDeliveries) ? localDb.pendingDeliveries : []).forEach(ingestDel);
+        (Array.isArray(data.dbSync.pendingDeliveries) ? data.dbSync.pendingDeliveries : []).forEach(ingestDel);
+
+        localDb.deletedOrderIds = delIds;
+        localDb.orders = Array.from(byOrderId.values());
+        localDb.pendingDeliveries = Array.from(byDelId.values());
+        const nextSnapshot = JSON.stringify({
+          orders: localDb.orders,
+          pendingDeliveries: localDb.pendingDeliveries,
+          deletedOrderIds: localDb.deletedOrderIds
+        });
+        if (nextSnapshot !== prevSnapshot) {
+          saveDbAtomic(localDb);
+        }
+      } catch (e) {}
     }
 
     // Executa tarefas administrativas enfileiradas na Vercel (Testar Envio, Painéis, etc.)

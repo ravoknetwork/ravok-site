@@ -2271,6 +2271,18 @@ async function handleDiscordCheckout() {
         } else if (data.discordInviteUrl) {
           ticketTargetUrl = data.discordInviteUrl;
         }
+        try {
+          const savedOrds = JSON.parse(localStorage.getItem('ravok_orders') || '[]');
+          const cleanSaved = Array.isArray(savedOrds) ? savedOrds.filter(o => String(o.id) !== String(orderId)) : [];
+          if (data.order) {
+            cleanSaved.unshift(data.order);
+            localStorage.setItem('ravok_orders', JSON.stringify(cleanSaved.slice(0, 100)));
+          }
+          const delOrds = JSON.parse(localStorage.getItem('ravok_deleted_orders_v1') || '[]');
+          if (Array.isArray(delOrds)) {
+            localStorage.setItem('ravok_deleted_orders_v1', JSON.stringify(delOrds.filter(d => String(d) !== String(orderId))));
+          }
+        } catch (lsErr) {}
       } else if (data && data.error) {
         toast('Aviso: ' + data.error);
       }

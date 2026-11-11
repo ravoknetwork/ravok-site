@@ -1882,6 +1882,7 @@ app.get('/api/sync-state', async (req, res) => {
     updatedAt: Number(db.updatedAt || 0),
     products: db.products,
     deletedProductIds: db.deletedProductIds || [],
+    deletedOrderIds: db.deletedOrderIds || [],
     slides: sanitizeSlides(db.slides || DEFAULT_SLIDES),
     streamers: (db.streamers || []).map(normalizeStreamer).filter(Boolean),
     feedbacks: db.feedbacks || [],
@@ -3160,7 +3161,7 @@ app.post('/api/bot/heartbeat', async (req, res) => {
   if (!isAuthorizedBotBridgeRequest(req)) {
     return res.status(401).json({ error: 'Token da API inválido.' });
   }
-  const { status, relayToken, resolvedSettings } = req.body || {};
+  const { status, relayToken, resolvedSettings, dbSync } = req.body || {};
   const existingHb = await getBridgeHeartbeat();
   const cleanRelayToken = (relayToken && String(relayToken).trim()) || (existingHb && existingHb.relayToken) || '';
   const hb = {
@@ -3171,6 +3172,7 @@ app.post('/api/bot/heartbeat', async (req, res) => {
   };
   await setBridgeHeartbeat(hb);
 
+  await readLatestDbFromCloudKv(false);
   let changed = backfillBotChannelDefaults(db.settings = db.settings || {});
   if (hb.resolvedSettings && typeof hb.resolvedSettings === 'object') {
     for (const [k, v] of Object.entries(hb.resolvedSettings)) {
@@ -3180,24 +3182,39 @@ app.post('/api/bot/heartbeat', async (req, res) => {
       }
     }
   }
-  if (changed) {
-    await readLatestDbFromCloudKv(true);
-    let updatedNow = backfillBotChannelDefaults(db.settings = db.settings || {});
-    if (hb.resolvedSettings && typeof hb.resolvedSettings === 'object') {
-      for (const [k, v] of Object.entries(hb.resolvedSettings)) {
-        if (k in VERIFIED_DISCORD_DEFAULTS && isValidDiscordSnowflake(v) && !isValidDiscordSnowflake(db.settings[k])) {
-          db.settings[k] = String(v).trim();
-          updatedNow = true;
-        }
+  if (dbSync && typeof dbSync === 'object') {
+    if (Array.isArray(dbSync.deletedOrderIds) && dbSync.deletedOrderIds.length) {
+      const mergedDel = Array.from(new Set([...(db.deletedOrderIds || []).map(String), ...dbSync.deletedOrderIds.map(String)]));
+      if (mergedDel.length !== (db.deletedOrderIds || []).length) {
+        db.deletedOrderIds = mergedDel;
+        changed = true;
       }
     }
-    if (updatedNow) await saveDbNow(db, true);
+    if (Array.isArray(dbSync.orders) && dbSync.orders.length) {
+      const prevJson = JSON.stringify(db.orders || []);
+      db.orders = mergeOrdersSafely(db.orders, dbSync.orders, db.deletedOrderIds);
+      if (JSON.stringify(db.orders) !== prevJson) changed = true;
+    }
+    if (Array.isArray(dbSync.pendingDeliveries) && dbSync.pendingDeliveries.length) {
+      const prevDelivJson = JSON.stringify(db.pendingDeliveries || []);
+      db.pendingDeliveries = mergeDeliveriesSafely(db.pendingDeliveries, dbSync.pendingDeliveries)
+        .filter(d => !d.orderId || !(db.deletedOrderIds || []).map(String).includes(String(d.orderId)));
+      if (JSON.stringify(db.pendingDeliveries) !== prevDelivJson) changed = true;
+    }
+  }
+  if (changed) {
+    await saveDbNow(db, true);
   }
 
   const tasks = await getBridgeTasksQueue();
   res.json({
     success: true,
     settings: buildSafeBridgeSettings(db.settings),
+    dbSync: {
+      orders: (db.orders || []).slice(0, 100),
+      pendingDeliveries: (db.pendingDeliveries || []).slice(0, 150),
+      deletedOrderIds: (db.deletedOrderIds || []).slice(0, 100)
+    },
     tasks
   });
 });
@@ -5131,7 +5148,12 @@ app.post('/api/admin/orders/:id/mark-delivered', async (req, res) => {
   await readLatestDbFromCloudKv(true);
   const orderId = String(req.params.id).trim();
   db.orders = db.orders || [];
-  const order = db.orders.find(o => String(o.id).trim() === orderId || String(o.externalReference || '').trim() === orderId);
+  let order = db.orders.find(o => String(o.id).trim() === orderId || String(o.externalReference || '').trim() === orderId);
+  const delSet = new Set((db.deletedOrderIds || []).map(String));
+  if (!order && req.body && req.body.order && !delSet.has(orderId)) {
+    order = { ...req.body.order, id: req.body.order.id || orderId };
+    db.orders.unshift(order);
+  }
   if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
 
   order.delivery_status = 'entregue';

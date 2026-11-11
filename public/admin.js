@@ -1310,17 +1310,32 @@ async function syncAdminFromBackend() {
       fetch('/api/admin/settings', { headers: authHeaders })
     ]);
 
+    const deletedOrderIds = Array.from(new Set([
+      ...getDeletedOrderIds(),
+      ...(state && Array.isArray(state.deletedOrderIds) ? state.deletedOrderIds.map(String) : [])
+    ]));
+    try { localStorage.setItem('ravok_deleted_orders_v1', JSON.stringify(deletedOrderIds)); } catch (e) {}
+
+    let needPushSnapshot = false;
     if (oRes.ok) {
       const serverOrders = await oRes.json();
       if (Array.isArray(serverOrders)) {
-        localStorage.setItem('ravok_orders', JSON.stringify(serverOrders));
+        const localOrders = getStoredOrders();
+        const mergedOrders = mergeClientOrders(serverOrders, localOrders, deletedOrderIds);
+        localStorage.setItem('ravok_orders', JSON.stringify(mergedOrders));
+        if (mergedOrders.length > serverOrders.length) needPushSnapshot = true;
       }
     }
     if (dRes.ok) {
       const serverDelivs = await dRes.json();
       if (Array.isArray(serverDelivs)) {
-        localStorage.setItem('ravok_pending_deliveries', JSON.stringify(serverDelivs));
+        const localDelivs = getStoredPendingDeliveries();
+        const mergedDelivs = mergeClientDeliveries(serverDelivs, localDelivs, deletedOrderIds);
+        localStorage.setItem('ravok_pending_deliveries', JSON.stringify(mergedDelivs));
       }
+    }
+    if (needPushSnapshot) {
+      saveAdminSnapshot();
     }
     if (setRes.ok) {
       const set = await setRes.json();
@@ -3995,12 +4010,71 @@ by('#clearDeliveredBtn').onclick = async () => {
 // ----------------------------------------------------
 // 8. PEDIDOS & MERCADO PAGO
 // ----------------------------------------------------
+function getDeletedOrderIds() {
+  try {
+    const raw = JSON.parse(localStorage.getItem('ravok_deleted_orders_v1') || '[]');
+    return Array.isArray(raw) ? raw.map(String) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function mergeClientOrders(serverOrders, localOrders, deletedOrderIds = []) {
+  const delSet = new Set((deletedOrderIds || []).map(String));
+  const isApprovedLike = (o) => ['aprovado', 'approved', 'paid', 'completed', 'entregue'].includes(String((o && o.status) || '').toLowerCase());
+  const byId = new Map();
+  const ingest = (o) => {
+    if (!o || o.id === undefined || o.id === null) return;
+    const idKey = String(o.id).trim();
+    if (!idKey || delSet.has(idKey)) return;
+    const prev = byId.get(idKey);
+    if (!prev) {
+      byId.set(idKey, { ...o });
+      return;
+    }
+    const approved = isApprovedLike(prev) || isApprovedLike(o);
+    const delivered = Boolean(prev.delivered || o.delivered || prev.delivery_status === 'entregue' || o.delivery_status === 'entregue');
+    byId.set(idKey, {
+      ...prev,
+      ...o,
+      status: approved ? (isApprovedLike(o) ? o.status : prev.status) : o.status,
+      approved_at: prev.approved_at || o.approved_at,
+      delivered,
+      delivery_status: delivered ? 'entregue' : (approved && (prev.delivery_status === 'aguardando_aprovacao' || o.delivery_status === 'aguardando_aprovacao') ? 'pendente' : (o.delivery_status || prev.delivery_status))
+    });
+  };
+  (Array.isArray(localOrders) ? localOrders : []).forEach(ingest);
+  (Array.isArray(serverOrders) ? serverOrders : []).forEach(ingest);
+  return Array.from(byId.values());
+}
+
+function mergeClientDeliveries(serverDelivs, localDelivs, deletedOrderIds = []) {
+  const delSet = new Set((deletedOrderIds || []).map(String));
+  const byId = new Map();
+  const ingest = (d) => {
+    if (!d || d.id === undefined || d.id === null) return;
+    if (d.orderId !== undefined && delSet.has(String(d.orderId).trim())) return;
+    const idKey = String(d.id).trim();
+    const prev = byId.get(idKey);
+    if (!prev) {
+      byId.set(idKey, { ...d });
+      return;
+    }
+    const delivered = prev.status === 'delivered' || d.status === 'delivered';
+    byId.set(idKey, { ...prev, ...d, status: delivered ? 'delivered' : 'pending', delivered_at: prev.delivered_at || d.delivered_at });
+  };
+  (Array.isArray(localDelivs) ? localDelivs : []).forEach(ingest);
+  (Array.isArray(serverDelivs) ? serverDelivs : []).forEach(ingest);
+  return Array.from(byId.values());
+}
+
 function getStoredOrders() {
+  const delSet = new Set(getDeletedOrderIds());
   const data = localStorage.getItem('ravok_orders');
   if (data) {
     try {
       const parsed = JSON.parse(data);
-      if (Array.isArray(parsed)) return parsed;
+      if (Array.isArray(parsed)) return parsed.filter(o => o && !delSet.has(String(o.id).trim()));
     } catch (e) {}
   }
   return [];
@@ -4036,11 +4110,12 @@ window.approveAdminOrder = async (orderId) => {
       }
       approvedViaServer = true;
       serverUpdatedAt = data.updatedAt || Date.now();
+      const delIds = getDeletedOrderIds();
       if (Array.isArray(data.orders)) {
-        orders = data.orders;
+        orders = mergeClientOrders(data.orders, orders, delIds);
       }
       if (Array.isArray(data.pendingDeliveries)) {
-        deliveries = data.pendingDeliveries;
+        deliveries = mergeClientDeliveries(data.pendingDeliveries, deliveries, delIds);
       } else if (Array.isArray(data.createdDeliveries) && data.createdDeliveries.length) {
         const seen = new Set(deliveries.map(d => String(d.id)));
         data.createdDeliveries.forEach(d => {
@@ -4168,12 +4243,13 @@ window.markOrderDelivered = async (orderId) => {
     try {
       const res = await fetch(`/api/admin/orders/${encodeURIComponent(orderId)}/mark-delivered`, {
         method: 'POST',
-        headers: getAdminAuthHeaders()
+        headers: getAdminAuthHeaders({ 'Content-Type': 'application/json' }),
+        body: JSON.stringify({ order: o || null })
       });
       const data = await res.json().catch(() => null);
       if (res.ok && data && data.success) {
-        if (Array.isArray(data.orders)) orders = data.orders;
-        if (Array.isArray(data.pendingDeliveries)) deliveries = data.pendingDeliveries;
+        if (Array.isArray(data.orders)) orders = mergeClientOrders(data.orders, orders, getDeletedOrderIds());
+        if (Array.isArray(data.pendingDeliveries)) deliveries = mergeClientDeliveries(data.pendingDeliveries, deliveries, getDeletedOrderIds());
         if (data.updatedAt) serverUpdatedAt = data.updatedAt;
       }
     } catch (e) {}
@@ -4191,6 +4267,8 @@ window.markOrderDelivered = async (orderId) => {
 window.deleteOrder = async (orderId) => {
   if (!confirm(`Deseja realmente excluir o pedido #${orderId}?`)) return;
 
+  const nextDeleted = Array.from(new Set([...getDeletedOrderIds(), String(orderId).trim()]));
+  try { localStorage.setItem('ravok_deleted_orders_v1', JSON.stringify(nextDeleted)); } catch (e) {}
   let orders = getStoredOrders().filter(o => String(o.id) !== String(orderId));
   localStorage.setItem('ravok_orders', JSON.stringify(orders));
 
@@ -4203,7 +4281,7 @@ window.deleteOrder = async (orderId) => {
       });
       const data = await res.json().catch(() => null);
       if (res.ok && data && Array.isArray(data.orders)) {
-        orders = data.orders;
+        orders = mergeClientOrders(data.orders, orders, nextDeleted);
         localStorage.setItem('ravok_orders', JSON.stringify(orders));
         if (data.updatedAt) serverUpdatedAt = data.updatedAt;
       }

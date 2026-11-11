@@ -496,6 +496,15 @@
       </div>
     </div>
 
+    <!-- TICKET AUTOMÁTICO PELO BOT QUANDO VINCULAR @ -->
+    <div id="dcAutoTicketRow" style="margin-bottom:14px; display:none;">
+      <label style="display:block; font-size:11px; font-weight:700; color:var(--ravok-accent-cyan); font-family:'DM Mono', monospace; margin-bottom:6px; text-transform:uppercase;">Abrir Ticket Automático pelo Bot (Seu @ do Discord):</label>
+      <div style="display:flex; gap:8px;">
+        <input type="text" id="dcOrderDiscordUser" placeholder="Ex.: guillew (seu @ do Discord)" style="flex:1; padding:10px 14px; border-radius:8px; border:1px solid var(--ravok-border-subtle); background:#120B07; color:#fff; font-size:13px;">
+        <button type="button" class="btn-primary" id="btnCreateDcTicketNow" style="padding:10px 14px; font-size:12px; white-space:nowrap;">🎫 Criar Ticket Agora</button>
+      </div>
+    </div>
+
     <!-- AÇÕES: COPIAR DETALHES & ABRIR DISCORD -->
     <div class="dc-modal-actions">
       <button type="button" class="btn-dc-copy" id="btnCopyDcOrder">
@@ -801,7 +810,7 @@
 
   <div class="toast" id="toast"></div>
 
-  <script src="app.js?v=4.3"></script>
+  <script src="app.js?v=4.5"></script>
   <!-- MODAL: DETALHES COMPLETOS E VANTAGENS DO VIP / PRODUTO -->
   <dialog id="vipDetailsModal" class="vip-modal-dialog">
     <button class="close dialog-close" data-close onclick="document.getElementById('vipDetailsModal').close()">✕</button>

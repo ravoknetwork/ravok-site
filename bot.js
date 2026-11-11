@@ -619,12 +619,12 @@ client.on('ready', async () => {
     syncSettingsFromApi().catch(() => {});
   }, 60000);
 
-  // Heartbeat e fila de ações do Painel Admin (Vercel <-> MagnoHost) a cada 6 segundos
+  // Heartbeat e fila de ações do Painel Admin (Vercel <-> MagnoHost) a cada 3.5 segundos
   if (heartbeatInterval) clearInterval(heartbeatInterval);
   setTimeout(() => { sendHeartbeatAndPollTasks().catch(() => {}); }, 1500);
   heartbeatInterval = setInterval(() => {
     sendHeartbeatAndPollTasks().catch(() => {});
-  }, 6000);
+  }, 3500);
 });
 
 // Atualizar presença do bot em tempo real com dados ao vivo do Minecraft
@@ -3398,22 +3398,35 @@ async function createPurchaseTicketForSiteOrder(payload = {}) {
   if (discordId) {
     targetMember = guild.members.cache.get(String(discordId)) || await guild.members.fetch(String(discordId)).catch(() => null);
   }
-  if (!targetMember && (discordTag || nick)) {
-    const queryStr = String(discordTag || nick || '').trim().replace(/^@/, '').toLowerCase();
-    if (queryStr) {
-      targetMember = guild.members.cache.find(m =>
-        m.user.username.toLowerCase() === queryStr ||
-        m.user.tag.toLowerCase() === queryStr ||
-        m.displayName.toLowerCase() === queryStr
-      ) || null;
-      if (!targetMember && guild.members.search) {
-        const found = await guild.members.search({ query: queryStr, limit: 5 }).catch(() => null);
-        if (found && found.size) {
-          targetMember = found.find(m =>
-            m.user.username.toLowerCase() === queryStr ||
-            m.displayName.toLowerCase() === queryStr
-          ) || (typeof found.first === 'function' ? found.first() : found.values().next().value);
-        }
+  const candidateQueries = Array.from(new Set([discordTag, nick].filter(Boolean).map(v => String(v).trim().replace(/^@/, '').toLowerCase())));
+  for (const queryStr of candidateQueries) {
+    if (targetMember) break;
+    const normQuery = normalizeDiscordName(queryStr);
+    const matchMember = (m) => {
+      if (!m || !m.user) return false;
+      const uname = m.user.username.toLowerCase();
+      const utag = (m.user.tag || '').toLowerCase();
+      const gname = (m.user.globalName || '').toLowerCase();
+      const dname = (m.displayName || '').toLowerCase();
+      return uname === queryStr || utag === queryStr || gname === queryStr || dname === queryStr ||
+        (normQuery.length >= 3 && (normalizeDiscordName(uname) === normQuery || normalizeDiscordName(dname) === normQuery || normalizeDiscordName(gname) === normQuery));
+    };
+
+    targetMember = guild.members.cache.find(matchMember) || null;
+    if (!targetMember) {
+      const searched = guild.members.search
+        ? await guild.members.search({ query: queryStr.slice(0, 32), limit: 10 }).catch(() => null)
+        : await guild.members.fetch({ query: queryStr.slice(0, 32), limit: 10 }).catch(() => null);
+      if (searched && searched.size) {
+        targetMember = searched.find(matchMember) || null;
+      }
+    }
+    if (!targetMember && normQuery && normQuery !== queryStr) {
+      const searchedNorm = guild.members.search
+        ? await guild.members.search({ query: normQuery.slice(0, 32), limit: 10 }).catch(() => null)
+        : null;
+      if (searchedNorm && searchedNorm.size) {
+        targetMember = searchedNorm.find(matchMember) || null;
       }
     }
   }

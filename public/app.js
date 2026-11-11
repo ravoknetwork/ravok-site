@@ -24,6 +24,14 @@
 let cart = [];
 const money = v => Number(v || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 const by = s => document.querySelector(s);
+function escapeHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+}
+function saveCart() {
+  try {
+    localStorage.setItem('ravok_cart_v1', JSON.stringify(cart));
+  } catch (e) {}
+}
 // Catálogo padrão de produtos
 // Catálogo padrão de produtos - Temporada 3 (Outono & Pôr do Sol) - Estilo ReallyWorld
 // Catálogo padrão de produtos - Temporada 3 (Outono & Pôr do Sol) - Estilo ReallyWorld
@@ -2212,14 +2220,31 @@ async function handleDiscordCheckout() {
   }
 
   const total = getCartTotal();
+  const cartSnapshot = cart.map(i => ({ ...i }));
   let orderId = 'RV-' + Math.floor(1000 + Math.random() * 9000);
-  const itemsText = cart.map(i => '• ' + i.name + ' (x' + (i.quantity || 1) + ') - ' + money(i.price * (i.quantity || 1))).join('\n');
+  const itemsText = cartSnapshot.map(i => '• ' + i.name + ' (x' + (i.quantity || 1) + ') - ' + money(i.price * (i.quantity || 1))).join('\n');
   const pixKey = 'contato@ravok.network';
   let ticketTargetUrl = cachedDiscordTicketUrl || cachedDiscordInviteUrl || 'https://discord.gg/nBNjvvxzf6';
   let ticketAutoCreated = false;
+  const savedDiscordUser = localStorage.getItem('ravokDiscordUser') || '';
+
+  // Preenche dados iniciais no modal do Discord antes de abrir
+  if (by('#dcOrderNick')) by('#dcOrderNick').textContent = player;
+  if (by('#dcOrderTotal')) by('#dcOrderTotal').textContent = money(total);
+  if (by('#dcOrderId')) by('#dcOrderId').textContent = '#' + orderId;
+  if (by('#dcOrderItems')) {
+    by('#dcOrderItems').innerHTML = cartSnapshot.map(i =>
+      '<div style="display:flex; justify-content:space-between; font-size:12.5px; padding:3px 0;">' +
+      '<span>' + escapeHtml(i.name) + ' x' + (i.quantity || 1) + '</span>' +
+      '<strong style="color:var(--amber-gold);">' + money(i.price * (i.quantity || 1)) + '</strong>' +
+      '</div>'
+    ).join('');
+  }
+  if (by('#dcOrderPixKey')) by('#dcOrderPixKey').value = pixKey;
 
   // Registrar pedido no backend como discord_ticket
   if (window.location.protocol.startsWith('http')) {
+    toast('⏳ Registrando pedido e preparando ticket no Discord...');
     try {
       const res = await fetch('/api/orders/manual', {
         method: 'POST',
@@ -2227,7 +2252,8 @@ async function handleDiscordCheckout() {
         body: JSON.stringify({
           id: orderId,
           nick: player,
-          items: cart,
+          discordTag: savedDiscordUser,
+          items: cartSnapshot,
           total: total,
           paymentMethod: 'discord_ticket',
           coupon: activeCoupon ? activeCoupon.code : ''
@@ -2236,6 +2262,7 @@ async function handleDiscordCheckout() {
       const data = await res.json().catch(() => null);
       if (res.ok && data && data.success) {
         if (data.orderId) orderId = data.orderId;
+        if (by('#dcOrderId')) by('#dcOrderId').textContent = '#' + orderId;
         if (data.ticketChannelUrl) {
           ticketTargetUrl = data.ticketChannelUrl;
           ticketAutoCreated = true;
@@ -2244,9 +2271,11 @@ async function handleDiscordCheckout() {
         } else if (data.discordInviteUrl) {
           ticketTargetUrl = data.discordInviteUrl;
         }
+      } else if (data && data.error) {
+        toast('Aviso: ' + data.error);
       }
     } catch (e) {
-      console.warn('Registro offline do pedido.');
+      console.warn('Registro offline do pedido:', e);
     }
   }
 
@@ -2264,29 +2293,61 @@ async function handleDiscordCheckout() {
     '📝 *Comprovante Pix anexado para liberação no `/resgatar`!*'
   ].join('\n');
 
-  // Preenche dados no modal do Discord
-  if (by('#dcOrderNick')) by('#dcOrderNick').textContent = player;
-  if (by('#dcOrderTotal')) by('#dcOrderTotal').textContent = money(total);
-  if (by('#dcOrderId')) by('#dcOrderId').textContent = '#' + orderId;
-  if (by('#dcOrderItems')) {
-    by('#dcOrderItems').innerHTML = cart.map(i => 
-      '<div style="display:flex; justify-content:space-between; font-size:12.5px; padding:3px 0;">' +
-      '<span>' + escapeHtml(i.name) + ' x' + (i.quantity || 1) + '</span>' +
-      '<strong style="color:var(--amber-gold);">' + money(i.price * (i.quantity || 1)) + '</strong>' +
-      '</div>'
-    ).join('');
-  }
-  if (by('#dcOrderPixKey')) by('#dcOrderPixKey').value = pixKey;
-
   const openTicketBtn = by('#btnOpenDiscordTicket');
-  if (openTicketBtn) {
-    openTicketBtn.href = ticketTargetUrl;
+  const setOpenTicketLink = (url, isDirect) => {
+    if (!openTicketBtn) return;
+    openTicketBtn.href = url;
     const labelSpan = openTicketBtn.querySelector('span');
     if (labelSpan) {
-      labelSpan.textContent = ticketAutoCreated
+      labelSpan.textContent = isDirect
         ? 'Abrir Seu Ticket Criado no Discord ↗'
         : 'Abrir Discord & Criar Ticket na Categoria Compras ↗';
     }
+  };
+  setOpenTicketLink(ticketTargetUrl, ticketAutoCreated);
+
+  const autoTicketRow = by('#dcAutoTicketRow');
+  const dcUserInput = by('#dcOrderDiscordUser');
+  const createTicketNowBtn = by('#btnCreateDcTicketNow');
+  if (autoTicketRow) {
+    autoTicketRow.style.display = ticketAutoCreated ? 'none' : 'block';
+  }
+  if (dcUserInput) {
+    dcUserInput.value = savedDiscordUser;
+  }
+  if (createTicketNowBtn) {
+    createTicketNowBtn.disabled = false;
+    createTicketNowBtn.textContent = '🎫 Criar Ticket Agora';
+    createTicketNowBtn.onclick = async () => {
+      const tag = dcUserInput ? dcUserInput.value.trim() : '';
+      if (!tag) {
+        return toast('Digite seu @ do Discord (ex.: guillew) para o bot abrir o canal privado!');
+      }
+      localStorage.setItem('ravokDiscordUser', tag);
+      createTicketNowBtn.disabled = true;
+      createTicketNowBtn.textContent = 'Criando...';
+      try {
+        const tRes = await fetch(`/api/orders/${encodeURIComponent(orderId)}/open-ticket`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ nick: player, discordTag: tag, items: cartSnapshot, total })
+        });
+        const tData = await tRes.json().catch(() => null);
+        if (tRes.ok && tData && tData.ticketChannelUrl) {
+          setOpenTicketLink(tData.ticketChannelUrl, true);
+          if (autoTicketRow) autoTicketRow.style.display = 'none';
+          toast('✓ Ticket criado na categoria Compras! Abrindo no Discord...');
+          window.open(tData.ticketChannelUrl, '_blank');
+        } else {
+          toast((tData && tData.error) || 'Não encontramos esse @ no servidor do Discord. Entre pelo botão abaixo e abra no canal #abrir-ticket!');
+        }
+      } catch (err) {
+        toast('Erro de conexão ao solicitar criação do ticket.');
+      } finally {
+        createTicketNowBtn.disabled = false;
+        createTicketNowBtn.textContent = '🎫 Criar Ticket Agora';
+      }
+    };
   }
 
   // Botão copiar dados
@@ -2304,17 +2365,19 @@ async function handleDiscordCheckout() {
 
   // Auto-copia para agilizar para o jogador
   try {
-    await navigator.clipboard.writeText(discordMsg);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(discordMsg);
+    }
     toast(ticketAutoCreated
       ? '✓ Ticket criado na categoria Compras e pedido copiado!'
-      : '✓ Pedido salvo e copiado! Clique em Abrir Discord para criar o Ticket.');
+      : '✓ Pedido #' + orderId + ' salvo e copiado!');
   } catch (err) {
-    toast('✓ Pedido #' + orderId + ' registrado! Abra o Discord para enviar o comprovante.');
+    toast('✓ Pedido #' + orderId + ' registrado! Use os botões abaixo para finalizar no Discord.');
   }
 
   closeAll();
   const modal = by('#discordOrderModal') || by('#adminOrderModal');
-  if (modal) {
+  if (modal && typeof modal.showModal === 'function') {
     modal.showModal();
   } else {
     window.open(ticketTargetUrl, '_blank');

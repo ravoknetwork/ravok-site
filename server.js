@@ -3164,7 +3164,17 @@ app.post('/api/bot/heartbeat', async (req, res) => {
     }
   }
   if (changed) {
-    await saveDbNow(db, true);
+    await readLatestDbFromCloudKv(true);
+    let updatedNow = backfillBotChannelDefaults(db.settings = db.settings || {});
+    if (hb.resolvedSettings && typeof hb.resolvedSettings === 'object') {
+      for (const [k, v] of Object.entries(hb.resolvedSettings)) {
+        if (k in VERIFIED_DISCORD_DEFAULTS && isValidDiscordSnowflake(v) && !isValidDiscordSnowflake(db.settings[k])) {
+          db.settings[k] = String(v).trim();
+          updatedNow = true;
+        }
+      }
+    }
+    if (updatedNow) await saveDbNow(db, true);
   }
 
   const tasks = await getBridgeTasksQueue();
@@ -4859,6 +4869,57 @@ app.delete('/api/admin/delivery/:id', async (req, res) => {
   res.json({ success: true, removed: initialLen !== db.pendingDeliveries.length, updatedAt: db.updatedAt });
 });
 
+async function tryCreateDiscordPurchaseTicket(ticketPayload, cleanItems, orderTotal) {
+  let ticketChannelUrl = null;
+  let ticketChannelId = null;
+
+  if (isLocalBotOnline() && typeof bot.createPurchaseTicketForSiteOrder === 'function') {
+    const ticketRes = await bot.createPurchaseTicketForSiteOrder(ticketPayload);
+    return {
+      ticketChannelUrl: ticketRes && ticketRes.ticketChannelUrl ? ticketRes.ticketChannelUrl : null,
+      ticketChannelId: ticketRes && ticketRes.ticketChannelId ? ticketRes.ticketChannelId : null
+    };
+  }
+
+  const hb = await getBridgeHeartbeat();
+  const hbOnline = Boolean(hb && hb.status && hb.status.online && (Date.now() - Number(hb.receivedAt || 0)) < HEARTBEAT_TTL_MS);
+  const token = getEffectiveDiscordToken(hb);
+
+  if (hbOnline) {
+    const task = await enqueueBridgeTask('create-purchase-ticket', ticketPayload);
+    const deadline = Date.now() + 6800;
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, 300));
+      const updated = await getBridgeTaskResult(task.id);
+      if (updated && updated.status === 'done' && updated.result) {
+        ticketChannelUrl = updated.result.ticketChannelUrl || null;
+        ticketChannelId = updated.result.ticketChannelId || null;
+        break;
+      }
+      if (updated && updated.status === 'error') break;
+    }
+  } else if (token) {
+    const relCh = getVerifiedChannelId('discordBotChannelRelatorios');
+    const itemsSummary = (cleanItems || []).map(i => `• **${i.name}** (x${i.quantity || 1})`).join('\n') || '• Itens da Loja';
+    await discordRestRequest(token, 'POST', `/channels/${relCh}/messages`, {
+      embeds: [{
+        title: `🛒 Novo Pedido Aguardando Ticket (#${ticketPayload.orderId})`,
+        description: `O jogador **${ticketPayload.nick}** gerou um pedido pelo site para finalizar na categoria Compras!`,
+        color: 0xFFB703,
+        fields: [
+          { name: '🎮 Nick Minecraft', value: `\`${ticketPayload.nick}\``, inline: true },
+          { name: '💰 Valor Total', value: `R$ ${Number(orderTotal || 0).toFixed(2).replace('.', ',')}`, inline: true },
+          { name: '🛒 Itens', value: itemsSummary, inline: false }
+        ],
+        footer: { text: 'Ravok Network • Checkout Discord' },
+        timestamp: new Date().toISOString()
+      }]
+    }).catch(() => {});
+  }
+
+  return { ticketChannelUrl, ticketChannelId };
+}
+
 // ----------------------------------------------------
 // CRIAÇÃO DE PEDIDO MANUAL VIA DISCORD TICKET (COMPRAS) / PIX DIRETO
 // ----------------------------------------------------
@@ -4918,52 +4979,9 @@ app.post('/api/orders/manual', async (req, res) => {
   };
 
   try {
-    if (isLocalBotOnline() && typeof bot.createPurchaseTicketForSiteOrder === 'function') {
-      const ticketRes = await bot.createPurchaseTicketForSiteOrder(ticketPayload);
-      ticketChannelUrl = ticketRes && ticketRes.ticketChannelUrl;
-      ticketChannelId = ticketRes && ticketRes.ticketChannelId;
-    } else {
-      const hb = await getBridgeHeartbeat();
-      const hbOnline = Boolean(hb && hb.status && hb.status.online && (Date.now() - Number(hb.receivedAt || 0)) < HEARTBEAT_TTL_MS);
-      const token = getEffectiveDiscordToken(hb);
-      if (hbOnline && (ticketPayload.discordId || ticketPayload.discordTag)) {
-        // Quando usuário possui vínculo Discord, aguarda criação automática do canal #compra-<nick>
-        const task = await enqueueBridgeTask('create-purchase-ticket', ticketPayload);
-        const deadline = Date.now() + 4500;
-        while (Date.now() < deadline) {
-          await new Promise(r => setTimeout(r, 300));
-          const updated = await getBridgeTaskResult(task.id);
-          if (updated && updated.status === 'done' && updated.result) {
-            ticketChannelUrl = updated.result.ticketChannelUrl || null;
-            ticketChannelId = updated.result.ticketChannelId || null;
-            break;
-          }
-          if (updated && updated.status === 'error') break;
-        }
-      } else {
-        if (hbOnline) {
-          await enqueueBridgeTask('create-purchase-ticket', ticketPayload).catch(() => {});
-        }
-        if (token) {
-          const relCh = getVerifiedChannelId('discordBotChannelRelatorios');
-          const itemsSummary = cleanItems.map(i => `• **${i.name}** (x${i.quantity})`).join('\n') || '• Itens da Loja';
-          await discordRestRequest(token, 'POST', `/channels/${relCh}/messages`, {
-            embeds: [{
-              title: `🛒 Novo Pedido Aguardando Ticket (#${orderId})`,
-              description: `O jogador **${cleanNick}** gerou um pedido pelo site para finalizar na categoria Compras!`,
-              color: 0xFFB703,
-              fields: [
-                { name: '🎮 Nick Minecraft', value: `\`${cleanNick}\``, inline: true },
-                { name: '💰 Valor Total', value: `R$ ${Number(newOrder.total).toFixed(2).replace('.', ',')}`, inline: true },
-                { name: '🛒 Itens', value: itemsSummary, inline: false }
-              ],
-              footer: { text: 'Ravok Network • Checkout Discord' },
-              timestamp: new Date().toISOString()
-            }]
-          }).catch(() => {});
-        }
-      }
-    }
+    const tRes = await tryCreateDiscordPurchaseTicket(ticketPayload, cleanItems, newOrder.total);
+    ticketChannelUrl = tRes.ticketChannelUrl;
+    ticketChannelId = tRes.ticketChannelId;
   } catch (ticketErr) {
     console.warn('[Discord Ticket Order] Aviso ao notificar Discord:', ticketErr.message);
   }
@@ -4982,6 +5000,37 @@ app.post('/api/orders/manual', async (req, res) => {
       ? 'Ticket de compra criado automaticamente no Discord e pedido registrado!'
       : 'Pedido registrado com sucesso! Abra seu ticket na categoria Compras do Discord para liberação no /resgatar.'
   });
+});
+
+// Abrir ticket na categoria Compras manualmente informando @ do Discord
+app.post('/api/orders/:id/open-ticket', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
+  const orderId = String(req.params.id || '').trim();
+  const { nick, discordTag, items, total } = req.body || {};
+  const existing = (db.orders || []).find(o => String(o.id).trim() === orderId);
+  const cleanNick = String((existing && existing.nick) || nick || 'Jogador').trim();
+  const cleanTag = String(discordTag || '').trim();
+  if (!cleanTag) {
+    return res.status(400).json({ error: 'Informe seu usuário @ do Discord para abrir o ticket.' });
+  }
+  const orderItems = (existing && existing.items) || (Array.isArray(items) ? items : []);
+  const orderTotal = existing ? existing.total : (Number(total) || 0);
+
+  try {
+    const tRes = await tryCreateDiscordPurchaseTicket(
+      { orderId, nick: cleanNick, discordTag: cleanTag, items: orderItems, total: orderTotal },
+      orderItems,
+      orderTotal
+    );
+    if (tRes && tRes.ticketChannelUrl) {
+      return res.json({ success: true, ...tRes });
+    }
+    return res.status(404).json({
+      error: `Usuário "${cleanTag}" não foi encontrado no servidor do Discord ou o bot demorou para responder.`
+    });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
+  }
 });
 
 // ----------------------------------------------------

@@ -946,11 +946,11 @@ function upgradeProductCatalog(list, deletedProductIds = null) {
 
   let activeDeleted = Array.isArray(deletedProductIds)
     ? deletedProductIds
-    : (typeof db !== 'undefined' && Array.isArray(db.deletedProductIds) ? db.deletedProductIds : []);
+    : (typeof db !== 'undefined' && db && Array.isArray(db.deletedProductIds) ? db.deletedProductIds : []);
   
   // NUNCA permite que comandos padrão fiquem marcados como deletados
   activeDeleted = activeDeleted.filter(id => !PROTECTED_COMMAND_IDS.includes(String(id)));
-  if (typeof db !== 'undefined' && Array.isArray(db.deletedProductIds)) {
+  if (typeof db !== 'undefined' && db && Array.isArray(db.deletedProductIds)) {
     db.deletedProductIds = db.deletedProductIds.filter(id => !PROTECTED_COMMAND_IDS.includes(String(id)));
   }
   const delSet = new Set(activeDeleted.map(String));
@@ -1190,6 +1190,105 @@ const DEFAULT_STREAMERS = [
   }
 ];
 
+// IDs estruturais verificados do servidor Discord oficial (zero segredos)
+const VERIFIED_DISCORD_DEFAULTS = {
+  discordBotClientId: '1529247701529792612',
+  discordBotChannelGeral: '1529655096559013958',
+  discordBotChannelBoasVindas: '1529653781946568744',
+  discordBotChannelRegras: '1529653888393674852',
+  discordBotChannelVendas: '1533504518967525386',
+  discordBotChannelContagem: '1529655215450488842',
+  discordBotChannelConfissoes: '1529655278742667356',
+  discordBotChannelTickets: '1529654761513812089',
+  discordBotChannelSugestoes: '1529654801208574053',
+  discordBotChannelFeedbacks: '1529654925565497404',
+  discordBotChannelRecrutamento: '1529654975704207470',
+  discordBotChannelLives: '1529655710328160287',
+  discordBotChannelVideos: '1529655710328160287',
+  discordBotChannelMemes: '1529655137042305096',
+  discordBotChannelMusica: '1529656974160166962',
+  discordBotChannelAnuncios: '1529654335816994907',
+  discordBotChannelRelatorios: '1529656705905066014',
+  discordBotChannelPunicoes: '1529656705905066014',
+  aiChannelId: '1529656822112325753',
+  discordBotChannelStatusJogadores: '1529648354928234548',
+  discordBotChannelStatusServer: '1529648417066975272',
+  discordBotChannelStatusPing: '1529648465309864016',
+  discordBotChannelMetaVendas: '1533504518967525386',
+  discordBotCategoryCompras: '1533505017808425091',
+  discordBotCategoryTickets: '1533531370142568643',
+  discordBotCategoryRecrutamento: '1529656235115151371',
+  discordBotRoleVinculado: '1491951156547682386',
+  discordBotRoleAcesso: '1491951282955620362'
+};
+
+function isValidDiscordSnowflake(value) {
+  return /^\d{17,20}$/.test(String(value || '').trim());
+}
+
+function backfillBotChannelDefaults(settings) {
+  if (!settings || typeof settings !== 'object') return false;
+  let changed = false;
+  for (const [key, defaultVal] of Object.entries(VERIFIED_DISCORD_DEFAULTS)) {
+    if (!isValidDiscordSnowflake(settings[key])) {
+      settings[key] = defaultVal;
+      changed = true;
+    }
+  }
+  if (settings.welcomeBgUrl === undefined || settings.welcomeBgUrl === null) {
+    settings.welcomeBgUrl = 'images/gallery/por_do_sol_canyon.png';
+    changed = true;
+  }
+  return changed;
+}
+
+function buildSafeBridgeSettings(s = {}) {
+  const clean = { ...s };
+  backfillBotChannelDefaults(clean);
+  return {
+    serverIp: clean.serverIp || clean.minecraftIp || 'jogar.ravok.network',
+    discordInviteUrl: clean.discordInviteUrl || 'https://discord.gg',
+    discordBotClientId: clean.discordBotClientId || VERIFIED_DISCORD_DEFAULTS.discordBotClientId,
+    welcomeBgUrl: clean.welcomeBgUrl !== undefined ? clean.welcomeBgUrl : 'images/gallery/por_do_sol_canyon.png',
+    welcomeEnabled: clean.welcomeEnabled !== false,
+    countingCurrentNumber: Number(clean.countingCurrentNumber || 0),
+    goalMode: clean.goalMode === 'manual' ? 'manual' : 'auto',
+    goalManualPercent: Number(clean.goalManualPercent || 0),
+    metaVendasValor: Number(clean.metaVendasValor !== undefined ? clean.metaVendasValor : 300),
+    metaVendasBase: Number(clean.metaVendasBase !== undefined ? clean.metaVendasBase : 33),
+    aiEnabled: clean.aiEnabled !== false,
+    aiModel: clean.aiModel || 'gemini-1.5-flash',
+    aiChannelId: clean.aiChannelId || VERIFIED_DISCORD_DEFAULTS.aiChannelId,
+    aiPrompt: clean.aiPrompt || '',
+    discordBotChannelGeral: clean.discordBotChannelGeral,
+    discordBotChannelBoasVindas: clean.discordBotChannelBoasVindas,
+    discordBotChannelRegras: clean.discordBotChannelRegras,
+    discordBotChannelVendas: clean.discordBotChannelVendas,
+    discordBotChannelContagem: clean.discordBotChannelContagem,
+    discordBotChannelConfissoes: clean.discordBotChannelConfissoes,
+    discordBotChannelTickets: clean.discordBotChannelTickets,
+    discordBotChannelSugestoes: clean.discordBotChannelSugestoes,
+    discordBotChannelFeedbacks: clean.discordBotChannelFeedbacks,
+    discordBotChannelRecrutamento: clean.discordBotChannelRecrutamento,
+    discordBotChannelLives: clean.discordBotChannelLives,
+    discordBotChannelVideos: clean.discordBotChannelVideos,
+    discordBotChannelMemes: clean.discordBotChannelMemes,
+    discordBotChannelMusica: clean.discordBotChannelMusica,
+    discordBotChannelAnuncios: clean.discordBotChannelAnuncios,
+    discordBotChannelRelatorios: clean.discordBotChannelRelatorios,
+    discordBotChannelPunicoes: clean.discordBotChannelPunicoes,
+    discordBotChannelStatusJogadores: clean.discordBotChannelStatusJogadores,
+    discordBotChannelStatusServer: clean.discordBotChannelStatusServer,
+    discordBotChannelStatusPing: clean.discordBotChannelStatusPing,
+    discordBotChannelMetaVendas: clean.discordBotChannelMetaVendas,
+    discordBotCategoryCompras: clean.discordBotCategoryCompras,
+    discordBotCategoryTickets: clean.discordBotCategoryTickets,
+    discordBotCategoryRecrutamento: clean.discordBotCategoryRecrutamento,
+    discordBotRoleVinculado: clean.discordBotRoleVinculado,
+    discordBotRoleAcesso: clean.discordBotRoleAcesso
+  };
+}
+
 const DEFAULT_SETTINGS = {
   apiUrl: process.env.API_URL || 'https://ravok-site.vercel.app',
   apiToken: process.env.PLUGIN_API_TOKEN || 'ravok_sec_99a8b7c6d5e4',
@@ -1204,10 +1303,8 @@ const DEFAULT_SETTINGS = {
   discordInviteUrl: 'https://discord.gg',
   discordWebhookUrl: '',
   discordBotToken: '',
-  discordBotClientId: '',
-  discordBotChannelVendas: '',
-  discordBotChannelFeedbacks: '',
-  discordBotChannelAnuncios: ''
+  welcomeBgUrl: 'images/gallery/por_do_sol_canyon.png',
+  ...VERIFIED_DISCORD_DEFAULTS
 };
 
 const DEFAULT_VOTE_ARENA = {
@@ -1404,53 +1501,104 @@ function computeGoalStatus() {
 }
 
 // Suporte opcional a persistência em nuvem via Vercel KV / Upstash Redis REST
-const KV_URL = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
-const KV_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
-let cloudKvHydrated = false;
+function getKvConfig() {
+  const url = (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '').trim();
+  const token = (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
+  return { url: url.replace(/\/$/, ''), token };
+}
 
-async function saveDbToCloudKv(data) {
-  if (!KV_URL || !KV_TOKEN) return;
+let cloudKvHydrated = false;
+let lastKvSyncAt = 0;
+
+// Estado em memória para ponte MagnoHost <-> Web quando KV_URL não está configurado (ex.: local/testes)
+const bridgeMemory = {
+  heartbeat: null,
+  tasks: [],
+  taskResults: {}
+};
+
+async function kvGet(key) {
+  const { url, token } = getKvConfig();
+  if (!url || !token) return null;
   try {
-    await fetch(`${KV_URL.replace(/\/$/, '')}/set/ravok_db_v1`, {
+    const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(3500)
+    });
+    if (!res.ok) return null;
+    const payload = await res.json();
+    if (!payload || payload.result === null || payload.result === undefined) return null;
+    return typeof payload.result === 'string' ? JSON.parse(payload.result) : payload.result;
+  } catch (e) {
+    console.warn(`[CloudKV] Aviso ao ler ${key}:`, e.message);
+    return null;
+  }
+}
+
+async function kvSet(key, data) {
+  const { url, token } = getKvConfig();
+  if (!url || !token) return false;
+  try {
+    const res = await fetch(`${url}/set/${encodeURIComponent(key)}`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${KV_TOKEN}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify(data),
       signal: AbortSignal.timeout(3500)
     });
+    return res.ok;
   } catch (e) {
-    console.warn('[CloudKV] Aviso ao salvar no KV:', e.message);
+    console.warn(`[CloudKV] Aviso ao salvar ${key}:`, e.message);
+    return false;
   }
+}
+
+async function saveDbToCloudKvNow(data) {
+  return await kvSet('ravok_db_v1', data);
+}
+
+function saveDbToCloudKv(data) {
+  return saveDbToCloudKvNow(data);
+}
+
+async function readLatestDbFromCloudKv(force = false) {
+  const { url, token } = getKvConfig();
+  if (!url || !token) return db;
+  const now = Date.now();
+  if (!force && cloudKvHydrated && (now - lastKvSyncAt) < 2500) {
+    return db;
+  }
+  cloudKvHydrated = true;
+  lastKvSyncAt = now;
+  const remoteDb = await kvGet('ravok_db_v1');
+  if (remoteDb && typeof remoteDb === 'object') {
+    const remoteTs = Number(remoteDb.updatedAt || 0);
+    const localTs = Number(db.updatedAt || 0);
+    if (remoteTs > localTs || (force && remoteTs >= localTs)) {
+      db = { ...db, ...remoteDb };
+      db.settings = { ...DEFAULT_SETTINGS, ...(db.settings || {}) };
+      backfillBotChannelDefaults(db.settings);
+      saveDb(db, false);
+    }
+  }
+  return db;
 }
 
 async function hydrateDbFromCloudKvOnce() {
-  if (cloudKvHydrated || !KV_URL || !KV_TOKEN) return;
-  cloudKvHydrated = true;
-  try {
-    const res = await fetch(`${KV_URL.replace(/\/$/, '')}/get/ravok_db_v1`, {
-      headers: { Authorization: `Bearer ${KV_TOKEN}` },
-      signal: AbortSignal.timeout(3500)
-    });
-    if (res.ok) {
-      const payload = await res.json();
-      if (payload && payload.result) {
-        const remoteDb = typeof payload.result === 'string' ? JSON.parse(payload.result) : payload.result;
-        if (remoteDb && Number(remoteDb.updatedAt || 0) > Number(db.updatedAt || 0)) {
-          db = { ...db, ...remoteDb };
-          saveDb(db, false);
-        }
-      }
-    }
-  } catch (e) {
-    console.warn('[CloudKV] Aviso ao hidratar do KV:', e.message);
-  }
+  if (cloudKvHydrated) return;
+  await readLatestDbFromCloudKv(true);
 }
 
 app.use(async (req, res, next) => {
-  if (KV_URL && KV_TOKEN && !cloudKvHydrated && req.path.startsWith('/api/')) {
-    await hydrateDbFromCloudKvOnce();
+  if (req.path.startsWith('/api/')) {
+    const { url, token } = getKvConfig();
+    if (url && token) {
+      if (!cloudKvHydrated || req.path.startsWith('/api/admin/bot/') || req.path.startsWith('/api/bot/')) {
+        await readLatestDbFromCloudKv(false);
+      }
+    }
   }
   next();
 });
@@ -1481,6 +1629,7 @@ function loadDb() {
       }
       parsed.playerAccounts = parsed.playerAccounts || {};
       parsed.settings = { ...DEFAULT_SETTINGS, ...(parsed.settings || {}) };
+      backfillBotChannelDefaults(parsed.settings);
       if (!parsed.settings.apiUrl || parsed.settings.apiUrl.includes('localhost') || parsed.settings.apiUrl.includes('198.1.195.214') || parsed.settings.apiUrl.includes('loja.ravok.network')) {
         parsed.settings.apiUrl = process.env.API_URL || 'https://ravok-site.vercel.app';
       }
@@ -1542,11 +1691,8 @@ function loadDb() {
   return initialDb;
 }
 
-function saveDb(data, touchUpdatedAt = true) {
+function writeLocalDbFiles(data) {
   try {
-    if (touchUpdatedAt) {
-      data.updatedAt = Date.now();
-    }
     const tempFile = `${DB_FILE}.tmp.${Date.now()}.${Math.floor(Math.random() * 10000)}`;
     fs.writeFileSync(tempFile, JSON.stringify(data, null, 2), 'utf8');
     fs.renameSync(tempFile, DB_FILE);
@@ -1555,18 +1701,40 @@ function saveDb(data, touchUpdatedAt = true) {
         fs.writeFileSync(path.join(__dirname, 'db.seed.json'), JSON.stringify(data, null, 2), 'utf8');
       } catch (seedSaveErr) {}
     }
-    if (touchUpdatedAt) {
-      saveDbToCloudKv(data).catch(() => {});
-    }
   } catch (err) {
-    console.error('[DB] Erro ao salvar db.json:', err);
+    if (!process.env.VERCEL) {
+      console.error('[DB] Erro ao salvar db.json:', err);
+    }
   }
 }
 
-let db = loadDb();
+function saveDb(data, touchUpdatedAt = true) {
+  if (touchUpdatedAt) {
+    data.updatedAt = Math.max(Date.now(), Number(data.updatedAt || 0) + 1);
+  }
+  writeLocalDbFiles(data);
+  if (touchUpdatedAt) {
+    saveDbToCloudKvNow(data).catch(() => {});
+  }
+}
+
+async function saveDbNow(data, touchUpdatedAt = true) {
+  if (touchUpdatedAt) {
+    data.updatedAt = Math.max(Date.now(), Number(data.updatedAt || 0) + 1);
+  }
+  writeLocalDbFiles(data);
+  if (touchUpdatedAt) {
+    await saveDbToCloudKvNow(data);
+  }
+}
+
+var db = null;
+db = loadDb();
 
 // Endpoint unificado de sincronização rápida para a Home e Admin
-app.get('/api/sync-state', (req, res) => {
+app.get('/api/sync-state', async (req, res) => {
+  await readLatestDbFromCloudKv(false);
+  backfillBotChannelDefaults(db.settings = db.settings || {});
   const BANNED_SYNC = new Set(['pet-dino', 'pet-cubee', 'voucher-skin-aleatoria', 'voucher-skin', 'mystery-skins', 'cosmetic-fire', 'cosmetic-sword']);
   db.products = upgradeProductCatalog(db.products || DEFAULT_PRODUCTS, db.deletedProductIds).filter(p => p && !BANNED_SYNC.has(String(p.id)));
   res.json({
@@ -1578,7 +1746,8 @@ app.get('/api/sync-state', (req, res) => {
     streamers: (db.streamers || []).map(normalizeStreamer).filter(Boolean),
     feedbacks: db.feedbacks || [],
     goal: computeGoalStatus(),
-    discordInviteUrl: (db.settings && db.settings.discordInviteUrl) || 'https://discord.gg'
+    discordInviteUrl: (db.settings && db.settings.discordInviteUrl) || 'https://discord.gg',
+    settings: buildSafeBridgeSettings(db.settings)
   });
 });
 
@@ -1861,9 +2030,14 @@ app.post('/api/feedbacks', (req, res) => {
   db.feedbacks.unshift(newFb);
   saveDb(db);
 
-  // Notificar via Bot do Discord (se configurado)
-  if (bot && typeof bot.notifyFeedback === 'function') {
+  // Notificar via Bot do Discord (local ou REST fallback com token do heartbeat)
+  if (isLocalBotOnline() && typeof bot.notifyFeedback === 'function') {
     bot.notifyFeedback(newFb).catch(() => {});
+  } else {
+    getBridgeHeartbeat().then(hb => {
+      const tok = getEffectiveDiscordToken(hb);
+      if (tok) return sendFeedbackRest(tok, newFb);
+    }).catch(() => {});
   }
 
   // Notificar no Discord via Webhook se configurado
@@ -2353,117 +2527,697 @@ app.post('/api/admin/discord/test', (req, res) => {
 });
 
 // ----------------------------------------------------
-// ROTAS DE GERENCIAMENTO DO BOT DISCORD (Ravok Site)
+// PONTE VERCEL <-> MAGNOHOST + REST FALLBACK + ROTAS DO BOT DISCORD
 // ----------------------------------------------------
-app.get('/api/admin/bot/status', (req, res) => {
-  if (bot && typeof bot.getBotStatus === 'function') {
+const HEARTBEAT_KEY = 'ravok_bot_heartbeat_v1';
+const TASKS_QUEUE_KEY = 'ravok_bot_tasks_v1';
+const HEARTBEAT_TTL_MS = 120000;
+
+function isAuthorizedBotBridgeRequest(req) {
+  const token = String(req.headers['x-api-token'] || req.query.key || '').trim();
+  if (!token) return false;
+  const validTokens = [
+    db.settings && db.settings.apiToken,
+    process.env.PLUGIN_API_TOKEN,
+    process.env.API_TOKEN,
+    DEFAULT_SETTINGS.apiToken
+  ].filter(Boolean).map(t => String(t).trim());
+  return validTokens.includes(token);
+}
+
+async function getBridgeHeartbeat() {
+  const { url, token } = getKvConfig();
+  if (url && token) {
+    const kvHb = await kvGet(HEARTBEAT_KEY);
+    if (kvHb && typeof kvHb === 'object') {
+      bridgeMemory.heartbeat = kvHb;
+      return kvHb;
+    }
+  }
+  return bridgeMemory.heartbeat || null;
+}
+
+async function setBridgeHeartbeat(hb) {
+  bridgeMemory.heartbeat = hb;
+  const { url, token } = getKvConfig();
+  if (url && token) {
+    await kvSet(HEARTBEAT_KEY, hb);
+  }
+}
+
+async function getBridgeTasksQueue() {
+  const now = Date.now();
+  const { url, token } = getKvConfig();
+  let list = bridgeMemory.tasks;
+  if (url && token) {
+    const kvList = await kvGet(TASKS_QUEUE_KEY);
+    if (Array.isArray(kvList)) list = kvList;
+  }
+  const fresh = (Array.isArray(list) ? list : []).filter(t => t && t.id && t.status === 'pending' && (now - Number(t.createdAt || 0)) < 60000);
+  bridgeMemory.tasks = fresh;
+  return fresh;
+}
+
+async function enqueueBridgeTask(action, payload = {}) {
+  const task = {
+    id: `task_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    action,
+    payload,
+    status: 'pending',
+    createdAt: Date.now()
+  };
+  const queue = await getBridgeTasksQueue();
+  queue.push(task);
+  bridgeMemory.tasks = queue.slice(-25);
+  bridgeMemory.taskResults[task.id] = task;
+
+  const { url, token } = getKvConfig();
+  if (url && token) {
+    await Promise.all([
+      kvSet(TASKS_QUEUE_KEY, bridgeMemory.tasks),
+      kvSet(`ravok_bot_task_${task.id}`, task)
+    ]);
+  }
+  return task;
+}
+
+async function getBridgeTaskResult(taskId) {
+  const { url, token } = getKvConfig();
+  if (url && token) {
+    const kvTask = await kvGet(`ravok_bot_task_${taskId}`);
+    if (kvTask && typeof kvTask === 'object') {
+      bridgeMemory.taskResults[taskId] = kvTask;
+      return kvTask;
+    }
+  }
+  return bridgeMemory.taskResults[taskId] || null;
+}
+
+async function completeBridgeTask(taskId, { success, result, error }) {
+  const existing = (await getBridgeTaskResult(taskId)) || { id: taskId, createdAt: Date.now() };
+  const updated = {
+    ...existing,
+    id: taskId,
+    status: success ? 'done' : 'error',
+    result: result || null,
+    error: error || null,
+    completedAt: Date.now()
+  };
+  bridgeMemory.taskResults[taskId] = updated;
+  const queue = (await getBridgeTasksQueue()).filter(t => t.id !== taskId);
+  bridgeMemory.tasks = queue;
+
+  const { url, token } = getKvConfig();
+  if (url && token) {
+    await Promise.all([
+      kvSet(`ravok_bot_task_${taskId}`, updated),
+      kvSet(TASKS_QUEUE_KEY, queue)
+    ]);
+  }
+  return updated;
+}
+
+async function cancelBridgeTask(taskId) {
+  const queue = (await getBridgeTasksQueue()).filter(t => t.id !== taskId);
+  bridgeMemory.tasks = queue;
+  const { url, token } = getKvConfig();
+  if (url && token) {
+    await kvSet(TASKS_QUEUE_KEY, queue);
+  }
+}
+
+function isLocalBotOnline() {
+  return Boolean(bot && typeof bot.getBotStatus === 'function' && bot.getBotStatus().online);
+}
+
+function getEffectiveDiscordToken(hb) {
+  const candidates = [
+    hb && hb.relayToken,
+    db.settings && db.settings.discordBotToken,
+    process.env.DISCORD_BOT_TOKEN
+  ];
+  for (const c of candidates) {
+    if (c && String(c).trim()) return String(c).trim();
+  }
+  return '';
+}
+
+async function discordRestRequest(token, method, endpoint, body) {
+  if (!token) throw new Error('Token do bot indisponível para comunicação com o Discord.');
+  const opts = {
+    method,
+    headers: {
+      Authorization: `Bot ${token}`,
+      'Content-Type': 'application/json'
+    },
+    signal: AbortSignal.timeout(5500)
+  };
+  if (body !== undefined && method !== 'GET' && method !== 'DELETE') {
+    opts.body = JSON.stringify(body);
+  }
+  const res = await fetch(`https://discord.com/api/v10${endpoint}`, opts);
+  const text = await res.text().catch(() => '');
+  let parsed = null;
+  try { parsed = text ? JSON.parse(text) : null; } catch (e) {}
+  if (!res.ok) {
+    const errMsg = (parsed && parsed.message) ? `${parsed.message} (HTTP ${res.status})` : `Discord HTTP ${res.status}`;
+    throw new Error(errMsg);
+  }
+  return parsed;
+}
+
+function resolvePublicWelcomeBgUrl(settings) {
+  const raw = String((settings && settings.welcomeBgUrl) || '').trim();
+  if (!raw || raw.startsWith('data:')) return null;
+  if (/^https?:\/\//i.test(raw)) return raw;
+  const base = String((settings && settings.apiUrl) || 'https://ravok-site.vercel.app').replace(/\/$/, '');
+  const cleanRel = raw.replace(/^\/+/, '');
+  if (cleanRel === 'banner-server.png') return `${base}/ravok_bg.png`;
+  return `${base}/${cleanRel}`;
+}
+
+function getVerifiedChannelId(fieldKey, fallbackKey = null) {
+  backfillBotChannelDefaults(db.settings = db.settings || {});
+  const val = db.settings[fieldKey] || VERIFIED_DISCORD_DEFAULTS[fieldKey] || (fallbackKey ? db.settings[fallbackKey] : '');
+  return String(val || '').trim();
+}
+
+async function fetchChannelInfo(token, channelId) {
+  try {
+    return await discordRestRequest(token, 'GET', `/channels/${channelId}`);
+  } catch (e) {
+    return { id: channelId, name: channelId };
+  }
+}
+
+async function sendSaleRest(token, orderData) {
+  const channelId = getVerifiedChannelId('discordBotChannelVendas');
+  const ch = await fetchChannelInfo(token, channelId);
+  const nick = orderData?.nick || 'Jogador';
+  const total = Number(orderData?.total || 0).toFixed(2).replace('.', ',');
+  const itemsText = Array.isArray(orderData?.items) && orderData.items.length
+    ? orderData.items.map(i => `• **${i.name || 'Item'}**`).join('\n')
+    : '• **VIP Lord (30 Dias)**\n• **Chave Mística (x3)**';
+  await discordRestRequest(token, 'POST', `/channels/${channelId}/messages`, {
+    embeds: [{
+      title: `💎 Nova Compra Aprovada para ${nick}!`,
+      description: orderData?.isTest
+        ? 'Anúncio de compra de teste disparado diretamente pelo Painel Administrativo!'
+        : `O pedido **#${orderData?.id || 'RAVOK'}** foi aprovado e entregue via \`/resgatar\`!`,
+      color: 0x00FFCC,
+      thumbnail: { url: `https://mc-heads.net/avatar/${encodeURIComponent(nick)}/128` },
+      fields: [
+        { name: 'Jogador', value: nick, inline: true },
+        { name: 'Valor Pago', value: `R$ ${total}`, inline: true },
+        { name: 'Itens Adquiridos', value: itemsText, inline: false }
+      ],
+      footer: { text: 'Ravok Network • Loja Oficial' },
+      timestamp: new Date().toISOString()
+    }]
+  });
+  return { success: true, channelName: ch.name || 'vendas' };
+}
+
+async function sendFeedbackRest(token, fbData) {
+  const channelId = getVerifiedChannelId('discordBotChannelFeedbacks');
+  const ch = await fetchChannelInfo(token, channelId);
+  const nick = fbData?.nick || 'Avaliador';
+  const stars = Math.min(5, Math.max(1, Number(fbData?.stars || 5)));
+  const comment = fbData?.comment || 'Servidor sensacional! Economia equilibrada, staff atenciosa e entrega instantânea!';
+  await discordRestRequest(token, 'POST', `/channels/${channelId}/messages`, {
+    embeds: [{
+      title: `⭐ Nova Avaliação Recebida!`,
+      description: `"${comment}"`,
+      color: 0xFFB703,
+      thumbnail: { url: `https://mc-heads.net/avatar/${encodeURIComponent(nick)}/128` },
+      fields: [
+        { name: 'Jogador', value: nick, inline: true },
+        { name: 'Classificação', value: '★'.repeat(stars) + '☆'.repeat(5 - stars), inline: true }
+      ],
+      footer: { text: 'Ravok Network • Avaliações da Comunidade' },
+      timestamp: new Date().toISOString()
+    }]
+  });
+  return { success: true, channelName: ch.name || 'feedbacks' };
+}
+
+async function sendWelcomeRest(token) {
+  const channelId = getVerifiedChannelId('discordBotChannelBoasVindas');
+  const ch = await fetchChannelInfo(token, channelId);
+  const bgUrl = resolvePublicWelcomeBgUrl(db.settings);
+  const siteUrl = String(db.settings?.apiUrl || 'https://ravok-site.vercel.app').replace(/\/$/, '');
+  const embed = {
+    title: '🍂 Bem-vindo(a) à Ravok Network!',
+    description: 'Seja muito bem-vindo ao servidor oficial da **Ravok 3° Temporada**!\nPrepare-se para explorar biomas outonais, eventos épicos e muito mais.',
+    color: 0xFFB703,
+    fields: [
+      { name: 'IP Java & Bedrock', value: `\`${db.settings?.serverIp || 'jogar.ravok.network'}\``, inline: true },
+      { name: 'Loja Oficial', value: `[Acessar Site](${siteUrl})`, inline: true }
+    ],
+    footer: { text: 'Ravok Network • Card de Boas-Vindas' },
+    timestamp: new Date().toISOString()
+  };
+  if (bgUrl) embed.image = { url: bgUrl };
+  await discordRestRequest(token, 'POST', `/channels/${channelId}/messages`, {
+    content: '✨ Novo aventureiro acabou de pousar na Ravok!',
+    embeds: [embed]
+  });
+  return { success: true, channelName: ch.name || 'boas-vindas' };
+}
+
+async function sendAnnouncementRest(token, { channelId, title, message, color, imageUrl }) {
+  const targetId = isValidDiscordSnowflake(channelId)
+    ? String(channelId).trim()
+    : getVerifiedChannelId('discordBotChannelAnuncios', 'discordBotChannelGeral');
+  const ch = await fetchChannelInfo(token, targetId);
+  const parsedColor = color ? parseInt(String(color).replace('#', ''), 16) || 0xFFB703 : 0xFFB703;
+  const embed = {
+    title: title || '📢 Comunicado Oficial Ravok Network',
+    description: message || '',
+    color: parsedColor,
+    footer: { text: 'Ravok Network • Equipe Administrativa' },
+    timestamp: new Date().toISOString()
+  };
+  if (imageUrl && /^https?:\/\//i.test(imageUrl)) embed.image = { url: imageUrl };
+  await discordRestRequest(token, 'POST', `/channels/${targetId}/messages`, { embeds: [embed] });
+  return { success: true, channelName: ch.name || 'anuncios' };
+}
+
+async function clearChannelMessagesRest(token, channelId, amount = 50) {
+  const cleanId = String(channelId || '').trim();
+  if (!isValidDiscordSnowflake(cleanId)) throw new Error('ID do canal inválido.');
+  const limit = Math.min(100, Math.max(1, Number(amount) || 50));
+  const messages = await discordRestRequest(token, 'GET', `/channels/${cleanId}/messages?limit=${limit}`);
+  if (!Array.isArray(messages) || messages.length === 0) {
+    return { success: true, deletedCount: 0, message: 'Nenhuma mensagem encontrada para apagar.' };
+  }
+  const fourteenDaysAgo = Date.now() - (14 * 24 * 60 * 60 * 1000) + 60000;
+  const recentIds = messages.filter(m => new Date(m.timestamp).getTime() > fourteenDaysAgo).map(m => m.id);
+  if (recentIds.length >= 2) {
+    await discordRestRequest(token, 'POST', `/channels/${cleanId}/messages/bulk-delete`, { messages: recentIds });
+  } else if (recentIds.length === 1) {
+    await discordRestRequest(token, 'DELETE', `/channels/${cleanId}/messages/${recentIds[0]}`);
+  }
+  return { success: true, deletedCount: recentIds.length, message: `${recentIds.length} mensagens removidas com sucesso!` };
+}
+
+async function syncStatusChannelsRest(token) {
+  const ip = db.settings?.serverIp || 'jogar.ravok.network';
+  let online = false;
+  let players = 0;
+  let maxPlayers = 100;
+  let ping = 24;
+  try {
+    const t0 = Date.now();
+    const res = await fetch(`https://api.mcsrvstat.us/2/${encodeURIComponent(ip)}`, { signal: AbortSignal.timeout(4500) });
+    ping = Math.max(8, Date.now() - t0);
+    if (res.ok) {
+      const json = await res.json();
+      online = Boolean(json && json.online);
+      players = Number(json?.players?.online || 0);
+      maxPlayers = Number(json?.players?.max || 100);
+    }
+  } catch (e) {}
+  const updates = [
+    { key: 'discordBotChannelStatusJogadores', name: `👥 Jogadores: ${online ? `${players}/${maxPlayers}` : '0'}` },
+    { key: 'discordBotChannelStatusServer', name: online ? '🟢 Status: Online' : '🔴 Status: Offline' },
+    { key: 'discordBotChannelStatusPing', name: `📶 Ping: ${online ? `${ping}ms` : '---'}` }
+  ];
+  for (const item of updates) {
+    const chId = getVerifiedChannelId(item.key);
+    if (isValidDiscordSnowflake(chId)) {
+      await discordRestRequest(token, 'PATCH', `/channels/${chId}`, { name: item.name }).catch(() => {});
+    }
+  }
+  return { online, players, maxPlayers, ping };
+}
+
+async function publishMetaPanelRest(token, targetChannelId) {
+  const goal = computeGoalStatus();
+  const channelId = isValidDiscordSnowflake(targetChannelId) ? String(targetChannelId).trim() : getVerifiedChannelId('discordBotChannelVendas');
+  const ch = await fetchChannelInfo(token, channelId);
+  const filled = Math.min(10, Math.max(0, Math.round(goal.percent / 10)));
+  const bar = '🟩'.repeat(filled) + '⬛'.repeat(10 - filled);
+  const siteUrl = String(db.settings?.apiUrl || 'https://ravok-site.vercel.app').replace(/\/$/, '');
+  await discordRestRequest(token, 'POST', `/channels/${channelId}/messages`, {
+    embeds: [{
+      title: '🎯 Meta Mensal da Rede Ravok',
+      description: `Acompanhe o progresso para manutenção e upgrades da hospedagem!\n\n**Progresso:** \`${bar}\` **${goal.percent}%**`,
+      color: 0xFFB703,
+      fields: [
+        { name: 'Arrecadado', value: `R$ ${goal.totalArrecadado.toFixed(2).replace('.', ',')}`, inline: true },
+        { name: 'Meta', value: `R$ ${goal.targetGoal.toFixed(2).replace('.', ',')}`, inline: true },
+        { name: 'Loja Oficial', value: `[Contribuir Agora](${siteUrl})`, inline: true }
+      ],
+      footer: { text: 'Ravok Network • Meta Atualizada em Tempo Real' },
+      timestamp: new Date().toISOString()
+    }]
+  });
+  return { success: true, channelName: ch.name || 'vendas' };
+}
+
+async function publishPanelRest(token, type, targetChannelId) {
+  if (type === 'meta') return await publishMetaPanelRest(token, targetChannelId);
+  const panelSpecs = {
+    tickets: {
+      channelKey: 'discordBotChannelTickets',
+      title: '🎫 Central de Atendimento & Compras',
+      description: 'Precisa de suporte da staff ou deseja finalizar uma compra pelo Discord? Selecione uma opção abaixo!',
+      color: 0xFFB703,
+      buttons: [
+        { type: 2, style: 1, label: 'Abrir Atendimento Geral', custom_id: 'sys_ticket_btn', emoji: { name: '🎫' } },
+        { type: 2, style: 3, label: 'Finalizar Compra / Pix', custom_id: 'sys_ticket_compra', emoji: { name: '🛒' } }
+      ]
+    },
+    recrutamento: {
+      channelKey: 'discordBotChannelRecrutamento',
+      title: '📋 Recrutamento da Equipe Ravok',
+      description: 'Quer ajudar a construir e moderar a Ravok Network? Clique abaixo e envie sua candidatura!',
+      color: 0x3B82F6,
+      buttons: [{ type: 2, style: 1, label: 'Fazer Formulário', custom_id: 'sys_recrut_btn', emoji: { name: '📝' } }]
+    },
+    confissoes: {
+      channelKey: 'discordBotChannelConfissoes',
+      title: '👻 Correio Secreto & Confissões',
+      description: 'Envie uma mensagem 100% anônima no canal da comunidade usando o botão abaixo!',
+      color: 0x9333EA,
+      buttons: [{ type: 2, style: 2, label: 'Enviar Confissão', custom_id: 'sys_confissao_btn', emoji: { name: '🕵️' } }]
+    },
+    sugestoes: {
+      channelKey: 'discordBotChannelSugestoes',
+      title: '💡 Central de Sugestões',
+      description: 'Tem alguma ideia para melhorar o servidor ou o site? Compartilhe com a comunidade!',
+      color: 0x10B981,
+      buttons: [{ type: 2, style: 3, label: 'Nova Sugestão', custom_id: 'sys_sugestao_btn', emoji: { name: '💡' } }]
+    },
+    vincular: {
+      channelKey: 'discordBotChannelGeral',
+      title: '🔗 Vincular Conta Minecraft',
+      description: 'Vincule sua conta do Minecraft ao Discord para receber cargos automáticos e recompensas!',
+      color: 0x06B6D4,
+      buttons: [{ type: 2, style: 1, label: 'Vincular Conta', custom_id: 'sys_vinc_btn', emoji: { name: '🔗' } }]
+    },
+    feedback: {
+      channelKey: 'discordBotChannelFeedbacks',
+      title: '⭐ Avalie o Servidor Ravok',
+      description: 'Conte sua experiência jogando na Ravok Network ou comprando em nossa loja!',
+      color: 0xF59E0B,
+      buttons: [{ type: 2, style: 1, label: 'Dar Feedback', custom_id: 'sys_feedback_btn', emoji: { name: '⭐' } }]
+    },
+    video: {
+      channelKey: 'discordBotChannelVideos',
+      title: '🎬 Criadores de Conteúdo (Vídeos & Lives)',
+      description: 'Gravou um vídeo ou abriu live jogando na Ravok? Divulgue agora mesmo!',
+      color: 0xEF4444,
+      buttons: [
+        { type: 2, style: 4, label: 'Divulgar Vídeo', custom_id: 'sys_video_btn', emoji: { name: '🎬' } },
+        { type: 2, style: 1, label: 'Anunciar Live', custom_id: 'sys_live_btn', emoji: { name: '🔴' } }
+      ]
+    },
+    regras: {
+      channelKey: 'discordBotChannelRegras',
+      title: '📜 Regras Oficiais da Ravok Network',
+      description: '1. Respeite todos os jogadores e membros da equipe.\n2. Proibido uso de hacks, exploits ou trapaças.\n3. Proibido spam, flood ou divulgação sem permissão.\n4. Bom senso em todos os canais de voz e texto.',
+      color: 0xFFB703,
+      buttons: []
+    },
+    loja: {
+      channelKey: 'discordBotChannelVendas',
+      title: '🛒 Loja Oficial Ravok Network',
+      description: 'Adquira VIPs, Chaves, Comandos e Cosméticos no site oficial ou finalize via ticket abaixo!',
+      color: 0x00FFCC,
+      buttons: [{ type: 2, style: 3, label: 'Finalizar Compra / Pix', custom_id: 'sys_ticket_compra', emoji: { name: '🛒' } }]
+    }
+  };
+  const spec = panelSpecs[type];
+  if (!spec) throw new Error(`Tipo de painel inválido: ${type}`);
+  const channelId = isValidDiscordSnowflake(targetChannelId) ? String(targetChannelId).trim() : getVerifiedChannelId(spec.channelKey);
+  const ch = await fetchChannelInfo(token, channelId);
+  const body = {
+    embeds: [{
+      title: spec.title,
+      description: spec.description,
+      color: spec.color,
+      footer: { text: 'Ravok Network • Painel Interativo' },
+      timestamp: new Date().toISOString()
+    }]
+  };
+  if (spec.buttons.length) {
+    body.components = [{ type: 1, components: spec.buttons }];
+  }
+  await discordRestRequest(token, 'POST', `/channels/${channelId}/messages`, body);
+  return { success: true, channelName: ch.name || type };
+}
+
+async function dispatchBotAction(action, payload, localFn, restFallbackFn) {
+  if (isLocalBotOnline() && typeof localFn === 'function') {
+    return await localFn();
+  }
+
+  const hb = await getBridgeHeartbeat();
+  const ageMs = hb && hb.receivedAt ? (Date.now() - Number(hb.receivedAt)) : Infinity;
+  const hbOnline = Boolean(hb && hb.status && hb.status.online && ageMs < HEARTBEAT_TTL_MS);
+  const token = getEffectiveDiscordToken(hb);
+
+  if (!hbOnline && !token) {
+    throw new Error('O bot na MagnoHost ainda não sincronizou com o site. Reinicie o bot no painel da MagnoHost uma vez e aguarde 6 segundos.');
+  }
+
+  if (hbOnline) {
+    const task = await enqueueBridgeTask(action, payload);
+    const deadline = Date.now() + 7200;
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, 350));
+      const updated = await getBridgeTaskResult(task.id);
+      if (updated && updated.status === 'done') {
+        return updated.result || { success: true };
+      }
+      if (updated && updated.status === 'error') {
+        throw new Error(updated.error || `Erro ao executar ${action} no bot.`);
+      }
+    }
+    const finalCheck = await getBridgeTaskResult(task.id);
+    if (finalCheck && finalCheck.status === 'done') {
+      return finalCheck.result || { success: true };
+    }
+    await cancelBridgeTask(task.id);
+    if (typeof restFallbackFn === 'function' && token) {
+      return await restFallbackFn(token);
+    }
+    throw new Error('O bot na MagnoHost demorou para responder (>7s). Verifique o console da MagnoHost e tente novamente.');
+  }
+
+  if (typeof restFallbackFn === 'function' && token) {
+    return await restFallbackFn(token);
+  }
+  throw new Error('O bot precisa estar online na MagnoHost para executar esta ação.');
+}
+
+// Rotas internas da Ponte MagnoHost <-> Vercel
+app.post('/api/bot/heartbeat', async (req, res) => {
+  if (!isAuthorizedBotBridgeRequest(req)) {
+    return res.status(401).json({ error: 'Token da API inválido.' });
+  }
+  const { status, relayToken, resolvedSettings } = req.body || {};
+  const existingHb = await getBridgeHeartbeat();
+  const cleanRelayToken = (relayToken && String(relayToken).trim()) || (existingHb && existingHb.relayToken) || '';
+  const hb = {
+    status: (status && typeof status === 'object') ? status : { online: true },
+    relayToken: cleanRelayToken,
+    resolvedSettings: (resolvedSettings && typeof resolvedSettings === 'object') ? resolvedSettings : {},
+    receivedAt: Date.now()
+  };
+  await setBridgeHeartbeat(hb);
+
+  let changed = backfillBotChannelDefaults(db.settings = db.settings || {});
+  if (hb.resolvedSettings && typeof hb.resolvedSettings === 'object') {
+    for (const [k, v] of Object.entries(hb.resolvedSettings)) {
+      if (k in VERIFIED_DISCORD_DEFAULTS && isValidDiscordSnowflake(v) && !isValidDiscordSnowflake(db.settings[k])) {
+        db.settings[k] = String(v).trim();
+        changed = true;
+      }
+    }
+  }
+  if (changed) {
+    await saveDbNow(db, true);
+  }
+
+  const tasks = await getBridgeTasksQueue();
+  res.json({
+    success: true,
+    settings: buildSafeBridgeSettings(db.settings),
+    tasks
+  });
+});
+
+app.post('/api/bot/tasks/:id/complete', async (req, res) => {
+  if (!isAuthorizedBotBridgeRequest(req)) {
+    return res.status(401).json({ error: 'Token da API inválido.' });
+  }
+  const { id } = req.params;
+  const { success, result, error } = req.body || {};
+  await completeBridgeTask(id, { success: Boolean(success), result, error });
+  res.json({ success: true });
+});
+
+app.get('/api/admin/bot/status', async (req, res) => {
+  if (isLocalBotOnline()) {
     return res.json(bot.getBotStatus());
   }
-  res.json({ online: false, message: 'Módulo do bot indisponível' });
+  const hb = await getBridgeHeartbeat();
+  const ageMs = hb && hb.receivedAt ? (Date.now() - Number(hb.receivedAt)) : Infinity;
+  if (hb && hb.status && hb.status.online && ageMs < HEARTBEAT_TTL_MS) {
+    return res.json({
+      ...hb.status,
+      online: true,
+      remote: true,
+      source: 'magnohost',
+      heartbeatAgeMs: ageMs,
+      lastHeartbeatAt: hb.receivedAt
+    });
+  }
+  if (bot && typeof bot.getBotStatus === 'function' && !process.env.VERCEL) {
+    return res.json(bot.getBotStatus());
+  }
+  return res.json({
+    ...(hb && hb.status ? hb.status : {}),
+    online: false,
+    starting: false,
+    remote: true,
+    botTag: (hb && hb.status && hb.status.botTag) || 'Silvie#1279',
+    logs: (hb && hb.status && Array.isArray(hb.status.logs) && hb.status.logs.length)
+      ? hb.status.logs
+      : [{ time: new Date().toLocaleTimeString('pt-BR'), level: 'warn', msg: 'Aguardando heartbeat do bot na MagnoHost (enviado a cada 6s)...' }],
+    message: 'Aguardando conexão em tempo real do bot na MagnoHost'
+  });
 });
 
 app.post('/api/admin/bot/start', async (req, res) => {
-  const { token, channelVendas, channelFeedbacks } = req.body;
-  if (channelVendas) db.settings.discordBotChannelVendas = channelVendas;
-  if (channelFeedbacks) db.settings.discordBotChannelFeedbacks = channelFeedbacks;
+  const { token, channelVendas, channelFeedbacks } = req.body || {};
+  if (isValidDiscordSnowflake(channelVendas)) db.settings.discordBotChannelVendas = String(channelVendas).trim();
+  if (isValidDiscordSnowflake(channelFeedbacks)) db.settings.discordBotChannelFeedbacks = String(channelFeedbacks).trim();
   if (token) db.settings.discordBotToken = token;
-  saveDb(db);
+  await saveDbNow(db, true);
 
-  const tokenToUse = token || db.settings.discordBotToken;
-  if (!tokenToUse) {
-    return res.status(400).json({ error: 'Insira o Token do Bot do Discord antes de iniciar.' });
-  }
-
-  if (bot && typeof bot.startBot === 'function') {
+  if (!process.env.VERCEL && bot && typeof bot.startBot === 'function') {
+    const tokenToUse = token || db.settings.discordBotToken;
+    if (!tokenToUse) return res.status(400).json({ error: 'Insira o Token do Bot do Discord antes de iniciar.' });
     const result = await bot.startBot(tokenToUse);
     if (result.success) {
       return res.json({ success: true, message: `Bot iniciado com sucesso como ${result.user || 'Online'}!` });
-    } else {
-      return res.status(400).json({ error: result.error || 'Falha ao autenticar o bot no Discord. Verifique o token.' });
     }
+    return res.status(400).json({ error: result.error || 'Falha ao autenticar o bot no Discord. Verifique o token.' });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
+
+  const hb = await getBridgeHeartbeat();
+  if (hb && hb.status && hb.status.online && (Date.now() - Number(hb.receivedAt || 0)) < HEARTBEAT_TTL_MS) {
+    return res.json({ success: true, message: `Bot ${hb.status.botTag || 'Silvie#1279'} já está online e sincronizado via MagnoHost!` });
+  }
+  return res.status(400).json({ error: 'O bot roda na MagnoHost. Ligue ou reinicie o processo no painel da MagnoHost.' });
 });
 
-app.post('/api/admin/bot/stop', (req, res) => {
-  if (bot && typeof bot.stopBot === 'function') {
+app.post('/api/admin/bot/stop', async (req, res) => {
+  if (!process.env.VERCEL && bot && typeof bot.stopBot === 'function') {
     const result = bot.stopBot();
     return res.json(result);
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
+  res.status(400).json({ error: 'O bot roda 24/7 na MagnoHost. Para desligar o processo, use o console da MagnoHost.' });
 });
 
 app.post('/api/admin/bot/restart', async (req, res) => {
   const { token, channelVendas, channelFeedbacks } = req.body || {};
-  if (channelVendas) db.settings.discordBotChannelVendas = channelVendas;
-  if (channelFeedbacks) db.settings.discordBotChannelFeedbacks = channelFeedbacks;
+  if (isValidDiscordSnowflake(channelVendas)) db.settings.discordBotChannelVendas = String(channelVendas).trim();
+  if (isValidDiscordSnowflake(channelFeedbacks)) db.settings.discordBotChannelFeedbacks = String(channelFeedbacks).trim();
   if (token) db.settings.discordBotToken = token;
-  saveDb(db);
+  await saveDbNow(db, true);
 
-  if (bot && typeof bot.restartBot === 'function') {
+  if (!process.env.VERCEL && bot && typeof bot.restartBot === 'function') {
     const result = await bot.restartBot(token || db.settings.discordBotToken);
     if (result.success) {
       return res.json({ success: true, message: `Bot reiniciado com sucesso!` });
     }
     return res.status(400).json({ error: result.error || 'Falha ao reiniciar o bot.' });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
+
+  const hb = await getBridgeHeartbeat();
+  if (hb && hb.status && hb.status.online && (Date.now() - Number(hb.receivedAt || 0)) < HEARTBEAT_TTL_MS) {
+    return res.json({ success: true, message: 'Configurações ressincronizadas com o bot online na MagnoHost!' });
+  }
+  return res.status(400).json({ error: 'Para reiniciar o processo Node.js do bot, clique em Reiniciar no painel da MagnoHost.' });
 });
 
 app.post('/api/admin/bot/test-sale', async (req, res) => {
-  if (bot && typeof bot.testSaleNotification === 'function') {
-    try {
-      await bot.testSaleNotification();
-      return res.json({ success: true, message: 'Anúncio de compra de teste disparado no Discord!' });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    await dispatchBotAction(
+      'test-sale',
+      {},
+      () => bot.testSaleNotification(),
+      (token) => sendSaleRest(token, { nick: 'Guiilew', total: 49.90, isTest: true })
+    );
+    return res.json({ success: true, message: 'Anúncio de compra de teste disparado no Discord!' });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
 app.post('/api/admin/bot/test-feedback', async (req, res) => {
-  if (bot && typeof bot.testFeedbackNotification === 'function') {
-    try {
-      await bot.testFeedbackNotification();
-      return res.json({ success: true, message: 'Anúncio de avaliação de teste disparado no Discord!' });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    await dispatchBotAction(
+      'test-feedback',
+      {},
+      () => bot.testFeedbackNotification(),
+      (token) => sendFeedbackRest(token, { nick: 'Avaliador_Ravok', stars: 5 })
+    );
+    return res.json({ success: true, message: 'Anúncio de avaliação de teste disparado no Discord!' });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
 app.post('/api/admin/bot/test-welcome', async (req, res) => {
-  if (bot && typeof bot.testWelcomeNotification === 'function') {
-    try {
-      const result = await bot.testWelcomeNotification();
-      return res.json({ success: true, message: `Card de boas-vindas enviado com sucesso para #${result.channelName} no Discord!` });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const result = await dispatchBotAction(
+      'test-welcome',
+      {},
+      () => bot.testWelcomeNotification(),
+      (token) => sendWelcomeRest(token)
+    );
+    return res.json({
+      success: true,
+      message: `Card de boas-vindas enviado com sucesso para #${(result && result.channelName) || 'boas-vindas'} no Discord!`
+    });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
-app.post('/api/admin/bot/welcome-bg', (req, res) => {
+app.post('/api/admin/bot/welcome-bg', async (req, res) => {
   try {
+    await readLatestDbFromCloudKv(true);
     const { url, base64 } = req.body || {};
-    const raw = fs.readFileSync(DB_FILE, 'utf8');
-    const db = JSON.parse(raw);
     db.settings = db.settings || {};
 
     if (base64) {
-      const matches = base64.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-      const buffer = matches ? Buffer.from(matches[2], 'base64') : Buffer.from(base64, 'base64');
-      const publicPath = path.join(__dirname, 'public', 'welcome-bg.png');
-      fs.writeFileSync(publicPath, buffer);
-      db.settings.welcomeBgUrl = 'welcome-bg.png';
+      const cleanB64 = String(base64).trim();
+      const matches = cleanB64.match(/^data:([A-Za-z0-9-+\/]+);base64,(.+)$/);
+      const buffer = matches ? Buffer.from(matches[2], 'base64') : Buffer.from(cleanB64, 'base64');
+      let savedLocal = false;
+      if (!process.env.VERCEL) {
+        try {
+          const publicPath = path.join(__dirname, 'public', 'welcome-bg.png');
+          fs.writeFileSync(publicPath, buffer);
+          db.settings.welcomeBgUrl = 'welcome-bg.png';
+          savedLocal = true;
+        } catch (fsErr) {}
+      }
+      if (!savedLocal) {
+        db.settings.welcomeBgUrl = matches ? cleanB64 : `data:image/png;base64,${cleanB64}`;
+      }
     } else if (url !== undefined) {
-      db.settings.welcomeBgUrl = (url || '').trim();
+      db.settings.welcomeBgUrl = String(url || '').trim();
     }
 
-    saveDb(db);
+    await saveDbNow(db, true);
     return res.json({ success: true, welcomeBgUrl: db.settings.welcomeBgUrl });
   } catch (err) {
     return res.status(500).json({ error: err.message });
@@ -2476,33 +3230,43 @@ app.post('/api/admin/bot/announcement', async (req, res) => {
     return res.status(400).json({ error: 'Informe um título ou mensagem para o anúncio.' });
   }
 
-  if (bot && typeof bot.sendCustomAnnouncement === 'function') {
-    try {
-      const result = await bot.sendCustomAnnouncement({ channelId, title, message, color, imageUrl });
-      return res.json({ success: true, message: `Anúncio publicado com sucesso no canal #${result.channelName}!` });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const result = await dispatchBotAction(
+      'announcement',
+      { channelId, title, message, color, imageUrl },
+      () => bot.sendCustomAnnouncement({ channelId, title, message, color, imageUrl }),
+      (token) => sendAnnouncementRest(token, { channelId, title, message, color, imageUrl })
+    );
+    return res.json({ success: true, message: `Anúncio publicado com sucesso no canal #${(result && result.channelName) || 'anuncios'}!` });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
 app.post('/api/admin/bot/sync-commands', async (req, res) => {
-  if (bot && typeof bot.syncCommands === 'function') {
-    try {
-      const result = await bot.syncCommands();
-      return res.json({ success: true, message: `Comandos Slash sincronizados com o Discord (${result.count} comandos)!` });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const result = await dispatchBotAction(
+      'sync-commands',
+      {},
+      () => bot.syncCommands(),
+      async (token) => {
+        const clientId = db.settings?.discordBotClientId || VERIFIED_DISCORD_DEFAULTS.discordBotClientId;
+        const cmds = await discordRestRequest(token, 'GET', `/applications/${clientId}/commands`);
+        return { count: Array.isArray(cmds) ? cmds.length : 0 };
+      }
+    );
+    return res.json({ success: true, message: `Comandos Slash sincronizados com o Discord (${(result && result.count) || 0} comandos)!` });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
 app.post('/api/admin/bot/clear-logs', (req, res) => {
   if (bot && typeof bot.clearLogs === 'function') {
     bot.clearLogs();
-    return res.json({ success: true });
+  }
+  if (bridgeMemory.heartbeat && bridgeMemory.heartbeat.status) {
+    bridgeMemory.heartbeat.status.logs = [];
   }
   res.json({ success: true });
 });
@@ -2513,15 +3277,17 @@ app.post('/api/admin/bot/clear-channel-messages', async (req, res) => {
   if (!channelId) {
     return res.status(400).json({ error: 'Informe o ID do canal que deseja limpar.' });
   }
-  if (bot && typeof bot.clearChannelMessages === 'function') {
-    try {
-      const result = await bot.clearChannelMessages(channelId, amount);
-      return res.json(result);
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const result = await dispatchBotAction(
+      'clear-channel-messages',
+      { channelId, amount },
+      () => bot.clearChannelMessages(channelId, amount),
+      (token) => clearChannelMessagesRest(token, channelId, amount)
+    );
+    return res.json(result || { success: true });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível ou offline.' });
 });
 
 // Publicar Painéis Interativos no Discord (Tickets, Confissões, Sugestões, etc)
@@ -2529,57 +3295,37 @@ app.post('/api/admin/bot/publish-panel', async (req, res) => {
   const { type, channelId } = req.body || {};
   if (!type) return res.status(400).json({ error: 'Informe o tipo do painel para publicar.' });
 
-  if (bot && typeof bot.publishPanel === 'function') {
-    try {
-      const result = await bot.publishPanel(type, channelId);
-      return res.json({ success: true, message: `Painel "${type}" publicado com sucesso no Discord!`, channelName: result.channelName });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const result = await dispatchBotAction(
+      'publish-panel',
+      { type, channelId },
+      () => bot.publishPanel(type, channelId),
+      (token) => publishPanelRest(token, type, channelId)
+    );
+    return res.json({
+      success: true,
+      message: `Painel "${type}" publicado com sucesso no Discord!`,
+      channelName: (result && result.channelName) || type
+    });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
 // Consultar Canais das Funções do Bot
-app.get('/api/admin/bot/channels', (req, res) => {
-  const s = db.settings || {};
-  res.json({
-    discordBotChannelBoasVindas: s.discordBotChannelBoasVindas || '',
-    discordBotCategoryTickets: s.discordBotCategoryTickets || '',
-    discordBotCategoryRecrutamento: s.discordBotCategoryRecrutamento || '',
-    discordBotChannelConfissoes: s.discordBotChannelConfissoes || '',
-    discordBotChannelSugestoes: s.discordBotChannelSugestoes || '',
-    discordBotChannelFeedbacks: s.discordBotChannelFeedbacks || '',
-    discordBotChannelVendas: s.discordBotChannelVendas || '',
-    discordBotChannelContagem: s.discordBotChannelContagem || '',
-    discordBotChannelVideos: s.discordBotChannelVideos || '',
-    discordBotChannelLives: s.discordBotChannelLives || '',
-    discordBotChannelRegras: s.discordBotChannelRegras || '',
-    discordBotChannelRelatorios: s.discordBotChannelRelatorios || '',
-    discordBotChannelPunicoes: s.discordBotChannelPunicoes || '',
-    discordBotChannelMusica: s.discordBotChannelMusica || '',
-    discordBotChannelMemes: s.discordBotChannelMemes || '',
-    discordBotChannelGeral: s.discordBotChannelGeral || '',
-    discordBotRoleVinculado: s.discordBotRoleVinculado || '',
-    discordBotRoleAcesso: s.discordBotRoleAcesso || '',
-    countingCurrentNumber: s.countingCurrentNumber || 0,
-    discordBotChannelStatusJogadores: s.discordBotChannelStatusJogadores || '1529648354928234548',
-    discordBotChannelStatusServer: s.discordBotChannelStatusServer || '1529648417066975272',
-    discordBotChannelStatusPing: s.discordBotChannelStatusPing || '1529648465309864016',
-    discordBotChannelMetaVendas: s.discordBotChannelMetaVendas || '1531083037742334053',
-    serverIp: s.serverIp || s.minecraftIp || 'jogar.ravok.network',
-    metaVendasValor: s.metaVendasValor !== undefined ? s.metaVendasValor : 100,
-    metaVendasBase: s.metaVendasBase !== undefined ? s.metaVendasBase : 0
-  });
+app.get('/api/admin/bot/channels', async (req, res) => {
+  await readLatestDbFromCloudKv(false);
+  backfillBotChannelDefaults(db.settings = db.settings || {});
+  res.json(buildSafeBridgeSettings(db.settings));
 });
 
 // Salvar Configuração de Canais e Categorias do Bot
-app.post('/api/admin/bot/channels', (req, res) => {
+app.post('/api/admin/bot/channels', async (req, res) => {
+  await readLatestDbFromCloudKv(true);
   const data = req.body || {};
   const s = db.settings = db.settings || {};
 
-  const fields = [
-    'serverIp',
+  const snowflakeFields = [
     'discordBotChannelBoasVindas',
     'discordBotCategoryTickets',
     'discordBotCategoryRecrutamento',
@@ -2596,20 +3342,34 @@ app.post('/api/admin/bot/channels', (req, res) => {
     'discordBotChannelMusica',
     'discordBotChannelMemes',
     'discordBotChannelGeral',
+    'discordBotChannelTickets',
+    'discordBotChannelAnuncios',
     'discordBotRoleVinculado',
     'discordBotRoleAcesso',
     'discordBotChannelStatusJogadores',
     'discordBotChannelStatusServer',
     'discordBotChannelStatusPing',
-    'discordBotChannelMetaVendas'
+    'discordBotChannelMetaVendas',
+    'aiChannelId'
   ];
 
-  for (const field of fields) {
+  for (const field of snowflakeFields) {
     if (data[field] !== undefined) {
-      s[field] = String(data[field] || '').trim();
+      const cleanVal = String(data[field] || '').trim();
+      if (isValidDiscordSnowflake(cleanVal)) {
+        s[field] = cleanVal;
+      } else if (!isValidDiscordSnowflake(s[field]) && VERIFIED_DISCORD_DEFAULTS[field]) {
+        s[field] = VERIFIED_DISCORD_DEFAULTS[field];
+      }
     }
   }
 
+  if (data.serverIp !== undefined) {
+    s.serverIp = String(data.serverIp || '').trim() || 'jogar.ravok.network';
+  }
+  if (data.welcomeBgUrl !== undefined) {
+    s.welcomeBgUrl = String(data.welcomeBgUrl || '').trim();
+  }
   if (data.countingCurrentNumber !== undefined) {
     s.countingCurrentNumber = Number(data.countingCurrentNumber) || 0;
   }
@@ -2620,35 +3380,40 @@ app.post('/api/admin/bot/channels', (req, res) => {
     s.metaVendasBase = Number(data.metaVendasBase) || 0;
   }
 
-  saveDb(db);
+  backfillBotChannelDefaults(s);
+  await saveDbNow(db, true);
   res.json({ success: true, message: 'Canais e categorias das funções do bot salvos com sucesso!' });
 });
 
 // Forçar Atualização dos Canais de Status do Servidor no Discord
 app.post('/api/admin/bot/sync-status-channels', async (req, res) => {
-  if (bot && typeof bot.syncServerStatusChannels === 'function') {
-    try {
-      const result = await bot.syncServerStatusChannels();
-      return res.json({ success: true, message: 'Canais de status sincronizados com sucesso!', result });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const result = await dispatchBotAction(
+      'sync-status-channels',
+      {},
+      () => bot.syncServerStatusChannels(),
+      (token) => syncStatusChannelsRest(token)
+    );
+    return res.json({ success: true, message: 'Canais de status sincronizados com sucesso!', result });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
 // Publicar ou Atualizar Painel Oficial da Meta no Canal de Vendas
 app.post('/api/admin/bot/publish-meta-panel', async (req, res) => {
   const { channelId } = req.body || {};
-  if (bot && typeof bot.publishMetaPanel === 'function') {
-    try {
-      const result = await bot.publishMetaPanel(channelId);
-      return res.json({ success: true, message: 'Painel da meta publicado/atualizado com sucesso!', result });
-    } catch (err) {
-      return res.status(400).json({ error: err.message });
-    }
+  try {
+    const result = await dispatchBotAction(
+      'publish-meta-panel',
+      { channelId },
+      () => bot.publishMetaPanel(channelId),
+      (token) => publishMetaPanelRest(token, channelId)
+    );
+    return res.json({ success: true, message: 'Painel da meta publicado/atualizado com sucesso!', result });
+  } catch (err) {
+    return res.status(400).json({ error: err.message });
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
 });
 
 // Obter Status Calculado da Meta de Vendas
@@ -2662,22 +3427,25 @@ app.get('/api/admin/bot/ai', (req, res) => {
     enabled: db.settings.aiEnabled !== false,
     apiKey: db.settings.aiApiKey || '',
     model: db.settings.aiModel || 'gemini-1.5-flash',
-    channelId: db.settings.aiChannelId || '',
+    channelId: db.settings.aiChannelId || VERIFIED_DISCORD_DEFAULTS.aiChannelId,
     respondMentions: db.settings.aiRespondMentions !== false,
     prompt: db.settings.aiPrompt || ''
   });
 });
 
-app.post('/api/admin/bot/ai', (req, res) => {
+app.post('/api/admin/bot/ai', async (req, res) => {
   const { enabled, apiKey, model, channelId, respondMentions, prompt } = req.body || {};
   if (enabled !== undefined) db.settings.aiEnabled = Boolean(enabled);
-  if (apiKey !== undefined) db.settings.aiApiKey = apiKey.trim();
-  if (model) db.settings.aiModel = model.trim();
-  if (channelId !== undefined) db.settings.aiChannelId = channelId.trim();
+  if (apiKey !== undefined) db.settings.aiApiKey = String(apiKey || '').trim();
+  if (model) db.settings.aiModel = String(model).trim();
+  if (channelId !== undefined) {
+    const cleanCh = String(channelId || '').trim();
+    db.settings.aiChannelId = isValidDiscordSnowflake(cleanCh) ? cleanCh : (db.settings.aiChannelId || VERIFIED_DISCORD_DEFAULTS.aiChannelId);
+  }
   if (respondMentions !== undefined) db.settings.aiRespondMentions = Boolean(respondMentions);
   if (prompt !== undefined) db.settings.aiPrompt = prompt;
 
-  saveDb(db);
+  await saveDbNow(db, true);
   res.json({ success: true, message: 'Configurações de IA do Kayzel salvas com sucesso!' });
 });
 
@@ -2687,15 +3455,35 @@ app.post('/api/admin/bot/ai/test', async (req, res) => {
     return res.status(400).json({ error: 'Digite uma mensagem ou pergunta de teste.' });
   }
 
-  if (bot && typeof bot.askKayzelAI === 'function') {
+  if (bot && typeof bot.askKayzelAI === 'function' && isLocalBotOnline()) {
     try {
-      const fn = bot.askKayzelAI || bot.askSilvieAI; const answer = await fn(prompt, 'Administrador');
+      const fn = bot.askKayzelAI || bot.askSilvieAI;
+      const answer = await fn(prompt, 'Administrador');
       return res.json({ success: true, answer });
     } catch (err) {
       return res.status(400).json({ error: err.message });
     }
   }
-  res.status(500).json({ error: 'Módulo do bot indisponível.' });
+
+  const key = (db.settings && db.settings.aiApiKey) || process.env.GEMINI_API_KEY || '';
+  if (key) {
+    try {
+      const model = (db.settings && db.settings.aiModel) || 'gemini-1.5-flash';
+      const systemPrompt = (db.settings && db.settings.aiPrompt) || 'Você é a Kayzel, assistente simpática da Ravok Network.';
+      const gRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nPergunta de Administrador: ${prompt}` }] }]
+        }),
+        signal: AbortSignal.timeout(7000)
+      });
+      const gData = await gRes.json();
+      const text = gData?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return res.json({ success: true, answer: text });
+    } catch (e) {}
+  }
+  return res.status(400).json({ error: 'Configure a chave Gemini AI nas configurações ou conecte o bot na MagnoHost.' });
 });
 
 // ----------------------------------------------------
@@ -3351,9 +4139,14 @@ function approveOrderAndEnqueueDelivery(order) {
 
   saveDb(db);
 
-  // Disparar anúncio de compra via Bot do Discord (se online)
-  if (bot && typeof bot.notifySale === 'function') {
+  // Disparar anúncio de compra via Bot do Discord (local ou REST fallback)
+  if (isLocalBotOnline() && typeof bot.notifySale === 'function') {
     bot.notifySale(order).catch(() => {});
+  } else {
+    getBridgeHeartbeat().then(hb => {
+      const tok = getEffectiveDiscordToken(hb);
+      if (tok) return sendSaleRest(tok, order);
+    }).catch(() => {});
   }
 
   // Disparar anúncio de compra no Discord via Webhook (fallback)
@@ -4133,9 +4926,16 @@ app.post('/api/admin/orders/manual', (req, res) => {
 
   saveDb(db);
 
-  // Disparar anúncio de compra via Bot do Discord (se configurado)
-  if (announceDiscord && bot && typeof bot.notifySale === 'function') {
-    bot.notifySale(newOrder).catch(() => {});
+  // Disparar anúncio de compra via Bot do Discord (local ou REST fallback)
+  if (announceDiscord) {
+    if (isLocalBotOnline() && typeof bot.notifySale === 'function') {
+      bot.notifySale(newOrder).catch(() => {});
+    } else {
+      getBridgeHeartbeat().then(hb => {
+        const tok = getEffectiveDiscordToken(hb);
+        if (tok) return sendSaleRest(tok, newOrder);
+      }).catch(() => {});
+    }
   }
 
   // Fallback Webhook do Discord se configurado

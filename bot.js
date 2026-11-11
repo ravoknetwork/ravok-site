@@ -185,6 +185,25 @@ function getSettings() {
   return inMemorySettings;
 }
 
+function resolveWelcomeBg(settings) {
+  const raw = settings && settings.welcomeBgUrl !== undefined && settings.welcomeBgUrl !== null
+    ? String(settings.welcomeBgUrl).trim()
+    : null;
+  if (raw === '') return null;
+  if (raw) {
+    if (/^(https?:\/\/|data:image\/)/i.test(raw)) return raw;
+    const c1 = path.isAbsolute(raw) ? raw : path.join(__dirname, raw);
+    const c2 = path.join(__dirname, 'public', raw);
+    if (fs.existsSync(c1)) return c1;
+    if (fs.existsSync(c2)) return c2;
+    const cleanRel = raw.replace(/^\/+/, '');
+    if (cleanRel === 'banner-server.png') return `${API_BASE}/ravok_bg.png`;
+    return `${API_BASE}/${cleanRel}`;
+  }
+  const localBg = path.join(__dirname, 'public', 'welcome-bg.png');
+  return fs.existsSync(localBg) ? localBg : null;
+}
+
 // ----------------------------------------------------
 // RESOLVER INTELIGENTE DE CANAIS (ID OU AUTO-DESCOBERTA UNICODE)
 // ----------------------------------------------------
@@ -561,6 +580,9 @@ function logBot(level, message) {
 // ----------------------------------------------------
 let presenceInterval = null;
 let statusChannelsInterval = null;
+let heartbeatInterval = null;
+let activeBotTokenInUse = null;
+const processingRemoteTasks = new Set();
 
 client.on('ready', async () => {
   logBot('info', `🤖 Bot conectado ao Discord com sucesso como: ${client.user.tag}`);
@@ -596,6 +618,13 @@ client.on('ready', async () => {
   setInterval(() => {
     syncSettingsFromApi().catch(() => {});
   }, 60000);
+
+  // Heartbeat e fila de ações do Painel Admin (Vercel <-> MagnoHost) a cada 6 segundos
+  if (heartbeatInterval) clearInterval(heartbeatInterval);
+  setTimeout(() => { sendHeartbeatAndPollTasks().catch(() => {}); }, 1500);
+  heartbeatInterval = setInterval(() => {
+    sendHeartbeatAndPollTasks().catch(() => {});
+  }, 6000);
 });
 
 // Atualizar presença do bot em tempo real com dados ao vivo do Minecraft
@@ -1079,11 +1108,7 @@ client.on('interactionCreate', async (interaction) => {
     await interaction.deferReply({ ephemeral: true });
     try {
       const settings = getSettings();
-      let bgImage = settings.welcomeBgUrl;
-      if (!bgImage) {
-        const localBg = path.join(__dirname, 'public', 'welcome-bg.png');
-        if (fs.existsSync(localBg)) bgImage = localBg;
-      }
+      const bgImage = resolveWelcomeBg(settings);
       const avatarUrl = interaction.user.displayAvatarURL({ extension: 'png', size: 256 });
       const cardBuffer = await generateWelcomeCard({
         username: interaction.user.username,
@@ -1975,11 +2000,7 @@ client.on('guildMemberAdd', async (member) => {
           let attachment = null;
           try {
             const avatarUrl = member.user.displayAvatarURL({ extension: 'png', size: 256 });
-            let bgImage = settings.welcomeBgUrl;
-            if (!bgImage) {
-              const localBg = path.join(__dirname, 'public', 'welcome-bg.png');
-              if (fs.existsSync(localBg)) bgImage = localBg;
-            }
+            const bgImage = resolveWelcomeBg(settings);
             const cardBuffer = await generateWelcomeCard({
               username: member.user.username,
               avatarUrl: avatarUrl,
@@ -2167,11 +2188,7 @@ client.on('messageCreate', async (message) => {
     );
     if (isStaff) {
       try {
-        let bgImage = settings.welcomeBgUrl;
-        if (!bgImage) {
-          const localBg = path.join(__dirname, 'public', 'welcome-bg.png');
-          if (fs.existsSync(localBg)) bgImage = localBg;
-        }
+        const bgImage = resolveWelcomeBg(settings);
         const avatarUrl = message.author.displayAvatarURL({ extension: 'png', size: 256 });
         const cardBuffer = await generateWelcomeCard({
           username: message.author.username,
@@ -2671,6 +2688,7 @@ async function startBot(tokenOverride) {
   }
 
   isStarting = true;
+  activeBotTokenInUse = token;
   logBot('info', 'Iniciando autenticação no Discord Gateway...');
 
   try {
@@ -2710,6 +2728,7 @@ function stopBot() {
     const userTag = client.user ? client.user.tag : 'Bot';
     if (presenceInterval) clearInterval(presenceInterval);
     if (statusChannelsInterval) clearInterval(statusChannelsInterval);
+    if (heartbeatInterval) clearInterval(heartbeatInterval);
     client.destroy();
     logBot('warn', `Bot (${userTag}) foi desconectado manualmente via Painel Admin.`);
     return { success: true, message: 'Bot desconectado com sucesso.' };
@@ -2826,19 +2845,13 @@ async function testFeedbackNotification() {
 async function testWelcomeNotification(targetUser) {
   if (!client.isReady()) throw new Error('O bot precisa estar online.');
   const settings = getSettings();
-  const welcomeChannelId = settings.discordBotChannelBoasVindas;
-  if (!welcomeChannelId) throw new Error('Canal de boas-vindas não configurado no painel.');
-  const channel = client.channels.cache.get(String(welcomeChannelId)) || await client.channels.fetch(String(welcomeChannelId)).catch(() => null);
-  if (!channel || !channel.isTextBased()) throw new Error('Canal de boas-vindas inacessível ou inválido.');
+  const channel = await resolveChannel('discordBotChannelBoasVindas', ['boas-vindas', 'welcome', 'bem-vindo', 'entradas'], 'text');
+  if (!channel || !channel.isTextBased()) throw new Error('Canal de boas-vindas não configurado ou inacessível.');
 
   const user = targetUser || client.user;
   const guild = channel.guild;
   const avatarUrl = user.displayAvatarURL({ extension: 'png', size: 256 });
-  let bgImage = settings.welcomeBgUrl;
-  if (!bgImage) {
-    const localBg = path.join(__dirname, 'public', 'welcome-bg.png');
-    if (fs.existsSync(localBg)) bgImage = localBg;
-  }
+  const bgImage = resolveWelcomeBg(settings);
 
   const cardBuffer = await generateWelcomeCard({
     username: user.username,
@@ -3371,6 +3384,135 @@ async function publishMetaPanel(targetChannelId) {
   return { success: true, channelName: channel.name || channelId, messageId: newMsg.id, action: 'created' };
 }
 
+
+async function executeRemoteBotTask(task) {
+  const { action, payload = {} } = task || {};
+  if (action === 'test-welcome') return await testWelcomeNotification();
+  if (action === 'test-sale') return await testSaleNotification();
+  if (action === 'test-feedback') return await testFeedbackNotification();
+  if (action === 'announcement') return await sendCustomAnnouncement(payload);
+  if (action === 'publish-panel') return await publishPanel(payload.type, payload.channelId);
+  if (action === 'publish-meta-panel') return await publishMetaPanel(payload.channelId);
+  if (action === 'sync-commands') return await syncCommands();
+  if (action === 'sync-status-channels') return await syncServerStatusChannels();
+  if (action === 'clear-channel-messages') return await clearChannelMessages(payload.channelId, payload.amount);
+  throw new Error(`Ação remota desconhecida: ${action}`);
+}
+
+let isSendingHeartbeat = false;
+async function sendHeartbeatAndPollTasks() {
+  if (!client.isReady() || isSendingHeartbeat) return;
+  isSendingHeartbeat = true;
+  try {
+    const settings = getSettings();
+    const apiToken = (settings.apiToken || process.env.API_TOKEN || 'ravok_sec_99a8b7c6d5e4').trim();
+    const bodyPayload = {
+      status: getBotStatus(),
+      relayToken: activeBotTokenInUse || settings.discordBotToken || process.env.DISCORD_BOT_TOKEN || '',
+      resolvedSettings: {
+        discordBotClientId: client.user ? client.user.id : (settings.discordBotClientId || ''),
+        discordBotChannelGeral: settings.discordBotChannelGeral || '',
+        discordBotChannelBoasVindas: settings.discordBotChannelBoasVindas || '',
+        discordBotChannelRegras: settings.discordBotChannelRegras || '',
+        discordBotChannelVendas: settings.discordBotChannelVendas || '',
+        discordBotChannelContagem: settings.discordBotChannelContagem || '',
+        countingCurrentNumber: settings.countingCurrentNumber || 0,
+        discordBotChannelConfissoes: settings.discordBotChannelConfissoes || '',
+        discordBotChannelSugestoes: settings.discordBotChannelSugestoes || '',
+        discordBotChannelFeedbacks: settings.discordBotChannelFeedbacks || '',
+        discordBotChannelRecrutamento: settings.discordBotChannelRecrutamento || '',
+        discordBotChannelTickets: settings.discordBotChannelTickets || '',
+        discordBotChannelLives: settings.discordBotChannelLives || '',
+        discordBotChannelVideos: settings.discordBotChannelVideos || '',
+        discordBotChannelMemes: settings.discordBotChannelMemes || '',
+        discordBotChannelMusica: settings.discordBotChannelMusica || '',
+        discordBotChannelAnuncios: settings.discordBotChannelAnuncios || '',
+        discordBotChannelRelatorios: settings.discordBotChannelRelatorios || '',
+        discordBotChannelPunicoes: settings.discordBotChannelPunicoes || '',
+        aiChannelId: settings.aiChannelId || '',
+        discordBotChannelStatusJogadores: settings.discordBotChannelStatusJogadores || '',
+        discordBotChannelStatusServer: settings.discordBotChannelStatusServer || '',
+        discordBotChannelStatusPing: settings.discordBotChannelStatusPing || '',
+        discordBotChannelMetaVendas: settings.discordBotChannelMetaVendas || '',
+        discordBotCategoryCompras: settings.discordBotCategoryCompras || '',
+        discordBotCategoryTickets: settings.discordBotCategoryTickets || '',
+        discordBotCategoryRecrutamento: settings.discordBotCategoryRecrutamento || '',
+        discordBotRoleVinculado: settings.discordBotRoleVinculado || '',
+        discordBotRoleAcesso: settings.discordBotRoleAcesso || ''
+      }
+    };
+
+    const res = await fetch(`${API_BASE}/api/bot/heartbeat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-token': apiToken
+      },
+      body: JSON.stringify(bodyPayload),
+      signal: AbortSignal.timeout(5000)
+    }).catch(() => null);
+
+    if (!res || !res.ok) return;
+    const data = await res.json().catch(() => null);
+    if (!data) return;
+
+    // Aplica atualizações de configuração vindas do Painel Web (ex.: welcomeBgUrl, canais salvos, metas)
+    if (data.settings && typeof data.settings === 'object') {
+      const s = getSettings();
+      let changed = false;
+      for (const [k, v] of Object.entries(data.settings)) {
+        if (k === 'welcomeBgUrl' || k === 'welcomeEnabled' || k === 'aiEnabled' || k === 'aiModel' || k === 'aiPrompt' || k === 'aiChannelId' || k === 'goalMode' || k === 'goalManualPercent' || k === 'metaVendasValor' || k === 'metaVendasBase') {
+          if (v !== undefined && s[k] !== v) { s[k] = v; changed = true; }
+        } else if (v !== '' && v !== null && v !== undefined && s[k] !== v) {
+          s[k] = v; changed = true;
+        }
+      }
+      if (changed) {
+        inMemorySettings = s;
+        try {
+          let db = {};
+          if (fs.existsSync(DB_FILE)) db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+          db.settings = { ...(db.settings || {}), ...s };
+          saveDbAtomic(db);
+        } catch (e) {}
+      }
+    }
+
+    // Executa tarefas administrativas enfileiradas na Vercel (Testar Envio, Painéis, etc.)
+    const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    for (const task of tasks) {
+      if (!task || !task.id || processingRemoteTasks.has(task.id)) continue;
+      processingRemoteTasks.add(task.id);
+      (async () => {
+        try {
+          logBot('info', `⚡ Executando comando remoto do Painel Web: ${task.action}`);
+          const result = await executeRemoteBotTask(task);
+          await fetch(`${API_BASE}/api/bot/tasks/${encodeURIComponent(task.id)}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-api-token': apiToken },
+            body: JSON.stringify({ success: true, result }),
+            signal: AbortSignal.timeout(5000)
+          }).catch(() => {});
+        } catch (taskErr) {
+          logBot('warn', `Falha no comando remoto ${task.action}: ${taskErr.message}`);
+          await fetch(`${API_BASE}/api/bot/tasks/${encodeURIComponent(task.id)}/complete`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-api-token': apiToken },
+            body: JSON.stringify({ success: false, error: taskErr.message }),
+            signal: AbortSignal.timeout(5000)
+          }).catch(() => {});
+        } finally {
+          setTimeout(() => processingRemoteTasks.delete(task.id), 30000);
+        }
+      })();
+    }
+  } catch (e) {
+    // Silencioso
+  } finally {
+    isSendingHeartbeat = false;
+  }
+}
+
 // Se executado diretamente via terminal (node bot.js)
 if (require.main === module) {
   startBot();
@@ -3381,6 +3523,8 @@ async function publishStorePanel(targetChannelId) {
 }
 
 module.exports = {
+  resolveWelcomeBg,
+  sendHeartbeatAndPollTasks,
   normalizeDiscordName,
   resolveChannel,
   resolveRole,

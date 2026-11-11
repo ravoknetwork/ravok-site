@@ -1639,10 +1639,6 @@ function computeGoalStatus() {
 }
 
 // Suporte opcional a persistência em nuvem via Vercel KV / Upstash Redis REST
-// Com fallback automático e seguro via Discord REST (`ravok-cloud-sync`) quando KV_REST_API_URL não estiver configurado na Vercel.
-const DISCORD_SYNC_GUILD_ID = '1481301938019635263';
-const DISCORD_SYNC_CHANNEL_NAME = 'ravok-cloud-sync';
-
 function getKvConfig() {
   let url = (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '').trim();
   let token = (process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '').trim();
@@ -1658,14 +1654,9 @@ function getKvConfig() {
   return { url: url.replace(/\/$/, ''), token };
 }
 
-function getDiscordSyncToken() {
-  if (!process.env.VERCEL && process.env.ENABLE_DISCORD_KV !== '1') return '';
-  return String(process.env.DISCORD_BOT_TOKEN || '').trim();
-}
-
 function isCloudKvAvailable() {
   const { url, token } = getKvConfig();
-  return Boolean((url && token) || getDiscordSyncToken());
+  return Boolean(url && token);
 }
 
 let cloudKvHydrated = false;
@@ -1678,281 +1669,62 @@ const kvDiag = {
   lastPayloadBytes: 0
 };
 
-const discordSyncCache = {
-  channelId: null,
-  messageId: null,
-  state: null,
-  fetchedAt: 0,
-  lastHeartbeatSaveAt: 0,
-  lastOnlineState: null
-};
-
-// Estado em memória para ponte MagnoHost <-> Web quando nenhum KV estiver configurado
+// Estado em memória para ponte MagnoHost <-> Web quando KV_URL não está configurado (ex.: local/testes)
 const bridgeMemory = {
   heartbeat: null,
   tasks: [],
   taskResults: {}
 };
 
-function sanitizeDbSnapshotForDiscord(data) {
-  if (!data || typeof data !== 'object') return {};
-  const safeSettings = { ...(data.settings || {}) };
-  delete safeSettings.discordBotToken;
-  delete safeSettings.mpAccessToken;
-  delete safeSettings.mpPublicKey;
-  delete safeSettings.adminPassword;
-  delete safeSettings.apiToken;
-  return {
-    updatedAt: Number(data.updatedAt || Date.now()),
-    orders: Array.isArray(data.orders) ? data.orders.slice(0, 250) : [],
-    pendingDeliveries: Array.isArray(data.pendingDeliveries) ? data.pendingDeliveries.slice(0, 300) : [],
-    deletedOrderIds: Array.isArray(data.deletedOrderIds) ? data.deletedOrderIds.slice(0, 250) : [],
-    knownPlayers: data.knownPlayers || {},
-    playerSync: data.playerSync || {},
-    linkedAccounts: Array.isArray(data.linkedAccounts) ? data.linkedAccounts : [],
-    products: Array.isArray(data.products) ? data.products : undefined,
-    deletedProductIds: Array.isArray(data.deletedProductIds) ? data.deletedProductIds : [],
-    slides: Array.isArray(data.slides) ? data.slides : undefined,
-    streamers: Array.isArray(data.streamers) ? data.streamers : undefined,
-    feedbacks: Array.isArray(data.feedbacks) ? data.feedbacks : undefined,
-    voteArena: data.voteArena || undefined,
-    settings: safeSettings
-  };
-}
-
-function sanitizeKvValueForDiscord(key, value) {
-  if (key === 'ravok_db_v1') return sanitizeDbSnapshotForDiscord(value);
-  if (key === HEARTBEAT_KEY && value && typeof value === 'object') {
-    const cleanHb = { ...value };
-    delete cleanHb.relayToken;
-    return cleanHb;
-  }
-  return value;
-}
-
-async function resolveDiscordSyncChannel(botToken, createIfMissing = false) {
-  if (discordSyncCache.channelId) return discordSyncCache.channelId;
-  const chRes = await fetch(`https://discord.com/api/v10/guilds/${DISCORD_SYNC_GUILD_ID}/channels`, {
-    headers: { Authorization: `Bot ${botToken}` },
-    signal: AbortSignal.timeout(5000)
-  });
-  if (!chRes.ok) {
-    kvDiag.lastGetStatus = chRes.status;
-    return null;
-  }
-  const channels = await chRes.json();
-  const matches = (Array.isArray(channels) ? channels : [])
-    .filter(c => String(c.name || '').toLowerCase() === DISCORD_SYNC_CHANNEL_NAME)
-    .sort((a, b) => String(a.id).localeCompare(String(b.id)));
-  if (matches.length > 0) {
-    discordSyncCache.channelId = matches[0].id;
-    return matches[0].id;
-  }
-  if (!createIfMissing) return null;
-
-  const createRes = await fetch(`https://discord.com/api/v10/guilds/${DISCORD_SYNC_GUILD_ID}/channels`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bot ${botToken}`,
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      name: DISCORD_SYNC_CHANNEL_NAME,
-      type: 0,
-      topic: 'Sincronizacao interna automatica Site <-> /resgatar (nao apagar)',
-      permission_overwrites: [
-        { id: DISCORD_SYNC_GUILD_ID, type: 0, allow: '0', deny: '1024' },
-        { id: VERIFIED_DISCORD_DEFAULTS.discordBotClientId, type: 1, allow: '109568', deny: '0' }
-      ]
-    }),
-    signal: AbortSignal.timeout(5000)
-  });
-  if (!createRes.ok) {
-    kvDiag.lastSetStatus = createRes.status;
-    kvDiag.lastError = await createRes.text().catch(() => `HTTP ${createRes.status}`);
-    return null;
-  }
-  const created = await createRes.json();
-  discordSyncCache.channelId = created.id;
-  return created.id;
-}
-
-async function readDiscordSyncStore(force = false) {
-  const botToken = getDiscordSyncToken();
-  if (!botToken) return null;
-  const now = Date.now();
-  if (!force && discordSyncCache.state && (now - discordSyncCache.fetchedAt) < 1800) {
-    return discordSyncCache.state;
-  }
-  kvDiag.provider = 'discord';
-  try {
-    const channelId = await resolveDiscordSyncChannel(botToken, false);
-    if (!channelId) {
-      kvDiag.lastGetStatus = kvDiag.lastGetStatus || 404;
-      return {};
-    }
-    const msgRes = await fetch(`https://discord.com/api/v10/channels/${channelId}/messages?limit=5`, {
-      headers: { Authorization: `Bot ${botToken}` },
-      signal: AbortSignal.timeout(5000)
-    });
-    kvDiag.lastGetStatus = msgRes.status;
-    if (!msgRes.ok) return discordSyncCache.state || null;
-    const msgs = await msgRes.json();
-    const msgList = (Array.isArray(msgs) ? msgs : [])
-      .filter(m => Array.isArray(m.attachments) && m.attachments.some(a => String(a.filename || '').includes('ravok_cloud_sync')))
-      .sort((a, b) => String(a.id).localeCompare(String(b.id)));
-    if (!msgList.length) {
-      discordSyncCache.state = {};
-      discordSyncCache.fetchedAt = now;
-      return {};
-    }
-    const targetMsg = msgList[0];
-    discordSyncCache.messageId = targetMsg.id;
-    const att = targetMsg.attachments.find(a => String(a.filename || '').includes('ravok_cloud_sync'));
-    if (!att || !att.url) return discordSyncCache.state || {};
-    const fileRes = await fetch(att.url, { signal: AbortSignal.timeout(5000) });
-    if (!fileRes.ok) {
-      kvDiag.lastGetStatus = fileRes.status;
-      return discordSyncCache.state || null;
-    }
-    const parsed = await fileRes.json();
-    if (parsed && typeof parsed === 'object') {
-      discordSyncCache.state = parsed;
-      discordSyncCache.fetchedAt = now;
-      return parsed;
-    }
-  } catch (e) {
-    kvDiag.lastError = e.message;
-  }
-  return discordSyncCache.state || null;
-}
-
-async function writeDiscordSyncKey(key, value) {
-  const botToken = getDiscordSyncToken();
-  if (!botToken) return false;
-  kvDiag.provider = 'discord';
-  try {
-    if (key === HEARTBEAT_KEY) {
-      const now = Date.now();
-      const online = Boolean(value && value.status && value.status.online);
-      if (discordSyncCache.lastOnlineState === online && (now - discordSyncCache.lastHeartbeatSaveAt) < 25000) {
-        return true;
-      }
-      discordSyncCache.lastOnlineState = online;
-      discordSyncCache.lastHeartbeatSaveAt = now;
-    }
-
-    const channelId = await resolveDiscordSyncChannel(botToken, true);
-    if (!channelId) return false;
-
-    let store = discordSyncCache.state;
-    if (!store) {
-      store = (await readDiscordSyncStore(true)) || {};
-    }
-    const nextStore = { ...store, [key]: sanitizeKvValueForDiscord(key, value) };
-    const serialized = JSON.stringify(nextStore);
-    kvDiag.lastPayloadBytes = serialized.length;
-
-    const form = new FormData();
-    const payloadJson = discordSyncCache.messageId
-      ? { content: 'Ravok Cloud Sync v1', attachments: [] }
-      : { content: 'Ravok Cloud Sync v1' };
-    form.append('payload_json', JSON.stringify(payloadJson));
-    form.append('files[0]', new Blob([serialized], { type: 'application/json' }), 'ravok_cloud_sync.json');
-
-    const endpoint = discordSyncCache.messageId
-      ? `https://discord.com/api/v10/channels/${channelId}/messages/${discordSyncCache.messageId}`
-      : `https://discord.com/api/v10/channels/${channelId}/messages`;
-    const method = discordSyncCache.messageId ? 'PATCH' : 'POST';
-
-    const saveRes = await fetch(endpoint, {
-      method,
-      headers: { Authorization: `Bot ${botToken}` },
-      body: form,
-      signal: AbortSignal.timeout(6500)
-    });
-    kvDiag.lastSetStatus = saveRes.status;
-    if (!saveRes.ok) {
-      if (saveRes.status === 404 && discordSyncCache.messageId) {
-        discordSyncCache.messageId = null;
-        return await writeDiscordSyncKey(key, value);
-      }
-      kvDiag.lastError = await saveRes.text().catch(() => `HTTP ${saveRes.status}`);
-      return false;
-    }
-    const savedMsg = await saveRes.json().catch(() => null);
-    if (savedMsg && savedMsg.id) {
-      discordSyncCache.messageId = savedMsg.id;
-    }
-    discordSyncCache.state = nextStore;
-    discordSyncCache.fetchedAt = Date.now();
-    return true;
-  } catch (e) {
-    kvDiag.lastError = e.message;
-    return false;
-  }
-}
-
-async function kvGet(key, force = false) {
+async function kvGet(key) {
   const { url, token } = getKvConfig();
-  if (url && token) {
-    kvDiag.provider = 'redis';
-    try {
-      const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        signal: AbortSignal.timeout(4500)
-      });
-      if (key === 'ravok_db_v1') kvDiag.lastGetStatus = res.status;
-      if (!res.ok) return null;
-      const payload = await res.json();
-      if (!payload || payload.result === null || payload.result === undefined) return null;
-      return typeof payload.result === 'string' ? JSON.parse(payload.result) : payload.result;
-    } catch (e) {
-      if (key === 'ravok_db_v1') kvDiag.lastError = e.message;
-      console.warn(`[CloudKV] Aviso ao ler ${key}:`, e.message);
-      return null;
-    }
+  if (!url || !token) return null;
+  kvDiag.provider = 'redis';
+  try {
+    const res = await fetch(`${url}/get/${encodeURIComponent(key)}`, {
+      headers: { Authorization: `Bearer ${token}` },
+      signal: AbortSignal.timeout(4500)
+    });
+    if (key === 'ravok_db_v1') kvDiag.lastGetStatus = res.status;
+    if (!res.ok) return null;
+    const payload = await res.json();
+    if (!payload || payload.result === null || payload.result === undefined) return null;
+    return typeof payload.result === 'string' ? JSON.parse(payload.result) : payload.result;
+  } catch (e) {
+    if (key === 'ravok_db_v1') kvDiag.lastError = e.message;
+    console.warn(`[CloudKV] Aviso ao ler ${key}:`, e.message);
+    return null;
   }
-  if (getDiscordSyncToken()) {
-    const store = await readDiscordSyncStore(force);
-    return store && Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null;
-  }
-  return null;
 }
 
 async function kvSet(key, data) {
   const { url, token } = getKvConfig();
-  if (url && token) {
-    kvDiag.provider = 'redis';
-    try {
-      const serialized = JSON.stringify(data);
-      if (key === 'ravok_db_v1') kvDiag.lastPayloadBytes = serialized.length;
-      const res = await fetch(`${url}/set/${encodeURIComponent(key)}`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: serialized,
-        signal: AbortSignal.timeout(4500)
-      });
-      if (key === 'ravok_db_v1') {
-        kvDiag.lastSetStatus = res.status;
-        if (!res.ok) {
-          kvDiag.lastError = await res.text().catch(() => `HTTP ${res.status}`);
-        }
+  if (!url || !token) return false;
+  kvDiag.provider = 'redis';
+  try {
+    const serialized = JSON.stringify(data);
+    if (key === 'ravok_db_v1') kvDiag.lastPayloadBytes = serialized.length;
+    const res = await fetch(`${url}/set/${encodeURIComponent(key)}`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: serialized,
+      signal: AbortSignal.timeout(4500)
+    });
+    if (key === 'ravok_db_v1') {
+      kvDiag.lastSetStatus = res.status;
+      if (!res.ok) {
+        kvDiag.lastError = await res.text().catch(() => `HTTP ${res.status}`);
       }
-      return res.ok;
-    } catch (e) {
-      if (key === 'ravok_db_v1') kvDiag.lastError = e.message;
-      console.warn(`[CloudKV] Aviso ao salvar ${key}:`, e.message);
-      return false;
     }
+    return res.ok;
+  } catch (e) {
+    if (key === 'ravok_db_v1') kvDiag.lastError = e.message;
+    console.warn(`[CloudKV] Aviso ao salvar ${key}:`, e.message);
+    return false;
   }
-  if (getDiscordSyncToken()) {
-    return await writeDiscordSyncKey(key, data);
-  }
-  return false;
 }
 
 async function saveDbToCloudKvNow(data) {
@@ -1972,7 +1744,7 @@ async function readLatestDbFromCloudKv(force = false) {
   const wasHydrated = cloudKvHydrated;
   cloudKvHydrated = true;
   lastKvSyncAt = now;
-  const remoteDb = await kvGet('ravok_db_v1', force);
+  const remoteDb = await kvGet('ravok_db_v1');
   if (remoteDb && typeof remoteDb === 'object') {
     const remoteTs = Number(remoteDb.updatedAt || 0);
     const localTs = Number(db.updatedAt || 0);
@@ -1981,14 +1753,6 @@ async function readLatestDbFromCloudKv(force = false) {
       ...((remoteDb.deletedOrderIds || []).map(String))
     ]));
     if (!wasHydrated || remoteTs > localTs || (force && remoteTs >= localTs)) {
-      const preservedAdmins = db.admins;
-      const preservedSecretSettings = {
-        discordBotToken: (db.settings && db.settings.discordBotToken) || '',
-        mpAccessToken: (db.settings && db.settings.mpAccessToken) || '',
-        mpPublicKey: (db.settings && db.settings.mpPublicKey) || '',
-        adminPassword: (db.settings && db.settings.adminPassword) || process.env.ADMIN_PASSWORD || DEFAULT_SETTINGS.adminPassword,
-        apiToken: (db.settings && db.settings.apiToken) || process.env.PLUGIN_API_TOKEN || DEFAULT_SETTINGS.apiToken
-      };
       db = {
         ...db,
         ...remoteDb,
@@ -1997,19 +1761,9 @@ async function readLatestDbFromCloudKv(force = false) {
         pendingDeliveries: mergeDeliveriesSafely(db.pendingDeliveries, remoteDb.pendingDeliveries)
           .filter(d => !d.orderId || !mergedDeletedOrders.includes(String(d.orderId)))
       };
-      if (Array.isArray(preservedAdmins) && preservedAdmins.length) db.admins = preservedAdmins;
-      db.settings = { ...DEFAULT_SETTINGS, ...(db.settings || {}), ...preservedSecretSettings };
-      Object.entries(preservedSecretSettings).forEach(([sk, sv]) => {
-        if (!db.settings[sk] && sv) db.settings[sk] = sv;
-      });
+      db.settings = { ...DEFAULT_SETTINGS, ...(db.settings || {}) };
       backfillBotChannelDefaults(db.settings);
       ensureKnownPlayersSeeded(db);
-      saveDb(db, false);
-    } else if (Array.isArray(remoteDb.orders) || Array.isArray(remoteDb.pendingDeliveries)) {
-      db.deletedOrderIds = mergedDeletedOrders;
-      db.orders = mergeOrdersSafely(db.orders, remoteDb.orders, mergedDeletedOrders);
-      db.pendingDeliveries = mergeDeliveriesSafely(db.pendingDeliveries, remoteDb.pendingDeliveries)
-        .filter(d => !d.orderId || !mergedDeletedOrders.includes(String(d.orderId)));
       saveDb(db, false);
     }
   }
@@ -5723,7 +5477,6 @@ app.get('/api/server/status', async (req, res) => {
 // Status geral do servidor / API
 app.get('/api/health', (req, res) => {
   const { url, token } = getKvConfig();
-  const discordSync = Boolean(getDiscordSyncToken());
   const storageEnvKeys = Object.keys(process.env).filter(k => /(KV|REDIS|UPSTASH|POSTGRES|BLOB|MONGO|SUPABASE)/i.test(k));
   res.json({
     status: 'online',
@@ -5731,8 +5484,8 @@ app.get('/api/health', (req, res) => {
     version: '1.0.0',
     time: new Date().toISOString(),
     uptime: process.uptime(),
-    kvConfigured: Boolean((url && token) || discordSync),
-    storageProvider: (url && token) ? 'redis' : (discordSync ? 'discord' : 'none'),
+    kvConfigured: Boolean(url && token),
+    storageProvider: (url && token) ? 'redis' : 'none',
     discordEnvConfigured: Boolean(process.env.DISCORD_BOT_TOKEN),
     storageEnvKeys,
     kvDiag,
